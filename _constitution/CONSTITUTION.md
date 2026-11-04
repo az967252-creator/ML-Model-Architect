@@ -1,6 +1,6 @@
 ---
 name: constitution
-version: "1.1.0"
+version: "1.3.0"
 type: constitution
 load: always
 ---
@@ -42,7 +42,7 @@ Every technical decision MUST have a Reference Anchor.
 | 5 | STOP: Reference Gap |
 
 ### B3 — Source Rigor Gate
-All six must pass: Peer Review, Currency (2024-2026), Citations,
+All six must pass: Peer Review, Currency (Foundational papers any year, recent surveys 2024-2026), Citations,
 Transparency, Integrity (no retraction), Relevance.
 
 
@@ -57,6 +57,11 @@ Log query, date, results.
 
 ### B6 — Reference Gap Handling
 If no reference covers the decision: STOP. Record in DECISIONS.md.
+
+### B7 - Empirical Validation is the Final Judge
+The Reference guides the hypothesis (e.g., which algorithm family to try, the starting range for hyperparameters). 
+However, the FINAL decision is made by empirical validation (Cross-Validation) on the project's specific dataset. 
+A paper proving XGBoost works well does NOT prove it works on your specific data. The AI must state: "Reference suggests X, but validation on your data will decide."
 
 ## Part C — Token Economics
 

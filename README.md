@@ -67,6 +67,10 @@ In practice, this framework makes the agent do four things it would not do on it
 ---
 
 
+## 📊 Proof of Value
+
+Check out [`BENCHMARK.md`](BENCHMARK.md) for a side-by-side comparison of how an AI agent behaves with and without this framework.
+
 ## 🏆 Illustrative Example
 
 *(Note: The following transcript is an illustrative example to show the interaction flow, not a recorded log of a specific model run.)*
@@ -81,7 +85,7 @@ Here is an example of how the interaction changes. We ran the framework on a **C
 > *User:* "Build a model for car prices."
 > *Agent:* "Let's start Stage 1. What is the business metric? ... (asks 5 MCQ questions) ... Now moving to Stage 2. I recommend Gradient Boosting based on Chen & Guestrin (2016, DOI: 10.1145/2939672.2939785). Before I proceed, let me verify the DOI via MCP... (uses openresearch-mcp). Now, Stage 3: I will use a Pipeline to prevent data leakage."
 
-You can see the full generated reports in [`examples/car-price-prediction/`](examples/car-price-prediction/).
+You can see the full generated reports in [`examples/car-price-prediction/`](examples/car-price-prediction/) or the full end-to-end run in [`examples/case-study-churn/`](examples/case-study-churn/).
 
 ## The 5 Stages of ML Architecture
 
