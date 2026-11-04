@@ -1,5 +1,3 @@
-
-
 <img width="100%" height="887" alt="8572272b-8871-4159-a90d-5261300b8763" src="https://github.com/user-attachments/assets/0b1e73e0-f551-4ca2-be93-569b1f54db91" />
 
 <div align="center">
@@ -12,6 +10,8 @@
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg?style=flat-square)](https://www.python.org/downloads/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![MCP Ready](https://img.shields.io/badge/MCP-Ready-purple.svg?style=flat-square)](https://modelcontextprotocol.io)
+[![Zero-Paywall](https://img.shields.io/badge/Zero--Paywall-B8-blue.svg?style=flat-square)](#zero-paywall-and-sota-discovery-rules-b8--b9)
+[![Sandboxed](https://img.shields.io/badge/Sandboxed-F4-red.svg?style=flat-square)](#security-and-sandboxing-rules-f4--f41)
 [![Stages: 5](https://img.shields.io/badge/stages-5-orange.svg?style=flat-square)](#the-5-stages-of-ml-architecture)
 [![References: 12 groups](https://img.shields.io/badge/references-12%20groups-teal.svg?style=flat-square)](#repository-structure)
 
@@ -25,9 +25,12 @@
 
 - [The Problem We Solve](#the-problem-we-solve)
 - [Core Principle](#core-principle)
+- [Proof of Value](#proof-of-value)
 - [The 5 Stages of ML Architecture](#the-5-stages-of-ml-architecture)
 - [Quick Start](#quick-start)
 - [MCP Setup (Mandatory for Strict Mode)](#mcp-setup-mandatory-for-strict-mode)
+- [Zero-Paywall and SOTA Discovery (Rules B8 & B9)](#zero-paywall-and-sota-discovery-rules-b8--b9)
+- [Security and Sandboxing (Rules F4 & F4.1)](#security-and-sandboxing-rules-f4--f41)
 - [Repository Structure](#repository-structure)
 - [Reference Rigor — The 6 Criteria](#reference-rigor--the-6-criteria)
 - [The Constitution at a Glance](#the-constitution-at-a-glance)
@@ -67,7 +70,6 @@ In practice, this framework makes the agent do four things it would not do on it
 4. **Log every choice** in a Decision Ledger that can be audited later.
 
 ---
-
 
 ## 📊 Proof of Value
 
@@ -249,13 +251,36 @@ File: `%APPDATA%\Claude\claude_desktop_config.json` (Windows) — `~/Library/App
 </details>
 
 > If a paper is paywalled, the agent follows a fixed protocol: search arXiv, then Unpaywall, then stop and inform the user. It never silently substitutes a weaker source.
+>
+> *Amended by Rule B8 below:* if arXiv and Unpaywall both fail, the agent does not stop — it escalates automatically to the `trusted_domains.yaml` whitelist and continues the workflow.
 
 ---
 
-
-> **⚠️ MCP Security Warning**: 
-> The `openresearch-mcp` tool fetches content from the internet. While it is designed to read academic papers, there is an inherent risk of **Prompt Injection** from malicious web pages. 
+> **⚠️ MCP Security Warning**:
+> The `openresearch-mcp` tool fetches content from the internet. While it is designed to read academic papers, there is an inherent risk of **Prompt Injection** from malicious web pages.
 > Always pin the version of your MCP server (e.g., `openresearch-mcp@1.0.0`) and review the fetched text before allowing the agent to execute code based on it.
+
+## Zero-Paywall and SOTA Discovery (Rules B8 & B9)
+
+- **Zero-Paywall.** If a paper is paywalled, the AI automatically pivots to `trusted_domains.yaml` (Google, Microsoft, Meta, OpenAI, etc.) and logs it as `institutional-whitelist`. It never stops to ask you to pay.
+- **Dynamic SOTA.** Before finalizing a technique, the AI uses MCP to search arXiv for papers from the last 6 months. A GitHub Action runs monthly to fetch new references automatically.
+
+The whitelist is curated in [`trusted_domains.yaml`](trusted_domains.yaml) and is restricted to verified institutional sources: arXiv, JMLR, Google Research, DeepMind, Meta AI, Facebook Engineering, AWS Machine Learning, Microsoft Research, OpenAI Research, Anthropic Research, Apple Machine Learning Research, NVIDIA Developer Blog, Stanford SAIL, and MIT OCW. Personal blogs and Medium posts are strictly forbidden as citation sources.
+
+## Security and Sandboxing (Rules F4 & F4.1)
+
+Because the MCP fetches untrusted web content, there is a risk of prompt injection. The framework enforces a hard boundary between code generation and code execution:
+
+1. The AI is **forbidden** from executing generated code. It must write it to the `/sandbox/` directory and wait for human review.
+2. You must run `python scripts/scan_sandbox.py` before executing anything from `/sandbox/`. The script scans every `.py` file for dangerous patterns — `os.system`, `subprocess`, `eval`, `exec`, `requests.`, `urllib`, `socket`, `boto3`, and `rm -rf` — and exits non-zero if any match is found.
+
+The canonical test command for the verification scripts is:
+
+```bash
+python -m unittest discover -s tests
+```
+
+---
 
 ## Repository Structure
 
@@ -289,7 +314,18 @@ ML-Model-Architect/
 |-- scripts/                        # Verification helpers
 |   |-- verify_dois.py              # Checks every DOI/URL is alive
 |   |-- inspect_repo.py             # Audits repo structure
-|   `-- verify_dois.py        # Re-runs the 6-criteria gate
+|   |-- verify_references.py        # Re-runs the 6-criteria gate
+|   |-- scan_sandbox.py             # Pre-scans AI-generated code for dangerous patterns (F4.1)
+|   `-- fetch_sota.py               # Pulls recent SOTA papers monthly via GitHub Action (B9)
+|
+|-- sandbox/                        # AI-generated code awaiting human review (never executed by agent, F4)
+|   `-- .gitkeep
+|
+|-- tests/                          # Mocked unit tests for the verification scripts
+|   |-- __init__.py
+|   `-- test_scan_sandbox.py
+|
+|-- trusted_domains.yaml            # Zero-Paywall whitelist (Rule B8)
 |
 |-- projects/                       # Per-project ledgers, created at runtime
 |   `-- <your-project>/
@@ -298,6 +334,7 @@ ML-Model-Architect/
 |-- references_to_verify.yaml       # Queue of references pending audit
 |-- GETTING_STARTED.md              # Quick start guide
 |-- CONTRIBUTING.md                 # Contribution guidelines
+|-- SECURITY.md                     # Security policy (sandbox + zero-paywall)
 |-- examples/                       # Full end-to-end project examples
 |-- requirements.txt                # Python dependencies for scripts
 |-- LICENSE
@@ -370,11 +407,13 @@ To run the validation scripts, install the requirements: `pip install -r require
 Pull requests are welcome. Before submitting, please:
 
 1. Run the verification scripts. `python scripts/verify_dois.py` must pass.
-2. Update the Decision Ledger for any constitutional change you propose.
-3. Cite your sources. Even documentation changes should be anchored to a reference.
-4. Keep the established language split. Chat-style descriptions may be in Egyptian Arabic; code, YAML, and reference files remain in English.
+2. Run `python scripts/scan_sandbox.py` — it must pass (Rule F4.1).
+3. Run `python -m unittest discover -s tests` — the canonical test command.
+4. Update the Decision Ledger for any constitutional change you propose.
+5. Cite your sources. Even documentation changes should be anchored to a reference.
+6. Keep the established language split. Chat-style descriptions may be in Egyptian Arabic; code, YAML, and reference files remain in English.
 
-See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the full checklist, if present.
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) and [`SECURITY.md`](./SECURITY.md) for the full checklist, if present.
 
 ---
 
