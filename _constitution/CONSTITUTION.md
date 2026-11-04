@@ -139,3 +139,9 @@ If the AI generates Python code based on a paper fetched via MCP, it MUST NOT ex
 1. Write the generated code to a file inside the `sandbox/` directory.
 2. Inform the user: "Code generated in `sandbox/`. Please review it for malicious injections before running."
 3. Wait for the user to run it and provide the output.
+
+### F4.1 - Automated Sandbox Pre-Scan
+Because human review is prone to fatigue (Sandbox Injection Bypass), the following protocol is mandatory:
+1. After the AI writes code to `sandbox/`, it MUST run `python scripts/scan_sandbox.py`.
+2. The scan checks for dangerous imports and commands (`os.system`, `requests`, `eval`, etc.).
+3. If the scan fails (exit code 1), the AI MUST warn the user and MUST NOT tell them to run it until they manually review the flagged lines.

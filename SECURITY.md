@@ -26,3 +26,8 @@ To mitigate this:
 - The Constitution (Rule F4) mandates that ALL AI-generated code must be placed in the `/sandbox/` folder.
 - The user must manually inspect the code before execution.
 - Never run the framework in an environment with unrestricted access to sensitive local files.
+
+
+## Automated Pre-Scan (Rule F4.1)
+
+Even human review can be bypassed via code obfuscation. Therefore, we have implemented `scripts/scan_sandbox.py`. Any AI agent or developer MUST run this script before executing code generated in the `/sandbox/` directory. It acts as a firewall against malicious prompt injections.
