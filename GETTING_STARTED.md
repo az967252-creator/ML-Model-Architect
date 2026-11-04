@@ -47,3 +47,9 @@ If a critical paper is paywalled, the framework doesn't just stop. It has a "Tru
 The AI is allowed to fetch engineering blogs from tier-1 companies (Google, Netflix, Meta, Uber, AWS) and open-access repositories (arXiv, JMLR) to find the answer. 
 
 However, `verify_dois.py` strictly enforces this: If the AI uses a random blog (like a personal Medium post), the CI pipeline will **FAIL**, and the PR will be rejected.
+
+
+## 🔄 Dynamic SOTA Updates
+ML changes daily. To ensure the framework doesn't become outdated:
+1. **At Runtime:** The AI is instructed (Rule B9) to use MCP to search for papers from the last 6 months before finalizing a technique.
+2. **Monthly Automation:** We have a GitHub Action (`monthly_update.yml`) that runs on the 1st of every month. It fetches the latest arXiv papers and creates a `SOTA-UPDATES.md` file, opening a Pull Request for you to review.
