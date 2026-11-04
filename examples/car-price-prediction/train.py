@@ -68,12 +68,13 @@ for name, pipeline in models.items():
     
     results[name] = {"cv_rmse": round(cv_rmse, 2), "test_rmse": round(test_rmse, 2)}
     
-    if test_rmse < best_rmse:
-        best_rmse = test_rmse
+    # PROPER ML PRACTICE: Model selection must be based on CV score, never on Test score.
+    if cv_rmse < best_rmse:
+        best_rmse = cv_rmse
         best_model = name
 
 # 5. Output Real Metrics
-print(f"Best Model: {best_model}")
+print(f"Best Model (by CV RMSE): {best_model}")
 for name, metrics in results.items():
     print(f"{name} -> CV RMSE: {metrics['cv_rmse']} | Test RMSE: {metrics['test_rmse']}")
 
@@ -94,7 +95,7 @@ report_content = f"""# Training Report — Car Price Prediction
 | Linear Regression | {results['Linear Regression']['cv_rmse']} | {results['Linear Regression']['test_rmse']} |
 | Gradient Boosting | {results['Gradient Boosting']['cv_rmse']} | {results['Gradient Boosting']['test_rmse']} |
 
-**Winning Model:** {best_model} (Test RMSE: {best_rmse:.2f})
+**Winning Model:** {best_model} (CV RMSE: {best_rmse:.2f})
 """
 
 with open("TRAINING-REPORT.md", "w") as f:

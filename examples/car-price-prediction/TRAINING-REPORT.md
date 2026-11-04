@@ -14,4 +14,4 @@
 | Linear Regression | 2333.97 | 2303.08 |
 | Gradient Boosting | 2360.57 | 2198.66 |
 
-**Winning Model:** Gradient Boosting (Test RMSE: 2198.66)
+**Winning Model:** Linear Regression (CV RMSE: 2333.97)
