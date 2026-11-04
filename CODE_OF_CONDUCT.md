@@ -14,4 +14,4 @@ Examples of behavior that contributes to a positive environment:
 Community leaders are responsible for clarifying and enforcing our standards of acceptable behavior and will take appropriate and fair corrective action in response to any behavior that they deem inappropriate.
 
 ## Reporting
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at `conduct@mlmodelarchitect.dev` (placeholder). All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at **[az967252@gmail.com]** . All complaints will be reviewed and investigated promptly and fairly.
