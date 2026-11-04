@@ -8,14 +8,14 @@ Because ML Model Architect relies on the **Model Context Protocol (MCP)** to fet
 
 If you discover a vulnerability (e.g., a prompt injection vector via a malicious academic paper), **please do not open a public issue.** 
 
-Instead, email the maintainer directly at **[YOUR_EMAIL@example.com]** (Update this with your actual email) with:
+Instead, email the maintainer directly at **[az967252@gmail.com]** (Update this with your actual email) with:
 1. A description of the vulnerability.
 2. Steps to reproduce.
 3. Potential impact.
 
 We will acknowledge your email within 48 hours and provide a timeline for a patch.
 
-## 🛡️ Security Architecture (How We Protect You)
+##  Security Architecture (How We Protect You)
 
 ### 1. Zero-Trust MCP Fetching (Rule B8 & F4)
 The `openresearch-mcp` server fetches untrusted content from the internet. To mitigate risks:
