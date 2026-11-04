@@ -1,8 +1,6 @@
-<div align="center">
-  <img src="banner.png" alt="ML Model Architect Banner" width="100%">
-</div>
 
-<img width="1774" height="887" alt="8572272b-8871-4159-a90d-5261300b8763" src="https://github.com/user-attachments/assets/0b1e73e0-f551-4ca2-be93-569b1f54db91" />
+
+<img width="100%" height="887" alt="8572272b-8871-4159-a90d-5261300b8763" src="https://github.com/user-attachments/assets/0b1e73e0-f551-4ca2-be93-569b1f54db91" />
 
 <div align="center">
 
