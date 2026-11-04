@@ -21,7 +21,7 @@ First off, thank you for considering contributing! This framework is built to en
    ~~~
 5. **Submit a Pull Request.** The CI pipeline (GitHub Actions) will automatically run your tests. If it's red, fix it before we can merge.
 
-## 📚 Adding a New Reference
+##  Adding a New Reference
 
 If you want to add a new algorithm group or update an existing one:
 1. Create the reference file in `references/stage-2-selection/`.
@@ -30,12 +30,12 @@ If you want to add a new algorithm group or update an existing one:
 4. Add the paper's metadata (Title, Year, DOI) to `references_to_verify.yaml`. 
 5. If the paper is paywalled, ensure you provide an alternative from `trusted_domains.yaml` (Rule B8).
 
-## 🛡️ Security & Sandbox Rules
+## Security & Sandbox Rules
 
 - **Prompt Injection Risk:** If your code involves fetching untrusted data via MCP, you MUST use the `sandbox/` directory.
 - **Automated Scan:** All Python scripts dropped in `sandbox/` must pass `python scripts/scan_sandbox.py` before a human is allowed to execute them (Rule F4.1).
 
-## 🧪 Adding a New Skill (Stage)
+##  Adding a New Skill (Stage)
 
 If you are adding a new stage (highly discouraged, as 5 stages cover the lifecycle):
 1. Create a folder in `skills/`.
