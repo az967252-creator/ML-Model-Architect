@@ -266,7 +266,7 @@ ML-Model-Architect/
 |-- scripts/                        # Verification helpers
 |   |-- verify_dois.py              # Checks every DOI/URL is alive
 |   |-- inspect_repo.py             # Audits repo structure
-|   `-- verify_references.py        # Re-runs the 6-criteria gate
+|   `-- verify_dois.py        # Re-runs the 6-criteria gate
 |
 |-- projects/                       # Per-project ledgers, created at runtime
 |   `-- <your-project>/
@@ -346,7 +346,7 @@ To run the validation scripts, install the requirements: `pip install -r require
 
 Pull requests are welcome. Before submitting, please:
 
-1. Run the verification scripts. `python scripts/verify_references.py` must pass.
+1. Run the verification scripts. `python scripts/verify_dois.py` must pass.
 2. Update the Decision Ledger for any constitutional change you propose.
 3. Cite your sources. Even documentation changes should be anchored to a reference.
 4. Keep the established language split. Chat-style descriptions may be in Egyptian Arabic; code, YAML, and reference files remain in English.
