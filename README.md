@@ -67,9 +67,11 @@ In practice, this framework makes the agent do four things it would not do on it
 ---
 
 
-## 🏆 Proof of Value (Real Example)
+## 🏆 Illustrative Example
 
-This isn't just theory. We ran the framework on a **Car Price Prediction** task. Here is the difference:
+*(Note: The following transcript is an illustrative example to show the interaction flow, not a recorded log of a specific model run.)*
+
+Here is an example of how the interaction changes. We ran the framework on a **Car Price Prediction** task. Here is the difference:
 
 **Without ML Model Architect:**
 > *User:* "Build a model for car prices."
@@ -83,7 +85,7 @@ You can see the full generated reports in [`examples/car-price-prediction/`](exa
 
 ## The 5 Stages of ML Architecture
 
-Each stage is a self-contained skill with its own input gate, exit checklist, and reference anchor. The agent cannot move forward until the previous stage is complete and approved.
+Each stage is a self-contained skill with its own input gate, exit checklist, and reference anchor. The agent will not move forward until the previous stage is complete and approved.
 
 | # | Stage | What Happens | Output Artifact |
 |:---:|:---|:---|:---|

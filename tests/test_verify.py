@@ -1,6 +1,7 @@
 import unittest
 import sys
 import os
+import tempfile
 from unittest.mock import patch, MagicMock
 
 # Add scripts directory to path so we can import verify_dois
@@ -26,18 +27,35 @@ class TestVerifyDois(unittest.TestCase):
 
     @patch('requests.get')
     def test_warn_http_error(self, mock_get):
-        # Mock the API to return a 500 error
         mock_get.return_value = MagicMock(status_code=500)
-        
         ref = {"doi_or_url": "10.1234/5678", "title": "Some Title", "year": 2020}
         status, note = verify_dois.check(ref)
-        
-        # The check function should return WARN_HTTP_ERROR
         self.assertEqual(status, "WARN_HTTP_ERROR")
 
     @patch('requests.get')
+    def test_year_mismatch(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "message": {
+                "title": ["XGBoost"],
+                "subtitle": ["A Scalable Tree Boosting System"],
+                "issued": {"date-parts": [[2016]]}
+            }
+        }
+        mock_get.return_value = mock_response
+        
+        # We pass 1990 instead of 2016
+        ref = {
+            "doi_or_url": "10.1145/2939672.2939785", 
+            "title": "XGBoost: A Scalable Tree Boosting System", 
+            "year": 1990
+        }
+        status, note = verify_dois.check(ref)
+        self.assertEqual(status, "FAIL_YEAR_MISMATCH")
+
+    @patch('requests.get')
     def test_valid_paper(self, mock_get):
-        # Mock a successful Crossref response
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
