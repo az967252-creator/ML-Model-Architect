@@ -1,0 +1,22 @@
+# Trusted Whitelist for Paywall Fallbacks (Rule B8)
+# The AI is allowed to use these domains if the primary academic paper is paywalled.
+domains:
+  # Open-Access Repositories
+  - arxiv.org
+  - jmlr.org
+  
+  # Tier-1 Tech Blogs (Engineering & Research)
+  - ai.googleblog.com
+  - deepmind.google
+  - research.google
+  - netflixtechblog.com
+  - engineering.fb.com
+  - ai.meta.com
+  - uber.com/blog/engineering
+  - aws.amazon.com/blogs/machine-learning
+  
+  # Open Governance & Universities
+  - w3.org
+  - openaccess.thecvf.com
+  - sail.stanford.edu
+  - ocw.mit.edu

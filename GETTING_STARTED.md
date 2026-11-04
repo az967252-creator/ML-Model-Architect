@@ -39,3 +39,11 @@ Answer them. You will see it building a DECISIONS.md file and generating REQUIRE
 When it moves to Stage 2 (Technique Selection), it will use the MCP server to read papers (like XGBoost) before suggesting it. 
 
 *Note: If you want to see a completed project, check the examples/ folder.*
+
+
+## 🛡️ The Trusted Whitelist (Rule B8)
+
+If a critical paper is paywalled, the framework doesn't just stop. It has a "Trusted Whitelist" defined in `trusted_domains.yaml`. 
+The AI is allowed to fetch engineering blogs from tier-1 companies (Google, Netflix, Meta, Uber, AWS) and open-access repositories (arXiv, JMLR) to find the answer. 
+
+However, `verify_dois.py` strictly enforces this: If the AI uses a random blog (like a personal Medium post), the CI pipeline will **FAIL**, and the PR will be rejected.
