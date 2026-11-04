@@ -1,0 +1,144 @@
+# Master list of verified references.
+# Place PDFs in references/pdf/ and run: python scripts/verify_references.py
+
+groups:
+  - id: "01"
+    name: "Linear Models"
+    refs:
+      - citation: "Vu, T. T. (2026). A practical framework for selecting and interpreting regression models for binary outcomes. Discover Social Science and Health, 6, 11."
+        doi_or_url: "10.1007/s44155-026-00357-y"
+        source: "Springer, Jan 2026"
+        pdf_file: null
+      - citation: "Berkeley Stat 20. (Fall 2026). Improving Predictions and Overfitting."
+        doi_or_url: "https://stat20.berkeley.edu"
+        source: "Berkeley, 2026"
+        pdf_file: null
+  - id: "02"
+    name: "Tree Models"
+    refs:
+      - citation: "Scornet, E., Hooker, G. (2026). Theory of Random Forests. Annual Review of Statistics and Its Application, 13, 99-121."
+        doi_or_url: "10.1146/annurev-statistics-112723-034707"
+        source: "Annual Reviews, Mar 2026"
+        pdf_file: null
+      - citation: "Beckett, I. (2026). Optimizing Random Forest Hyperparameters. IEEE BigComp 2026, 378-381."
+        doi_or_url: "10.1109/BigComp68355.2026.00066"
+        source: "IEEE, Feb 2026"
+        pdf_file: null
+  - id: "03"
+    name: "Gradient Boosting"
+    refs:
+      - citation: "Qudrati, M. H. (2026). XGBoost vs LightGBM vs CatBoost: The Gradient Boosting Showdown. Pristren."
+        doi_or_url: "https://pristren.com/blog/xgboost-lightgbm-catboost/"
+        source: "Pristren, Apr 2026"
+        pdf_file: null
+      - citation: "Amjad, Umer. (2026). Pakistan Journal of Medical & Cardiological Review."
+        doi_or_url: "10.5281/zenodo.20922359"
+        source: "Zenodo, 2026"
+        pdf_file: null
+  - id: "04"
+    name: "Neural Networks"
+    refs:
+      - citation: "Zrouri, A., Ilhame, E. F. (2026). Optimization of Deep Neural Networks: Systematic Review (2015-2026). AI and Applications."
+        doi_or_url: "10.48550/arXiv.2602.00134"
+        source: "Zenodo, 2026"
+        pdf_file: null
+      - citation: "Moya, A. R., Ventura, S. (2026). Speeding Up Hyperparameter Optimization of DNNs. ACM Computing Surveys, 58(12)."
+        doi_or_url: "10.1145/3767726"
+        source: "ACM, Jun 2026"
+        pdf_file: null
+  - id: "05"
+    name: "Tabular Foundation Models"
+    refs:
+      - citation: "Tabular foundation models: A survey of architectures, pretraining strategies, benchmarks, and open challenges. (2026). Machine Learning with Applications, 101054."
+        doi_or_url: "10.1016/j.mlwa.2026.101054"
+        source: "ScienceDirect, Oct 2026"
+        pdf_file: null
+      - citation: "Kurashkin, S. O. et al. (2026). The Current Generation of Tabular Foundation Models: A Critical Review. Machine Learning & Knowledge Extraction, 8(8), 244."
+        doi_or_url: "10.3390/make8080244"
+        source: "MDPI, Aug 2026"
+        pdf_file: null
+      - citation: "PriorLabs. (2026). TabPFN Documentation - Fine-Tuning."
+        doi_or_url: "https://docs.priorlabs.ai"
+        source: "PriorLabs, Oct 2026"
+        pdf_file: null
+  - id: "06"
+    name: "SVM"
+    refs:
+      - citation: "TheLinuxCode. (2026). Non-Linear SVMs in Practice: Curved Decision Boundaries, Kernel Choices, and 2026-Ready Workflows."
+        doi_or_url: "https://thelinuxcode.com/non-linear-svms-in-practice/"
+        source: "TheLinuxCode, Feb 2026"
+        pdf_file: null
+      - citation: "Horita, V. (2026). Supervised Learning Approaches in Classification. Artefactum, 25(2), e2740."
+        doi_or_url: "https://artefactumjournal.com/index.php/artefactum/article/view/2740"
+        source: "Artefactum, May 2026"
+        pdf_file: null
+  - id: "07"
+    name: "k-NN"
+    refs:
+      - citation: "Horita, V. (2026). Supervised Learning Approaches in Classification. Artefactum, 25(2), e2740."
+        doi_or_url: "https://artefactumjournal.com/index.php/artefactum/article/view/2740"
+        source: "Artefactum, May 2026"
+        pdf_file: null
+      - citation: "Halder, R. K. et al. (2024). Enhancing K-nearest neighbor algorithm: a comprehensive review. Journal of Big Data, 11, 116."
+        doi_or_url: "10.1186/s40537-024-00973-y"
+        source: "Springer, Dec 2024"
+        pdf_file: null
+  - id: "08"
+    name: "Naive Bayes"
+    refs:
+      - citation: "LLMs or Naive Bayes? Old Gems or New Ways. (2026). Proceedings of PEARC 2026."
+        doi_or_url: "10.1145/3793653.3793785"
+        source: "ACM, Jul 2026"
+        pdf_file: null
+      - citation: "Horita, V. (2026). Supervised Learning Approaches in Classification. Artefactum, 25(2), e2740."
+        doi_or_url: "https://artefactumjournal.com/index.php/artefactum/article/view/2740"
+        source: "Artefactum, May 2026"
+        pdf_file: null
+  - id: "09"
+    name: "Clustering"
+    refs:
+      - citation: "Yuvaraj, M., Sivaprakash, S. (2026). A comprehensive survey on clustering algorithms. Humanities and Social Sciences Communications."
+        doi_or_url: "10.1057/s41599-026-08506-z"
+        source: "Nature, Aug 2026"
+        pdf_file: null
+      - citation: "Ezugwu, A. E. et al. (2026). From K-means to LLM-augmented pipelines: a critical survey and taxonomy for biomedical big data. Journal of Big Data, 13."
+        doi_or_url: "10.1186/s40537-026-01510-9"
+        source: "Springer, 2026"
+        pdf_file: null
+  - id: "10"
+    name: "Dimensionality Reduction"
+    refs:
+      - citation: "Durand, H. et al. (2026). Dimensionality Reduction for Remote Sensing Data Analysis: A Systematic Review. arXiv:2510.18935."
+        doi_or_url: "10.48550/arXiv.2510.18935"
+        source: "arXiv, Jan 2026"
+        pdf_file: null
+      - citation: "Nonnegative Matrix Factorization in Dimensionality Reduction: A Survey. (2026). ACM Computing Surveys, 58(5), 118."
+        doi_or_url: "10.1145/3767726"
+        source: "ACM, Apr 2026"
+        pdf_file: null
+  - id: "11"
+    name: "Anomaly Detection"
+    refs:
+      - citation: "Liu, Y. et al. (2026). Anomaly Detection and Generation with Diffusion Models: A Survey. IEEE TPAMI."
+        doi_or_url: "10.1109/TPAMI.2026.3739960"
+        source: "IEEE, Oct 2026"
+        pdf_file: null
+      - citation: "Anomaly Detection in IoT Environment Using Machine Learning: A Survey. (2026). IEEE Internet of Things Journal, 13(10)."
+        doi_or_url: "10.1109/JIOT.2026.3663718"
+        source: "IEEE, May 2026"
+        pdf_file: null
+  - id: "12"
+    name: "Time Series"
+    refs:
+      - citation: "A Comprehensive Survey of Time Series Forecasting: Concepts, Challenges, and Future Directions. (2026). IEEE TKDE."
+        doi_or_url: "10.1109/TKDE.2026.3671378"
+        source: "IEEE, Oct 2026"
+        pdf_file: null
+      - citation: "Venugopal et al. (2026). Transformers for Multivariate Time Series Forecasting. IEEE Access, 14."
+        doi_or_url: "10.1109/ACCESS.2026.3654408"
+        source: "IEEE, 2026"
+        pdf_file: null
+      - citation: "Deep Time-Series Forecasting in 10 Years: A Survey. (2026). arXiv:2603.19899."
+        doi_or_url: "10.48550/arXiv.2603.19899"
+        source: "arXiv, Oct 2026"
+        pdf_file: null

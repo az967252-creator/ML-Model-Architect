@@ -1,0 +1,21 @@
+---
+group_id: "03"
+name: "Gradient Boosting"
+---
+
+> ⚠️ **WARNING: This file is a summary/index.**
+> You MUST use your MCP search tools to read the actual paper before making a decision.
+> See CONSTITUTION Part F.
+
+# Training — Gradient Boosting
+
+## 1. Data Preparation
+CatBoost native categorical. Early stopping MANDATORY.
+
+## 2. Hyperparameter Search
+`learning_rate (0.01-0.3), n_estimators (100-2000), max_depth`
+
+## 3. Common Pitfalls
+- LightGBM overfitting: Enforce max_depth
+- Accuracy drop: Relax monotonicity
+- High memory: Prefer LightGBM

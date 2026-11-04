@@ -1,0 +1,21 @@
+---
+group_id: "09"
+name: "Clustering"
+---
+
+> ⚠️ **WARNING: This file is a summary/index.**
+> You MUST use your MCP search tools to read the actual paper before making a decision.
+> See CONSTITUTION Part F.
+
+# Evaluation — Clustering
+
+## 1. Metrics
+Silhouette, Davies-Bouldin, Calinski-Harabasz
+
+## 2. Validation Protocol
+Internal validation (no ground truth)
+
+## 3. Problem Catalog
+- Unknown k | GMM with AIC/BIC
+- Non-spherical | Switch to GMM
+- Noise | Use HDBSCAN

@@ -1,0 +1,21 @@
+---
+group_id: "07"
+name: "k-NN"
+---
+
+> ⚠️ **WARNING: This file is a summary/index.**
+> You MUST use your MCP search tools to read the actual paper before making a decision.
+> See CONSTITUTION Part F.
+
+# Training — k-NN
+
+## 1. Data Preparation
+Scaling REQUIRED (StandardScaler).
+
+## 2. Hyperparameter Search
+`n_neighbors (3-51), weights (uniform/distance)`
+
+## 3. Common Pitfalls
+- Curse of dimensionality: Metric learning
+- High inference cost: KD-Tree
+- k too low: Overfit
