@@ -19,3 +19,7 @@ StratifiedKFold + Hold-out mandatory
 - Unstable convergence | Dropout
 - NaN divergence | Check loss stability
 - Slow training | Multi-fidelity
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.

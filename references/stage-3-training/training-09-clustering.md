@@ -19,3 +19,7 @@ Scaling REQUIRED for K-Means/GMM.
 - Unknown k: GMM with AIC/BIC
 - Non-spherical: Switch to GMM
 - Noise: Use HDBSCAN
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.

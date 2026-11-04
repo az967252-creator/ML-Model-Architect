@@ -19,3 +19,7 @@ Compare multiple methods
 - Global structure distortion | LMC
 - UMAP sensitivity | UMAP+LMC
 - PCA missing nonlinear | UMAP
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.

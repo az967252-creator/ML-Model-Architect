@@ -19,3 +19,7 @@ Time-based split if temporal. AUC-PR over ROC.
 - IF fails on complex | Autoencoder
 - High false negatives | Hybrid
 - Unlabeled anomalies | Unsupervised AE
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.

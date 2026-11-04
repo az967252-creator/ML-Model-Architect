@@ -19,3 +19,7 @@ StratifiedKFold 5-fold
 - No native interpretability | Post-hoc explainers
 - Sensitivity | Re-tune context_size
 - Slow inference | Only if accuracy > speed
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.

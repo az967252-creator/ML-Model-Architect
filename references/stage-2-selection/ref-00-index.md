@@ -24,3 +24,7 @@ Load this file FIRST. Then load only the specific group file when reached.
 | 10 | Dimensionality Reduction | dimensionality-reduction | [clustering] | [tabular] | [balanced] | [small, medium, large] | ref-10-dimensionality-reduction.md |
 | 11 | Anomaly Detection | anomaly-detection | [anomaly] | [tabular, sequential] | [balanced] | [small, medium, large] | ref-11-anomaly-detection.md |
 | 12 | Time Series | time-series | [time-series] | [sequential] | [balanced] | [medium, large] | ref-12-time-series.md |
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.

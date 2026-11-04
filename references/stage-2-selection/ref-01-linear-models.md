@@ -32,3 +32,7 @@ LogisticRegression or LinearRegression
 
 ## 7. References
 - Use MCP to search for the latest papers.
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.

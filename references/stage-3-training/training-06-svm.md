@@ -19,3 +19,7 @@ Scaling REQUIRED (zero mean, unit variance).
 - Scaling omitted: Apply StandardScaler
 - Gamma too high: Overfitting
 - Large datasets: Use LinearSVC
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.

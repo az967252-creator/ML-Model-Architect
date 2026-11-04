@@ -33,3 +33,7 @@ Small MLP for tabular; pretrained CNN for vision
 
 ## 7. References
 - Use MCP to search for the latest papers.
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.

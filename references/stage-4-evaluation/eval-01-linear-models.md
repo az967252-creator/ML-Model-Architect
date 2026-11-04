@@ -19,3 +19,7 @@ StratifiedKFold 5-fold
 - Overfitting | Increase regularization
 - Outliers | Use RobustScaler
 - Non-linear | Check partial dependence
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.

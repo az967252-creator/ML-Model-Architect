@@ -33,3 +33,7 @@ scope: by-task-type
 - Drift focus: cluster population shift, silhouette drop.
 - Alert: Silhouette drop >0.1.
 - Retraining: only when assignment loses meaning (documented).
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.

@@ -19,3 +19,7 @@ Scaling NOT required
 - Imbalance: Pruning + Resampling
 - Overfitting: Limit max_depth
 - Redundant features: Pruning
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.

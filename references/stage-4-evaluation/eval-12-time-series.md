@@ -19,3 +19,7 @@ TimeSeriesSplit MANDATORY
 - Temporal leakage | Enforce TimeSeriesSplit
 - Complex patterns | TFT or TCN
 - MAPE with zeros | MASE
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.

@@ -19,3 +19,7 @@ StratifiedKFold 5-fold + Nested CV
 - LightGBM overfitting | Enforce max_depth
 - Accuracy drop | Relax monotonicity
 - High memory | Prefer LightGBM
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.

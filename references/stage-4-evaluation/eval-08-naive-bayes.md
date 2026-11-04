@@ -19,3 +19,7 @@ StratifiedKFold 5-fold
 - Independence violation | Lazy NB
 - Poor calibration | Empirical-Bayes
 - Noise | Noise-robust tuning
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.

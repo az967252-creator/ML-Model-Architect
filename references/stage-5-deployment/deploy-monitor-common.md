@@ -53,3 +53,7 @@ response a trigger and a cost.
 - Dasari, S. (2026). When to Retrain: An Empirical Study of Retraining Policies for Streaming ML. arXiv:2608.19488. DOI: 10.48550/arXiv.2608.19488
 - Shcherbinin et al. (2026). Adaptive Mechanisms for Model Retraining in Production. Semantic Scholar CorpusID: 286298538.
 - KodeKloud. (2026). CI/CD for Machine Learning: Best Practices and Tools.
+
+
+## 8. Direct Source Access (MCP Required)
+> You MUST use MCP to search for the DOI and read the full text.
