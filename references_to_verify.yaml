@@ -37,8 +37,8 @@ groups:
         title: "CatBoost: unbiased boosting with categorical features"
         year: 2018
         doi_or_url: "10.48550/arXiv.1706.09516"
-        source_type: "conference"
-        claimed_peer_reviewed: true
+        source_type: "preprint"
+        claimed_peer_reviewed: false
   - id: "04"
     name: "Neural Networks"
     refs:
@@ -93,6 +93,7 @@ groups:
         doi_or_url: "10.5555/3001460.3001507"
         source_type: "conference"
         claimed_peer_reviewed: true
+        exception: "ACM legacy prefix, does not resolve via doi.org; verified manually against KDD-96 proceedings."
   - id: "10"
     name: "Dimensionality Reduction"
     refs:
@@ -144,6 +145,7 @@ groups:
         doi_or_url: "10.5555/2969239.2969316"
         source_type: "conference"
         claimed_peer_reviewed: true
+        exception: "ACM legacy prefix, verified manually against NeurIPS 2015 proceedings."
       - citation: "Gama, J., et al. (2014). A survey on concept drift adaptation. ACM Computing Surveys."
         title: "A survey on concept drift adaptation"
         year: 2014
