@@ -13,7 +13,7 @@
 [![Stages: 5](https://img.shields.io/badge/stages-5-orange.svg?style=flat-square)](#the-5-stages-of-ml-architecture)
 [![References: 12 groups](https://img.shields.io/badge/references-12%20groups-teal.svg?style=flat-square)](#repository-structure)
 
-*"Stop the AI hallucination. Force it to read the papers."*
+*"Grounded ML: Verifiable references driving empirical validation."*
 
 </div>
 
@@ -229,6 +229,11 @@ File: `%APPDATA%\Claude\claude_desktop_config.json` (Windows) — `~/Library/App
 
 ---
 
+
+> **⚠️ MCP Security Warning**: 
+> The `openresearch-mcp` tool fetches content from the internet. While it is designed to read academic papers, there is an inherent risk of **Prompt Injection** from malicious web pages. 
+> Always pin the version of your MCP server (e.g., `openresearch-mcp@1.0.0`) and review the fetched text before allowing the agent to execute code based on it.
+
 ## Repository Structure
 
 ```
@@ -268,6 +273,8 @@ ML-Model-Architect/
 |       `-- DECISIONS.md            # Every decision lives here, or it did not happen
 |
 |-- references_to_verify.yaml       # Queue of references pending audit
+|-- GETTING_STARTED.md              # Quick start guide
+|-- CONTRIBUTING.md                 # Contribution guidelines
 |-- LICENSE
 `-- README.md
 ```
