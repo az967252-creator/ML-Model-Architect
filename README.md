@@ -46,7 +46,7 @@ AI coding agents move fast, and speed without verification creates real risk. Le
 
 The result is a model that runs, but whose design decisions nobody can defend after the fact.
 
-ML Model Architect addresses this by placing the agent under a constitution it cannot bypass: every non-mechanical decision must be backed by a verified reference, or the workflow stops.
+ML Model Architect addresses this by placing the agent under a strict constitution: every non-mechanical decision must be backed by a verified reference, or the workflow stops.
 
 > Built for engineers who care about how the model was built — not just the code.
 
@@ -275,6 +275,8 @@ ML-Model-Architect/
 |-- references_to_verify.yaml       # Queue of references pending audit
 |-- GETTING_STARTED.md              # Quick start guide
 |-- CONTRIBUTING.md                 # Contribution guidelines
+|-- examples/                       # Full end-to-end project examples
+|-- requirements.txt                # Python dependencies for scripts
 |-- LICENSE
 `-- README.md
 ```
@@ -336,7 +338,7 @@ Level 5   STOP. Reference Gap recorded in DECISIONS.md
 | Python 3.9 or newer | For the verification scripts in `scripts/` |
 | `uvx` or `npx` | To run the MCP server, `openresearch-mcp` |
 
-There is no backend, no database, and no install step beyond cloning the repository.
+To run the validation scripts, install the requirements: `pip install -r requirements.txt`.
 
 ---
 

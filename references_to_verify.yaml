@@ -1,91 +1,152 @@
 # ⚠️ CANDIDATE REFERENCE LIST. NOT VERIFIED.
-# Hierarchy: Foundational Papers (Original) > Recent Surveys > (No Blogs/Courses)
 groups:
   - id: "01"
     name: "Linear Models"
     refs:
       - citation: "Hastie, T., et al. (2009). The Elements of Statistical Learning (Ch. 3). Springer."
+        title: "The Elements of Statistical Learning"
+        year: 2009
         doi_or_url: "10.1007/978-0-387-84858-7"
         source_type: "book"
-        peer_reviewed: true
+        claimed_peer_reviewed: true
+      - citation: "Zou, H., & Hastie, T. (2005). Regularization and variable selection via the elastic net. JRSS-B."
+        title: "Regularization and variable selection via the elastic net"
+        year: 2005
+        doi_or_url: "10.1111/j.1467-9868.2005.00503.x"
+        source_type: "journal"
+        claimed_peer_reviewed: true
   - id: "02"
     name: "Tree Models"
     refs:
-      - citation: "Breiman, L. (2001). Random Forests. Machine Learning, 45(1), 5-32."
+      - citation: "Breiman, L. (2001). Random Forests. Machine Learning."
+        title: "Random Forests"
+        year: 2001
         doi_or_url: "10.1023/A:1010933404324"
         source_type: "journal"
-        peer_reviewed: true
+        claimed_peer_reviewed: true
   - id: "03"
     name: "Gradient Boosting"
     refs:
-      - citation: "Chen, T., & Guestrin, C. (2016). XGBoost: A Scalable Tree Boosting System. KDD '16."
+      - citation: "Chen, T., & Guestrin, C. (2016). XGBoost. KDD."
+        title: "XGBoost: A Scalable Tree Boosting System"
+        year: 2016
         doi_or_url: "10.1145/2939672.2939785"
         source_type: "conference"
-        peer_reviewed: true
-      - citation: "Ke, G., et al. (2017). LightGBM: A Highly Efficient Gradient Boosting Decision Tree. NeurIPS."
-        doi_or_url: "10.5555/3294996.3295074"
+        claimed_peer_reviewed: true
+      - citation: "Prokhorenkova, L., et al. (2018). CatBoost. NeurIPS."
+        title: "CatBoost: unbiased boosting with categorical features"
+        year: 2018
+        doi_or_url: "10.48550/arXiv.1706.09516"
         source_type: "conference"
-        peer_reviewed: true
+        claimed_peer_reviewed: true
   - id: "04"
     name: "Neural Networks"
     refs:
-      - citation: "LeCun, Y., Bengio, Y., & Hinton, G. (2015). Deep learning. Nature, 521(7553), 436-444."
+      - citation: "LeCun, Y., et al. (2015). Deep learning. Nature."
+        title: "Deep learning"
+        year: 2015
         doi_or_url: "10.1038/nature14539"
         source_type: "journal"
-        peer_reviewed: true
+        claimed_peer_reviewed: true
   - id: "05"
     name: "Tabular Foundation Models"
     refs:
-      - citation: "Hollmann, N., et al. (2023). Accurate predictions on small data with a tabular foundation model. Nature."
+      - citation: "Hollmann, N., et al. (2025). Accurate predictions on small data with a tabular foundation model. Nature."
+        title: "Accurate predictions on small data with a tabular foundation model"
+        year: 2025
         doi_or_url: "10.1038/s41586-024-08328-6"
         source_type: "journal"
-        peer_reviewed: true
+        claimed_peer_reviewed: true
   - id: "06"
     name: "SVM"
     refs:
-      - citation: "Cortes, C., & Vapnik, V. (1995). Support-vector networks. Machine Learning, 20(3), 273-297."
+      - citation: "Cortes, C., & Vapnik, V. (1995). Support-vector networks. Machine Learning."
+        title: "Support-vector networks"
+        year: 1995
         doi_or_url: "10.1007/BF00994018"
         source_type: "journal"
-        peer_reviewed: true
+        claimed_peer_reviewed: true
   - id: "07"
     name: "k-NN"
     refs:
-      - citation: "Cover, T., & Hart, P. (1967). Nearest neighbor pattern classification. IEEE Transactions on Information Theory."
+      - citation: "Cover, T., & Hart, P. (1967). Nearest neighbor pattern classification. IEEE Trans."
+        title: "Nearest neighbor pattern classification"
+        year: 1967
         doi_or_url: "10.1109/TIT.1967.1053964"
         source_type: "journal"
-        peer_reviewed: true
+        claimed_peer_reviewed: true
   - id: "08"
     name: "Naive Bayes"
     refs:
       - citation: "Domingos, P., & Pazzani, M. (1997). On the Optimality of the Simple Bayesian Classifier. Machine Learning."
+        title: "On the Optimality of the Simple Bayesian Classifier under Zero-One Loss"
+        year: 1997
         doi_or_url: "10.1023/A:1007413511361"
         source_type: "journal"
-        peer_reviewed: true
+        claimed_peer_reviewed: true
   - id: "09"
     name: "Clustering"
     refs:
-      - citation: "MacQueen, J. (1967). Some methods for classification and analysis of multivariate observations. Berkeley Symposium."
-        doi_or_url: "https://projecteuclid.org/euclid.bsmsp/1200512992"
+      - citation: "Ester, M., et al. (1996). A density-based algorithm for discovering clusters (DBSCAN). KDD."
+        title: "A density-based algorithm for discovering clusters in large spatial databases with noise"
+        year: 1996
+        doi_or_url: "10.5555/3001460.3001507"
         source_type: "conference"
-        peer_reviewed: true
+        claimed_peer_reviewed: true
   - id: "10"
     name: "Dimensionality Reduction"
     refs:
-      - citation: "Maaten, L. V. D., & Hinton, G. (2008). Visualizing data using t-SNE. JMLR."
+      - citation: "van der Maaten, L., & Hinton, G. (2008). Visualizing Data using t-SNE. JMLR."
+        title: "Visualizing Data using t-SNE"
+        year: 2008
         doi_or_url: "https://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf"
         source_type: "journal"
-        peer_reviewed: true
+        claimed_peer_reviewed: true
   - id: "11"
     name: "Anomaly Detection"
     refs:
       - citation: "Liu, F. T., et al. (2008). Isolation Forest. ICDM."
+        title: "Isolation Forest"
+        year: 2008
         doi_or_url: "10.1109/ICDM.2008.17"
         source_type: "conference"
-        peer_reviewed: true
+        claimed_peer_reviewed: true
   - id: "12"
     name: "Time Series"
     refs:
-      - citation: "Lim, B., & Zohren, S. (2021). Time-series forecasting with deep learning: a survey. Philosophical Transactions A."
+      - citation: "Lim, B., & Zohren, S. (2021). Time-series forecasting with deep learning: a survey. Phil. Trans. R. Soc. A."
+        title: "Time-series forecasting with deep learning: a survey"
+        year: 2021
         doi_or_url: "10.1098/rsta.2020.0209"
         source_type: "journal"
-        peer_reviewed: true
+        claimed_peer_reviewed: true
+  - id: "eval"
+    name: "Evaluation & Leakage"
+    refs:
+      - citation: "Varma, S., & Simon, R. (2006). Bias in error estimation when using cross-validation for model selection. BMC Bioinformatics."
+        title: "Bias in error estimation when using cross-validation for model selection"
+        year: 2006
+        doi_or_url: "10.1186/1471-2105-7-91"
+        source_type: "journal"
+        claimed_peer_reviewed: true
+      - citation: "Kaufman, S., et al. (2012). Leakage in Data Mining: Formulation, Detection, and Avoidance. ACM TKDD."
+        title: "Leakage in data mining: Formulation, detection, and avoidance"
+        year: 2012
+        doi_or_url: "10.1145/2382577.2382579"
+        source_type: "journal"
+        claimed_peer_reviewed: true
+  - id: "deploy"
+    name: "Deployment & MLOps"
+    refs:
+      - citation: "Sculley, D., et al. (2015). Hidden Technical Debt in Machine Learning Systems. NeurIPS."
+        title: "Hidden Technical Debt in Machine Learning Systems"
+        year: 2015
+        doi_or_url: "10.5555/2969239.2969316"
+        source_type: "conference"
+        claimed_peer_reviewed: true
+      - citation: "Gama, J., et al. (2014). A survey on concept drift adaptation. ACM Computing Surveys."
+        title: "A survey on concept drift adaptation"
+        year: 2014
+        doi_or_url: "10.1145/2523813"
+        source_type: "journal"
+        claimed_peer_reviewed: true
