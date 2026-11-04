@@ -27,9 +27,9 @@ groups:
   - id: "03"
     name: "Gradient Boosting"
     refs:
-      - citation: "Qudrati, M. H. (2026). XGBoost vs LightGBM vs CatBoost: The Gradient Boosting Showdown. Pristren."
+      - citation: "Qudrati, M. H. (2026). XGBoost vs LightGBM vs CatBoost: The Gradient Boosting Showdown. REJECTED_BLOG_Pristren."
         doi_or_url: "https://pristren.com/blog/xgboost-lightgbm-catboost/"
-        source: "Pristren, Apr 2026"
+        source: "REJECTED_BLOG_Pristren, Apr 2026"
         pdf_file: null
       - citation: "Amjad, Umer. (2026). Pakistan Journal of Medical & Cardiological Review."
         doi_or_url: "10.5281/zenodo.20922359"
@@ -64,9 +64,9 @@ groups:
   - id: "06"
     name: "SVM"
     refs:
-      - citation: "TheLinuxCode. (2026). Non-Linear SVMs in Practice: Curved Decision Boundaries, Kernel Choices, and 2026-Ready Workflows."
+      - citation: "REJECTED_BLOG_TheLinuxCode. (2026). Non-Linear SVMs in Practice: Curved Decision Boundaries, Kernel Choices, and 2026-Ready Workflows."
         doi_or_url: "https://thelinuxcode.com/non-linear-svms-in-practice/"
-        source: "TheLinuxCode, Feb 2026"
+        source: "REJECTED_BLOG_TheLinuxCode, Feb 2026"
         pdf_file: null
       - citation: "Horita, V. (2026). Supervised Learning Approaches in Classification. Artefactum, 25(2), e2740."
         doi_or_url: "https://artefactumjournal.com/index.php/artefactum/article/view/2740"

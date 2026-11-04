@@ -92,6 +92,19 @@ If budget runs out: STOP and consult.
 | Exit | All exit-checklist items met + user approved |
 
 ---
+
+---
+
+## Part E - Violation Handling
+
+If the AI catches itself about to violate any rule:
+1. **Stop** immediately.
+2. **State** which rule it was about to violate.
+3. **Ask** the user how to proceed.
+4. **Log** the near-violation in DECISIONS.md.
+
+Silent violations are the failure mode this constitution exists to prevent.
+
 ## Part F - Mandatory External Search (MCP)
 
 ### F1 - No Decision Without Reading the Source
