@@ -2,7 +2,7 @@
 
 First off, thank you for considering contributing! This framework is built to enforce rigor and discipline in AI-driven ML engineering. We welcome contributions that align with our core philosophy: **"The Reference guides, the Experiment decides."**
 
-## 🛠️ How to Contribute
+##  How to Contribute
 
 1. **Fork the repo** and create your branch from `main`.
 2. **Make your changes.**
@@ -43,7 +43,7 @@ If you are adding a new stage (highly discouraged, as 5 stages cover the lifecyc
 3. Update `tests/test_skills.py` to assert that your new stage includes the required gates.
 4. Update the Constitution if necessary.
 
-## 📝 Code Style
+##  Code Style
 
 - We follow PEP 8 for Python code.
 - We use standard Markdown for documentation.
