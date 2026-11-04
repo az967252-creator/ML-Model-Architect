@@ -66,6 +66,21 @@ In practice, this framework makes the agent do four things it would not do on it
 
 ---
 
+
+## 🏆 Proof of Value (Real Example)
+
+This isn't just theory. We ran the framework on a **Car Price Prediction** task. Here is the difference:
+
+**Without ML Model Architect:**
+> *User:* "Build a model for car prices."
+> *Agent:* "Sure, here is a Random Forest with default parameters." (No citations, no leakage check, skips baseline).
+
+**With ML Model Architect:**
+> *User:* "Build a model for car prices."
+> *Agent:* "Let's start Stage 1. What is the business metric? ... (asks 5 MCQ questions) ... Now moving to Stage 2. I recommend Gradient Boosting based on Chen & Guestrin (2016, DOI: 10.1145/2939672.2939785). Before I proceed, let me verify the DOI via MCP... (uses openresearch-mcp). Now, Stage 3: I will use a Pipeline to prevent data leakage."
+
+You can see the full generated reports in [`examples/car-price-prediction/`](examples/car-price-prediction/).
+
 ## The 5 Stages of ML Architecture
 
 Each stage is a self-contained skill with its own input gate, exit checklist, and reference anchor. The agent cannot move forward until the previous stage is complete and approved.

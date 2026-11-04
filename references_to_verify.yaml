@@ -1,17 +1,8 @@
 
 groups:
   - id: "test"
-    name: "Test"
     refs:
-      - citation: "No title"
-        title: ""
+      - citation: "HTTP error test"
+        title: "Some Title"
         year: 2020
-        doi_or_url: "10.1000/182"
-      - citation: "Bad DOI"
-        title: "Some title"
-        year: 2020
-        doi_or_url: "10.9999/fake"
-      - citation: "Bad Year"
-        title: "XGBoost: A Scalable Tree Boosting System"
-        year: 1990
-        doi_or_url: "10.1145/2939672.2939785"
+        doi_or_url: "10.1234/5678"

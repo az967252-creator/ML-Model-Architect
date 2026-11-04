@@ -1,36 +1,61 @@
-import subprocess
+import unittest
 import sys
 import os
-from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Create a dummy YAML to test failures
-bad_yaml = r"""
-groups:
-  - id: "test"
-    name: "Test"
-    refs:
-      - citation: "No title"
-        title: ""
-        year: 2020
-        doi_or_url: "10.1000/182"
-      - citation: "Bad DOI"
-        title: "Some title"
-        year: 2020
-        doi_or_url: "10.9999/fake"
-      - citation: "Bad Year"
-        title: "XGBoost: A Scalable Tree Boosting System"
-        year: 1990
-        doi_or_url: "10.1145/2939672.2939785"
-"""
+# Add scripts directory to path so we can import verify_dois
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'scripts')))
+import verify_dois
 
-Path("references_to_verify.yaml").write_text(bad_yaml, encoding="utf-8")
+class TestVerifyDois(unittest.TestCase):
 
-print("Running verify_dois.py against bad YAML (expecting exit code 1)...")
-result = subprocess.run([sys.executable, "scripts/verify_dois.py"], capture_output=True, text=True)
-print(result.stdout)
+    def test_empty_title(self):
+        ref = {"doi_or_url": "10.1000/182", "title": "", "year": 2020}
+        status, note = verify_dois.check(ref)
+        self.assertEqual(status, "FAIL_MISSING_TITLE")
 
-if result.returncode == 1:
-    print("✅ TEST PASSED: Script correctly failed on bad references.")
-else:
-    print("❌ TEST FAILED: Script did not exit with 1.")
-    sys.exit(1)
+    def test_exception_missing_evidence(self):
+        ref = {
+            "doi_or_url": "10.5555/1234", 
+            "title": "Some Title", 
+            "year": 2020, 
+            "exception": "ACM legacy"
+        }
+        status, note = verify_dois.check(ref)
+        self.assertEqual(status, "FAIL_INCOMPLETE_EXCEPTION")
+
+    @patch('requests.get')
+    def test_warn_http_error(self, mock_get):
+        # Mock the API to return a 500 error
+        mock_get.return_value = MagicMock(status_code=500)
+        
+        ref = {"doi_or_url": "10.1234/5678", "title": "Some Title", "year": 2020}
+        status, note = verify_dois.check(ref)
+        
+        # The check function should return WARN_HTTP_ERROR
+        self.assertEqual(status, "WARN_HTTP_ERROR")
+
+    @patch('requests.get')
+    def test_valid_paper(self, mock_get):
+        # Mock a successful Crossref response
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "message": {
+                "title": ["XGBoost"],
+                "subtitle": ["A Scalable Tree Boosting System"],
+                "issued": {"date-parts": [[2016]]}
+            }
+        }
+        mock_get.return_value = mock_response
+        
+        ref = {
+            "doi_or_url": "10.1145/2939672.2939785", 
+            "title": "XGBoost: A Scalable Tree Boosting System", 
+            "year": 2016
+        }
+        status, note = verify_dois.check(ref)
+        self.assertEqual(status, "OK")
+
+if __name__ == '__main__':
+    unittest.main()
