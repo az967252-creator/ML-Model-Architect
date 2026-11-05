@@ -1,0 +1,10 @@
+{
+    "Linear Regression": {
+        "cv_rmse": 2333.97,
+        "test_rmse": 2303.08
+    },
+    "Gradient Boosting": {
+        "cv_rmse": 2360.57,
+        "test_rmse": 2198.66
+    }
+}
