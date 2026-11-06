@@ -13,7 +13,8 @@ name: "Tree Models"
 Scaling NOT required
 
 ## 2. Hyperparameter Search
-`n_estimators (100-1000), max_depth (5-30), min_samples_leaf`
+n_estimators (100-1000), max_depth (5-30), min_samples_leaf (1-20) [Source: 10.1023/A:1010933404324]
+
 
 ## 3. Common Pitfalls
 - Imbalance: Pruning + Resampling

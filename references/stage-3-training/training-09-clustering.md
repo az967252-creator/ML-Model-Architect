@@ -13,7 +13,8 @@ name: "Clustering"
 Scaling REQUIRED for K-Means/GMM.
 
 ## 2. Hyperparameter Search
-`n_clusters (2-20), eps (percentile), min_samples`
+n_clusters (2-20), eps (percentile-based), min_samples (3-20) [Source: 10.5555/3001460.3001507]
+
 
 ## 3. Common Pitfalls
 - Unknown k: GMM with AIC/BIC

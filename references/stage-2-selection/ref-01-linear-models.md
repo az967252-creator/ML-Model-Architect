@@ -28,7 +28,8 @@ LinearRegression, LogisticRegression, Ridge, Lasso
 LogisticRegression or LinearRegression
 
 ## 6. Key Hyperparameters
-`C (1e-4 to 1e3), penalty (l1/l2), solver`
+C (1e-4 to 1e3), penalty (l1/l2), solver [Source: 10.1007/978-0-387-84858-7]
+
 
 ## 7. References
 

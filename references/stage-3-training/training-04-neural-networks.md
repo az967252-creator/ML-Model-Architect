@@ -13,7 +13,8 @@ name: "Neural Networks"
 Scaling REQUIRED. Early stopping MANDATORY.
 
 ## 2. Hyperparameter Search
-`learning_rate (1e-5 to 1e-2), batch_size (32-512), dropout`
+learning_rate (1e-5 to 1e-2), batch_size (32-512), epochs (10-200), dropout (0.0-0.5) [Source: 10.1038/nature14539]
+
 
 ## 3. Common Pitfalls
 - Unstable convergence: Dropout

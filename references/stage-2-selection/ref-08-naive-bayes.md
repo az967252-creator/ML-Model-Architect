@@ -27,7 +27,8 @@ GaussianNB, MultinomialNB, BernoulliNB
 GaussianNB (continuous) or MultinomialNB (counts)
 
 ## 6. Key Hyperparameters
-`alpha (1e-3 to 10), var_smoothing`
+alpha (1e-3 to 10), var_smoothing (1e-12 to 1e-6) [Source: 10.1023/A:1007413511361]
+
 
 ## 7. References
 

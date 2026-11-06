@@ -27,7 +27,8 @@ IsolationForest, Autoencoder, OneClassSVM, LOF
 IsolationForest (contamination=0.05)
 
 ## 6. Key Hyperparameters
-`contamination (0.01-0.2), n_estimators, latent_dim`
+contamination (0.01-0.2), n_estimators (100-500) [Source: 10.1109/ICDM.2008.17]
+
 
 ## 7. References
 

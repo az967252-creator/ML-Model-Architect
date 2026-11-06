@@ -13,7 +13,8 @@ name: "k-NN"
 Scaling REQUIRED (StandardScaler).
 
 ## 2. Hyperparameter Search
-`n_neighbors (3-51), weights (uniform/distance)`
+n_neighbors (3-51), weights (uniform/distance) [Source: 10.1109/TIT.1967.1053964]
+
 
 ## 3. Common Pitfalls
 - Curse of dimensionality: Metric learning

@@ -13,7 +13,8 @@ name: "Tabular Foundation Models"
 Built-in preprocessing. No fine-tuning for <1000 rows.
 
 ## 2. Hyperparameter Search
-`n_estimators (1-32), context_size (512-1024)`
+n_estimators (1-32), context_size (512-1024) [Source: 10.1038/s41586-024-08328-6]
+
 
 ## 3. Common Pitfalls
 - No native interpretability: Post-hoc explainers

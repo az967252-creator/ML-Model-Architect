@@ -13,7 +13,8 @@ name: "Dimensionality Reduction"
 Scaling REQUIRED before PCA.
 
 ## 2. Hyperparameter Search
-`n_components (2-50), perplexity (5-50)`
+n_components (2-50), perplexity (5-50) [Source: https://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf]
+
 
 ## 3. Common Pitfalls
 - Global structure distortion: LMC

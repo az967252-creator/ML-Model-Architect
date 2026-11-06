@@ -13,7 +13,8 @@ name: "Time Series"
 Scaling for deep models. Create lag features.
 
 ## 2. Hyperparameter Search
-`p/d/q (0-5), lag_window (1-30), hidden_size`
+p/d/q (0-5), lag_window (1-30), hidden_size (16-256) [Source: 10.1098/rsta.2020.0209]
+
 
 ## 3. Common Pitfalls
 - Temporal leakage: Enforce TimeSeriesSplit

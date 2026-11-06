@@ -13,7 +13,8 @@ name: "Gradient Boosting"
 CatBoost native categorical. Early stopping MANDATORY.
 
 ## 2. Hyperparameter Search
-`learning_rate (0.01-0.3), n_estimators (100-2000), max_depth`
+learning_rate (0.01-0.3), n_estimators (100-2000), max_depth (3-10), subsample (0.6-1.0) [Source: 10.1145/2939672.2939785]
+
 
 ## 3. Common Pitfalls
 - LightGBM overfitting: Enforce max_depth

@@ -27,7 +27,8 @@ SVC, SVR, LinearSVC, OneClassSVM
 SVC (RBF kernel, C=1.0, gamma=scale)
 
 ## 6. Key Hyperparameters
-`C (1e-3 to 1e3), gamma (1e-4 to 1), kernel`
+C (1e-3 to 1e3), gamma (1e-4 to 1), kernel (rbf/linear/poly) [Source: 10.1007/BF00994018]
+
 
 ## 7. References
 

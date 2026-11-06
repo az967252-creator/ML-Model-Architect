@@ -28,7 +28,8 @@ PCA, t-SNE, UMAP, MDS
 PCA (n_components=0.95)
 
 ## 6. Key Hyperparameters
-`n_components (2-50), perplexity (5-50)`
+n_components (2-50), perplexity (5-50) [Source: https://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf]
+
 
 ## 7. References
 

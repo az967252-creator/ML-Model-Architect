@@ -13,7 +13,8 @@ name: "Linear Models"
 Scaling REQUIRED (StandardScaler)
 
 ## 2. Hyperparameter Search
-`C (1e-4 to 1e3), penalty (l1/l2), solver`
+C (1e-4 to 1e3), penalty (l1/l2), solver [Source: 10.1007/978-0-387-84858-7]
+
 
 ## 3. Common Pitfalls
 - Overfitting: Increase regularization
