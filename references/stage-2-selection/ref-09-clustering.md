@@ -29,7 +29,7 @@ K-Means, DBSCAN, Hierarchical, GaussianMixture
 K-Means (k=2..10, silhouette)
 
 ## 6. Key Hyperparameters
-n_clusters (2-20), eps (percentile-based), min_samples (3-20) [Source: 10.5555/3001460.3001507]
+n_clusters (2-20), eps (percentile-based), min_samples (3-20) (heuristic, no source)
 
 
 ## 7. References

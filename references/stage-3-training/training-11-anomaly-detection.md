@@ -13,7 +13,7 @@ name: "Anomaly Detection"
 Scaling for AE/SVM. Handle extreme imbalance.
 
 ## 2. Hyperparameter Search
-contamination (0.01-0.2), n_estimators (100-500) [Source: 10.1109/ICDM.2008.17]
+contamination (0.01-0.2), n_estimators (100-500) (heuristic, no source)
 
 
 ## 3. Common Pitfalls

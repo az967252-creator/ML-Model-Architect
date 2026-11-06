@@ -13,7 +13,7 @@ name: "Naive Bayes"
 Scaling for GaussianNB. CountVectorizer for text.
 
 ## 2. Hyperparameter Search
-alpha (1e-3 to 10), var_smoothing (1e-12 to 1e-6) [Source: 10.1023/A:1007413511361]
+alpha (1e-3 to 10), var_smoothing (1e-12 to 1e-6) (heuristic, no source)
 
 
 ## 3. Common Pitfalls

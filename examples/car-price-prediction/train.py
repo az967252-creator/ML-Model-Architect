@@ -98,7 +98,7 @@ report_content = f"""# Training Report — Car Price Prediction
 **Winning Model:** {best_model} (CV RMSE: {best_rmse:.2f})
 """
 
-with open("TRAINING-REPORT.md", "w") as f:
+with open("TRAINING-REPORT.md", "w", encoding="utf-8") as f:
     f.write(report_content)
 
 with open("metrics.json", "w") as f:

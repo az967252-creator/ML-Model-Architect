@@ -85,7 +85,7 @@ Check out [`BENCHMARK.md`](BENCHMARK.md) for a side-by-side comparison of how an
 
 **With ML Model Architect:**
 > *User:* "Build a model for car prices."
-> *Agent:* "Let's start Stage 1. What is the business metric? ... Now moving to Stage 2. I recommend Linear Regression based on the baseline CV results (2016). Before I proceed, let me verify the DOI via MCP... Now, Stage 3: I will use a Pipeline to prevent data leakage."
+> *Agent:* "Let's start Stage 1. What is the business metric? ... Now moving to Stage 2. I recommend Linear Regression based on the baseline CV results. Before I proceed, let me verify the DOI via MCP... Now, Stage 3: I will use a Pipeline to prevent data leakage."
 
 ---
 

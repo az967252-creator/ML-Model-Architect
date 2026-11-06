@@ -28,7 +28,7 @@ DecisionTree, RandomForest, ExtraTrees
 RandomForestClassifier (n_estimators=100-300)
 
 ## 6. Key Hyperparameters
-n_estimators (100-1000), max_depth (5-30), min_samples_leaf (1-20) [Source: 10.1023/A:1010933404324]
+n_estimators (100-1000), max_depth (5-30), min_samples_leaf (1-20) (heuristic, no source)
 
 
 ## 7. References

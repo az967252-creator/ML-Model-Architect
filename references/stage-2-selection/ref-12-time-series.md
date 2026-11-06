@@ -27,7 +27,7 @@ ARIMA, Prophet, LSTM, TCN, XGBoost, Transformer
 Seasonal naive forecast
 
 ## 6. Key Hyperparameters
-p/d/q (0-5), lag_window (1-30), hidden_size (16-256) [Source: 10.1098/rsta.2020.0209]
+p/d/q (0-5), lag_window (1-30), hidden_size (16-256) (heuristic, no source)
 
 
 ## 7. References

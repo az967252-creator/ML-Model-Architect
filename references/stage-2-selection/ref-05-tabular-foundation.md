@@ -28,7 +28,7 @@ TabPFN, TabPFN-2, TabPFN-3
 TabPFNClassifier/Regressor (default)
 
 ## 6. Key Hyperparameters
-n_estimators (1-32), context_size (512-1024) [Source: 10.1038/s41586-024-08328-6]
+n_estimators (1-32), context_size (512-1024) (heuristic, no source)
 
 
 ## 7. References

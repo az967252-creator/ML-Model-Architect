@@ -27,7 +27,7 @@ KNeighborsClassifier, KNeighborsRegressor
 KNeighborsClassifier (k=5)
 
 ## 6. Key Hyperparameters
-n_neighbors (3-51), weights (uniform/distance) [Source: 10.1109/TIT.1967.1053964]
+n_neighbors (3-51), weights (uniform/distance) (heuristic, no source)
 
 
 ## 7. References

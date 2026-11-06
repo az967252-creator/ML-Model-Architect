@@ -28,7 +28,7 @@ XGBoost, LightGBM, CatBoost
 XGBoost (learning_rate=0.1, n_estimators=200)
 
 ## 6. Key Hyperparameters
-learning_rate (0.01-0.3), n_estimators (100-2000), max_depth (3-10), subsample (0.6-1.0) [Source: 10.1145/2939672.2939785]
+learning_rate (0.01-0.3), n_estimators (100-2000), max_depth (3-10), subsample (0.6-1.0) (heuristic, no source)
 
 
 ## 7. References

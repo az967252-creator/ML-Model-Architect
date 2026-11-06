@@ -13,7 +13,7 @@ name: "SVM"
 Scaling REQUIRED (zero mean, unit variance).
 
 ## 2. Hyperparameter Search
-C (1e-3 to 1e3), gamma (1e-4 to 1), kernel (rbf/linear/poly) [Source: 10.1007/BF00994018]
+C (1e-3 to 1e3), gamma (1e-4 to 1), kernel (rbf/linear/poly) (heuristic, no source)
 
 
 ## 3. Common Pitfalls

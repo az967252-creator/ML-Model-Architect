@@ -29,7 +29,7 @@ MLP, CNN, RNN/LSTM, Transformer
 Small MLP for tabular; pretrained CNN for vision
 
 ## 6. Key Hyperparameters
-learning_rate (1e-5 to 1e-2), batch_size (32-512), epochs (10-200), dropout (0.0-0.5) [Source: 10.1038/nature14539]
+learning_rate (1e-5 to 1e-2), batch_size (32-512), epochs (10-200), dropout (0.0-0.5) (heuristic, no source)
 
 
 ## 7. References
