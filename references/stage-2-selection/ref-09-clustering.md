@@ -32,7 +32,6 @@ K-Means (k=2..10, silhouette)
 `n_clusters (2-20), eps (percentile), min_samples`
 
 ## 7. References
-- Use MCP to search for the latest papers.
 
 
 ## 8. Direct Source Access (MCP Required)

@@ -31,7 +31,6 @@ TabPFNClassifier/Regressor (default)
 `n_estimators (1-32), context_size (512-1024)`
 
 ## 7. References
-- Use MCP to search for the latest papers.
 
 
 ## 8. Direct Source Access (MCP Required)

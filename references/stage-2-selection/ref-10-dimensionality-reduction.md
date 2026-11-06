@@ -31,7 +31,6 @@ PCA (n_components=0.95)
 `n_components (2-50), perplexity (5-50)`
 
 ## 7. References
-- Use MCP to search for the latest papers.
 
 
 ## 8. Direct Source Access (MCP Required)

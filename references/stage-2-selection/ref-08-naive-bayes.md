@@ -30,7 +30,6 @@ GaussianNB (continuous) or MultinomialNB (counts)
 `alpha (1e-3 to 10), var_smoothing`
 
 ## 7. References
-- Use MCP to search for the latest papers.
 
 
 ## 8. Direct Source Access (MCP Required)

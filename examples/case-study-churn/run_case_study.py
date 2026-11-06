@@ -99,6 +99,6 @@ with open("REQUIREMENTS.md", "w", encoding="utf-8") as f:
     f.write("# Requirements — Telecom Churn\n\n- Target: `churn` (Binary)\n- Business Metric: Reduce churn by 5%\n- Error Cost: False Negative > False Positive.\n")
 
 with open("DECISIONS.md", "w", encoding="utf-8") as f:
-    f.write("# Decision Ledger — Telecom Churn\n\n| Stage | Decision | Reference |\n|---|---|---|\n| 2 | Chose Gradient Boosting | 10.1145/2939672.2939785 |\n| 4 | Used CV F1 for selection | 10.1186/1471-2105-7-91 |\n")
+    f.write(f"# Decision Ledger — Telecom Churn\n\n| Stage | Decision | Reference |\n|---|---|---|\n| 2 | Chose {best_model_name} | 10.1145/2939672.2939785 |\n| 4 | Used CV F1 for selection | 10.1186/1471-2105-7-91 |\n")
 
 print("All reports generated successfully in the case study folder.")

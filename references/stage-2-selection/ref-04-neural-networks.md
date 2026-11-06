@@ -32,7 +32,6 @@ Small MLP for tabular; pretrained CNN for vision
 `learning_rate (1e-5 to 1e-2), batch_size (32-512), dropout`
 
 ## 7. References
-- Use MCP to search for the latest papers.
 
 
 ## 8. Direct Source Access (MCP Required)

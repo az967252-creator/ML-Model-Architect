@@ -30,7 +30,6 @@ IsolationForest (contamination=0.05)
 `contamination (0.01-0.2), n_estimators, latent_dim`
 
 ## 7. References
-- Use MCP to search for the latest papers.
 
 
 ## 8. Direct Source Access (MCP Required)

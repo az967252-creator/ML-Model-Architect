@@ -31,7 +31,6 @@ RandomForestClassifier (n_estimators=100-300)
 `n_estimators (100-1000), max_depth (5-30), min_samples_leaf`
 
 ## 7. References
-- Use MCP to search for the latest papers.
 
 
 ## 8. Direct Source Access (MCP Required)

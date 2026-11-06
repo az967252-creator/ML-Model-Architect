@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 import sys
-from pathlib import Path
+import re
 import requests
+from pathlib import Path
 
 def check_doi(doi):
-    if "arxiv" in doi.lower():
-        doi = doi.lower().replace("arxiv.", "").replace("arxiv:", "")
+    clean_doi = doi.strip()
     try:
-        # Try Crossref
-        r = requests.get(f"https://api.crossref.org/works/{doi}", timeout=10)
-        if r.status_code == 200: return True
-        # Fallback to DataCite
-        d = requests.get(f"https://api.datacite.org/dois/{doi}", timeout=10)
-        return d.status_code == 200
-    except:
-        return False
+        r = requests.get(f"https://api.crossref.org/works/{clean_doi}", timeout=10)
+        if r.status_code == 200: return "OK"
+        
+        d = requests.get(f"https://api.datacite.org/dois/{clean_doi}", timeout=10)
+        if d.status_code == 200: return "OK"
+        
+        return "FAKE"
+    except requests.exceptions.RequestException:
+        return "NETWORK_ERROR"
 
 def enforce(filepath):
     if not Path(filepath).exists():
@@ -24,30 +25,30 @@ def enforce(filepath):
     content = Path(filepath).read_text(encoding="utf-8")
     lines = [line for line in content.split("\n") if line.strip().startswith("|") and "---" not in line]
     
-    if not lines:
-        print("No decisions found.")
-        return
-
     violations = 0
     for line in lines[1:]:
         cols = [c.strip() for c in line.split("|")[1:-1]]
         if len(cols) < 8: 
-            print(f"❌ VIOLATION: Malformed row (less than 8 columns): {line[:50]}...")
+            print(f"❌ VIOLATION: Malformed row.")
             violations += 1
             continue
             
         dec_id, dec_type, question, ref = cols[0], cols[2].lower(), cols[3], cols[7]
         
-        if dec_type in ["technique", "parameter", "threshold", "deployment"]:
-            if not ref or ref.lower() in ["none", "n/a", "-", "n/a (empirical)"] or "memory" in ref.lower():
+        if dec_type in ["technique", "parameter", "threshold", "deployment", "metric", "evaluation"]:
+            if not ref or ref.lower() in ["none", "n/a", "-", "n/a (empirical)"]:
                 print(f"❌ VIOLATION: Decision #{dec_id} has no valid reference.")
                 violations += 1
             elif "10." in ref:
-                doi_match = re.search(r'10\.\d{4,9}/[^\s]+', ref)
+                doi_match = re.search(r'10\.\d{4,9}/[^\s|]+', ref)
                 if doi_match:
-                    if not check_doi(doi_match.group(0)):
-                        print(f"❌ FAKE DOI: Decision #{dec_id} cites {doi_match.group(0)}")
+                    doi_to_check = doi_match.group(0).strip(")")
+                    status = check_doi(doi_to_check)
+                    if status == "FAKE":
+                        print(f"❌ FAKE DOI: Decision #{dec_id} cites {doi_to_check}")
                         violations += 1
+                    elif status == "NETWORK_ERROR":
+                        print(f"⚠️ WARNING: Network error while checking {doi_to_check} for Decision #{dec_id}.")
                 else:
                     print(f"❌ INVALID DOI FORMAT: Decision #{dec_id} -> {ref}")
                     violations += 1

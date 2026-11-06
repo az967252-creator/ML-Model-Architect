@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.0] - 2026-11-04
+## [0.1.0] - 2026-11-04
 
 ### Added
 - **Real Case Study:** Added `examples/case-study-churn/` with a real ML pipeline using Cross-Validation.

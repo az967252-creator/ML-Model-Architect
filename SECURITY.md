@@ -1,7 +1,7 @@
 # Security Policy
 
 ## Supported Versions
-We are currently on version `1.0.0` (Stable). Security updates will be applied to the latest major release.
+We are currently on version `0.1.0` (Beta). Security updates will be applied to the latest major release.
 
 ## Reporting a Vulnerability
 Because ML Model Architect relies on the **Model Context Protocol (MCP)** to fetch content from the internet, security is a top priority. 

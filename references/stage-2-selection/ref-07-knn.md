@@ -30,7 +30,6 @@ KNeighborsClassifier (k=5)
 `n_neighbors (3-51), weights (uniform/distance)`
 
 ## 7. References
-- Use MCP to search for the latest papers.
 
 
 ## 8. Direct Source Access (MCP Required)

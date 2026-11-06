@@ -30,7 +30,6 @@ SVC (RBF kernel, C=1.0, gamma=scale)
 `C (1e-3 to 1e3), gamma (1e-4 to 1), kernel`
 
 ## 7. References
-- Use MCP to search for the latest papers.
 
 
 ## 8. Direct Source Access (MCP Required)

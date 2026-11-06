@@ -30,7 +30,6 @@ Seasonal naive forecast
 `p/d/q (0-5), lag_window (1-30), hidden_size`
 
 ## 7. References
-- Use MCP to search for the latest papers.
 
 
 ## 8. Direct Source Access (MCP Required)

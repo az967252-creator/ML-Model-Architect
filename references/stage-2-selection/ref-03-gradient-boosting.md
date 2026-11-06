@@ -31,7 +31,6 @@ XGBoost (learning_rate=0.1, n_estimators=200)
 `learning_rate (0.01-0.3), n_estimators (100-2000), max_depth`
 
 ## 7. References
-- Use MCP to search for the latest papers.
 
 
 ## 8. Direct Source Access (MCP Required)

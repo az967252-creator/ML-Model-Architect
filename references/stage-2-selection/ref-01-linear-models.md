@@ -31,7 +31,6 @@ LogisticRegression or LinearRegression
 `C (1e-4 to 1e3), penalty (l1/l2), solver`
 
 ## 7. References
-- Use MCP to search for the latest papers.
 
 
 ## 8. Direct Source Access (MCP Required)
