@@ -1,4 +1,4 @@
-<img width="100%" height="887" alt="8572272b-8871-4159-a90d-5261300b8763" src="https://github.com/user-attachments/assets/0b1e73e0-f551-4ca2-be93-569b1f54db91" />
+<img width="100%" height="887" alt="ML Model Architect Banner" src="https://github.com/user-attachments/assets/0b1e73e0-f551-4ca2-be93-569b1f54db91" />
 
 <div align="center">
 
@@ -71,366 +71,183 @@ In practice, this framework makes the agent do four things it would not do on it
 
 ---
 
-## 📊 Proof of Value
+## Proof of Value
 
 Check out [`BENCHMARK.md`](BENCHMARK.md) for a side-by-side comparison of how an AI agent behaves with and without this framework.
 
-## 🏆 Illustrative Example
+## Illustrative Example
 
 *(Note: The following transcript is an illustrative example to show the interaction flow, not a recorded log of a specific model run.)*
 
-Here is an example of how the interaction changes. We ran the framework on a **Car Price Prediction** task. Here is the difference:
-
 **Without ML Model Architect:**
 > *User:* "Build a model for car prices."
-> *Agent:* "Sure, here is a Random Forest with default parameters." (No citations, no leakage check, skips baseline).
+> *Agent:* "Sure, here is a Random Forest with default parameters." (No citations, no leakage check).
 
 **With ML Model Architect:**
 > *User:* "Build a model for car prices."
-> *Agent:* "Let's start Stage 1. What is the business metric? ... (asks 5 MCQ questions) ... Now moving to Stage 2. I recommend Gradient Boosting based on Chen & Guestrin (2016, DOI: 10.1145/2939672.2939785). Before I proceed, let me verify the DOI via MCP... (uses openresearch-mcp). Now, Stage 3: I will use a Pipeline to prevent data leakage."
+> *Agent:* "Let's start Stage 1. What is the business metric? ... Now moving to Stage 2. I recommend Gradient Boosting based on Chen & Guestrin (2016). Before I proceed, let me verify the DOI via MCP... Now, Stage 3: I will use a Pipeline to prevent data leakage."
 
-You can see the full generated reports in [`examples/car-price-prediction/`](examples/car-price-prediction/) or the full end-to-end run in [`examples/case-study-churn/`](examples/case-study-churn/).
+---
 
 ## The 5 Stages of ML Architecture
 
-Each stage is a self-contained skill with its own input gate, exit checklist, and reference anchor. The agent will not move forward until the previous stage is complete and approved.
-
 | # | Stage | What Happens | Output Artifact |
 |:---:|:---|:---|:---|
-| **1** | **Goals & Requirements** | A dynamic MCQ engine extracts business goals from a vague request. All 11 knowledge items must be confirmed. | `REQUIREMENTS.md` |
-| **2** | **Technique Selection** | A 5-level decision tree: task type, then data nature, priority, size, and finally the family. Every option carries pros, cons, and a reference anchor. | `TECH-CHOICE.md` |
-| **3** | **Building & Training** | Code generation strictly guided by the academic paper for the selected group. A single `Pipeline`, no leakage, tracked in MLflow. | `TRAINING-REPORT.md` |
-| **4** | **Evaluation & Diagnosis** | Metrics, nested CV, leakage checks, and bootstrap confidence intervals. Weaknesses are diagnosed using a referenced *Problem Catalog*. | `EVALUATION-REPORT.md` |
-| **5** | **Deployment & Monitoring** | Strategy selection (Shadow / Canary / Blue-Green), drift alerts, and retraining policy — all backed by MLOps research. | `DEPLOYMENT-REPORT.md` |
-
-```
-Stage 1 --> Stage 2 --> Stage 3 --> Stage 4 --> Stage 5
-  Goals      Technique    Training    Evaluation   Deployment
-   |            |             |            |            |
-   v            v             v            v            v
-REQUIREMENTS  TECH-CHOICE  TRAINING    EVALUATION  DEPLOYMENT
-    .md          .md       -REPORT.md  -REPORT.md  -REPORT.md
-```
+| **1** | **Goals & Requirements** | A dynamic MCQ engine extracts business goals from a vague request. | `REQUIREMENTS.md` |
+| **2** | **Technique Selection** | A 5-level decision tree. Every option carries pros, cons, and a reference anchor. | `TECH-CHOICE.md` |
+| **3** | **Building & Training** | Code generation strictly guided by the academic paper. A single `Pipeline`, no leakage. | `TRAINING-REPORT.md` |
+| **4** | **Evaluation & Diagnosis** | Metrics, nested CV, leakage checks. | `EVALUATION-REPORT.md` |
+| **5** | **Deployment & Monitoring** | Strategy selection (Shadow / Canary / Blue-Green), drift alerts, and retraining policy. | `DEPLOYMENT-REPORT.md` |
 
 ---
 
 ## Quick Start
 
 ### 1. Clone and open
-
-```bash
+~~~bash
 git clone https://github.com/az967252-creator/ML-Model-Architect.git
 cd ML-Model-Architect
-```
-
-Open the folder in the AI IDE of your choice: Cursor, Windsurf, Claude Code, VS Code with Copilot, Cline, or Aider.
+~~~
 
 ### 2. Configure MCP (required for strict mode)
-
-Follow the [MCP Setup](#mcp-setup-mandatory-for-strict-mode) section below. Without MCP, the agent cannot read papers directly and will fall back to *Fast Mode*, which produces no live citations.
+Follow the MCP Setup section below. Without MCP, the agent cannot fetch live references.
 
 ### 3. Prompt your AI agent
-
-Paste this as your first message:
-
-```
+~~~text
 You are now ML-Model-Architect.
-
 1. Read _constitution/CONSTITUTION.md first.
 2. Read skills/01-goals-and-requirements/SKILL.md next.
-3. Follow all rules strictly.
-4. Start Stage 1.
-```
-
-### 4. Answer the agent's questions
-
-The agent will refuse to write code until it has enough information, and it will cite its sources at every step. Each stage produces a detailed Markdown report that you keep.
-
-> Note: the agent converses in Egyptian Arabic (per `CONSTITUTION.md`, rule A5). All structural files — YAML, code, and reports — remain in English.
+3. Follow all rules strictly. Start Stage 1.
+~~~
 
 ---
 
 ## MCP Setup (Mandatory for Strict Mode)
 
-To enforce the *Reference is the Judge* rule, the agent must be able to read research papers directly from the internet using the **Model Context Protocol (MCP)**. The recommended server is **`openresearch-mcp`** — zero-auth and security-hardened.
+The recommended server is **`openresearch-mcp`**.
 
 <details>
 <summary><b>Expand MCP setup instructions for your IDE</b></summary>
 
 ### 1. Cursor
 Project-level: `.cursor/mcp.json` — Global: `~/.cursor/mcp.json`
-
-```json
-{
-  "mcpServers": {
-    "openresearch": {
-      "command": "uvx",
-      "args": ["openresearch-mcp", "--stdio"]
-    }
-  }
-}
-```
+~~~json
+{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp", "--stdio"]}}}
+~~~
 
 ### 2. Windsurf (Codeium)
 File: `~/.codeium/windsurf/mcp_config.json`
-
-```json
-{
-  "mcpServers": {
-    "openresearch": {
-      "command": "uvx",
-      "args": ["openresearch-mcp", "--stdio"]
-    }
-  }
-}
-```
+~~~json
+{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp", "--stdio"]}}}
+~~~
 
 ### 3. Google Antigravity
 Global: `~/.gemini/config/mcp_config.json` — Project: `.antigravity/mcp_config.json`
-
-```json
-{
-  "mcpServers": {
-    "openresearch": {
-      "command": "uvx",
-      "args": ["openresearch-mcp", "--stdio"]
-    }
-  }
-}
-```
+~~~json
+{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp", "--stdio"]}}}
+~~~
 
 ### 4. VS Code (GitHub Copilot)
 File: `.mcp.json` at the root of your workspace
-
-```json
-{
-  "mcpServers": {
-    "openresearch": {
-      "command": "uvx",
-      "args": ["openresearch-mcp", "--stdio"]
-    }
-  }
-}
-```
+~~~json
+{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp", "--stdio"]}}}
+~~~
 
 ### 5. Cline (VS Code Extension)
 File: `~/.cline/data/settings/cline_mcp_settings.json`
-
-```json
-{
-  "mcpServers": {
-    "openresearch": {
-      "command": "uvx",
-      "args": ["openresearch-mcp", "--stdio"]
-    }
-  }
-}
-```
+~~~json
+{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp", "--stdio"]}}}
+~~~
 
 ### 6. Claude Code (CLI)
-A single command in your terminal:
-
-```bash
+~~~bash
 claude mcp add openresearch -- uvx openresearch-mcp --stdio
-```
+~~~
 
 ### 7. Claude Desktop
-File: `%APPDATA%\Claude\claude_desktop_config.json` (Windows) — `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
-
-```json
-{
-  "mcpServers": {
-    "openresearch": {
-      "command": "uvx",
-      "args": ["openresearch-mcp", "--stdio"]
-    }
-  }
-}
-```
+File: `%APPDATA%\Claude\claude_desktop_config.json`
+~~~json
+{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp", "--stdio"]}}}
+~~~
 
 </details>
 
-> If a paper is paywalled, the agent follows a fixed protocol: search arXiv, then Unpaywall, then stop and inform the user. It never silently substitutes a weaker source.
->
-> *Amended by Rule B8 below:* if arXiv and Unpaywall both fail, the agent does not stop — it escalates automatically to the `trusted_domains.yaml` whitelist and continues the workflow.
+> If a paper is paywalled, the agent follows a fixed protocol: search arXiv, then Unpaywall. Amended by Rule B8: if both fail, it escalates to `trusted_domains.yaml`.
+
+> **⚠️ MCP Security Warning**: 
+> The `openresearch-mcp` tool fetches content from the internet. Always pin the version (e.g., `openresearch-mcp@0.2.0`) and review the fetched text before executing code.
 
 ---
 
-> **⚠️ MCP Security Warning**:
-> The `openresearch-mcp` tool fetches content from the internet. While it is designed to read academic papers, there is an inherent risk of **Prompt Injection** from malicious web pages.
-> Always pin the version of your MCP server (e.g., `openresearch-mcp@1.0.0`) and review the fetched text before allowing the agent to execute code based on it.
-
 ## Zero-Paywall and SOTA Discovery (Rules B8 & B9)
 
-- **Zero-Paywall.** If a paper is paywalled, the AI automatically pivots to `trusted_domains.yaml` (Google, Microsoft, Meta, OpenAI, etc.) and logs it as `institutional-whitelist`. It never stops to ask you to pay.
-- **Dynamic SOTA.** Before finalizing a technique, the AI uses MCP to search arXiv for papers from the last 6 months. A GitHub Action runs monthly to fetch new references automatically.
+- **Zero-Paywall.** If a paper is paywalled, the AI pivots to `trusted_domains.yaml` and logs it as `institutional-whitelist`. It never stops.
+- **Dynamic SOTA.** Before finalizing a technique, the AI uses MCP to search arXiv for papers from the last 6 months. A GitHub Action runs monthly to fetch new references.
 
-The whitelist is curated in [`trusted_domains.yaml`](trusted_domains.yaml) and is restricted to verified institutional sources: arXiv, JMLR, Google Research, DeepMind, Meta AI, Facebook Engineering, AWS Machine Learning, Microsoft Research, OpenAI Research, Anthropic Research, Apple Machine Learning Research, NVIDIA Developer Blog, Stanford SAIL, and MIT OCW. Personal blogs and Medium posts are strictly forbidden as citation sources.
+---
 
 ## Security and Sandboxing (Rules F4 & F4.1)
 
-Because the MCP fetches untrusted web content, there is a risk of prompt injection. The framework enforces a hard boundary between code generation and code execution:
-
-1. The AI is **forbidden** from executing generated code. It must write it to the `/sandbox/` directory and wait for human review.
-2. You must run `python scripts/scan_sandbox.py` before executing anything from `/sandbox/`. The script scans every `.py` file for dangerous patterns — `os.system`, `subprocess`, `eval`, `exec`, `requests.`, `urllib`, `socket`, `boto3`, and `rm -rf` — and exits non-zero if any match is found.
-
-The canonical test command for the verification scripts is:
-
-```bash
-python -m unittest discover -s tests
-```
+1. The AI is **forbidden** from executing generated code. It must write it to `/sandbox/` and wait for human review.
+2. You must run `python scripts/scan_sandbox.py` before executing anything from `/sandbox/`.
 
 ---
 
 ## Repository Structure
 
-```
+~~~text
 ML-Model-Architect/
-|
-|-- _constitution/                  # Global rules, loaded on every turn
-|   `-- CONSTITUTION.md             # The strict constitution the agent must follow
-|
-|-- skills/                         # 5 sequential stages, one SKILL.md each
-|   |-- 01-goals-and-requirements/
-|   |-- 02-technique-selection/
-|   |-- 03-building-and-training/
-|   |-- 04-evaluation-and-diagnosis/
-|   `-- 05-deployment-and-monitoring/
-|
-|-- references/                     # 12 ML algorithm groups x 3 stages + deployment
-|   |-- stage-2-selection/          # ref-00-index.md through ref-12
-|   |-- stage-3-training/           # training-01 through training-12
-|   |-- stage-4-evaluation/         # eval-01 through eval-12
-|   `-- stage-5-deployment/         # deploy-monitor-common.md + by-type.md
-|
-|-- _shared/                        # 6 reusable output templates
-|   |-- TEMPLATE-DECISION-LEDGER.md
-|   |-- TEMPLATE-REQUIREMENTS.md
-|   |-- TEMPLATE-TECH-CHOICE.md
-|   |-- TEMPLATE-TRAINING-REPORT.md
-|   |-- TEMPLATE-EVALUATION-REPORT.md
-|   `-- TEMPLATE-DEPLOYMENT-REPORT.md
-|
-|-- scripts/                        # Verification helpers
-|   |-- verify_dois.py              # Checks every DOI/URL is alive
-|   |-- inspect_repo.py             # Audits repo structure
-|   |-- verify_references.py        # Re-runs the 6-criteria gate
-|   |-- scan_sandbox.py             # Pre-scans AI-generated code for dangerous patterns (F4.1)
-|   `-- fetch_sota.py               # Pulls recent SOTA papers monthly via GitHub Action (B9)
-|
-|-- sandbox/                        # AI-generated code awaiting human review (never executed by agent, F4)
-|   `-- .gitkeep
-|
-|-- tests/                          # Mocked unit tests for the verification scripts
-|   |-- __init__.py
-|   `-- test_scan_sandbox.py
-|
-|-- trusted_domains.yaml            # Zero-Paywall whitelist (Rule B8)
-|
-|-- projects/                       # Per-project ledgers, created at runtime
-|   `-- <your-project>/
-|       `-- DECISIONS.md            # Every decision lives here, or it did not happen
-|
-|-- references_to_verify.yaml       # Queue of references pending audit
-|-- GETTING_STARTED.md              # Quick start guide
-|-- CONTRIBUTING.md                 # Contribution guidelines
-|-- SECURITY.md                     # Security policy (sandbox + zero-paywall)
-|-- examples/                       # Full end-to-end project examples
-|-- requirements.txt                # Python dependencies for scripts
-|-- LICENSE
+|-- _constitution/          # Rules A-F
+|-- skills/                 # 5 sequential stages
+|-- references/             # 12 ML groups x 3 stages
+|-- _shared/                # Output templates
+|-- scripts/                # verify_dois, scan_sandbox, fetch_sota
+|-- tests/                  # Mocked unit tests (test_skills, test_verify)
+|-- sandbox/                # AI-generated code for human review
+|-- examples/               # Full end-to-end examples
+|-- trusted_domains.yaml    # Zero-Paywall whitelist
+|-- references_to_verify.yaml
+|-- requirements.txt
 `-- README.md
-```
+~~~
 
 ---
 
 ## Reference Rigor — The 6 Criteria
 
-The agent rejects any source that fails even one of the six criteria below. All six must pass together.
-
 | # | Criterion | What It Means |
 |:---:|:---|:---|
-| 1 | **Peer review** | Published in a journal or conference — not a blog, a course, or a tutorial. |
-| 2 | **Currency** | 2024 to 2026, except for foundational classics such as the original XGBoost or Adam papers. |
-| 3 | **Citations** | The source itself carries a clear, traceable reference list. |
-| 4 | **Transparency** | The methodology is visible enough to reproduce or critique. |
+| 1 | **Peer review** | Published in a journal or conference — not a blog, course, or tutorial. |
+| 2 | **Currency** | 2024 to 2026, except for foundational classics (e.g., XGBoost). |
+| 3 | **Citations** | Clear, traceable reference list. |
+| 4 | **Transparency** | Methodology is visible enough to reproduce. |
 | 5 | **Integrity** | No retraction record and no undisclosed conflict of interest. |
-| 6 | **Relevance** | Directly answers the question at hand, not something adjacent. |
-
-A source that fails any criterion is logged under **Rejected Sources** and is never cited.
+| 6 | **Relevance** | Directly answers the question at hand. |
 
 ### Hierarchical Reference Escalation
-
-When the stage-specific reference file does not cover a decision, the agent climbs six levels before declaring a *Reference Gap*:
-
-```
-Level 0   Stage-specific reference file
-Level 1   General core databases (IEEE, ACM, Springer, ScienceDirect, PubMed), PRISMA search
-Level 2   Sibling group references, the related algorithm family
-Level 3   External systematic search, PRISMA 2020 protocol
-Level 4   Existing systematic review or meta-analysis
-Level 5   STOP. Reference Gap recorded in DECISIONS.md
-```
+Level 0: Stage-specific file -> Level 1: Core databases -> Level 2: Sibling groups -> Level 3: PRISMA 2020 -> Level 4: Meta-analysis -> Level 5: STOP (Reference Gap).
 
 ---
 
 ## The Constitution at a Glance
 
-`_constitution/CONSTITUTION.md` is the highest-authority file in the repository. If any skill contradicts it, the constitution wins.
-
 | Part | Domain | Key Rule |
 |:---:|:---|:---|
-| **A** | Decision philosophy | Propose two to three options; the user decides. No silent assumptions. |
-| **B** | Reference is the Judge | No technical decision without a reference anchor. Six-level escalation. |
-| **C** | Token economics | Lazy context loading, stable prefixes for caching, a per-stage budget. |
-| **D** | Stage gates | Input, Reference, Verification, Token, Exit — five gates, each able to halt the workflow. |
-| **E** | Violation handling | If the agent is about to break a rule, it stops, names the rule, and asks. |
-| **F** | Mandatory external search | Decisions require reading the actual source via MCP, never memory alone. |
-
-> The failure mode this constitution exists to prevent is the silent violation. The agent is required to surface any rule it is about to break, not flag it after the fact.
+| **A** | Decision philosophy | Propose 2-3 options; user decides. No silent assumptions. |
+| **B** | Reference is the Judge | No technical decision without a reference anchor. |
+| **C** | Token economics | Lazy context loading, stable prefixes for caching. |
+| **D** | Stage gates | Input, Reference, Verification, Token, Exit. |
+| **E** | Violation handling | If the agent breaks a rule, it stops and asks. |
+| **F** | Mandatory search | Read the actual source via MCP, never memory alone. |
 
 ---
 
 ## Requirements
+- Any AI agent with file access.
+- Python 3.9+.
+- `uvx` or `npx`.
 
-| Requirement | Why |
-|:---|:---|
-| Any AI agent with file access | Claude Code, Cursor, Windsurf, Aider, Cline, or GitHub Copilot |
-| Python 3.9 or newer | For the verification scripts in `scripts/` |
-| `uvx` or `npx` | To run the MCP server, `openresearch-mcp` |
-
-To run the validation scripts, install the requirements: `pip install -r requirements.txt`.
-
----
-
-## Contributing
-
-Pull requests are welcome. Before submitting, please:
-
-1. Run the verification scripts. `python scripts/verify_dois.py` must pass.
-2. Run `python scripts/scan_sandbox.py` — it must pass (Rule F4.1).
-3. Run `python -m unittest discover -s tests` — the canonical test command.
-4. Update the Decision Ledger for any constitutional change you propose.
-5. Cite your sources. Even documentation changes should be anchored to a reference.
-6. Keep the established language split. Chat-style descriptions may be in Egyptian Arabic; code, YAML, and reference files remain in English.
-
-See [`CONTRIBUTING.md`](./CONTRIBUTING.md) and [`SECURITY.md`](./SECURITY.md) for the full checklist, if present.
-
----
+To run the validation scripts: `pip install -r requirements.txt`.
 
 ## License
-
 This project is licensed under the **MIT License**. See the [`LICENSE`](./LICENSE) file for details.
-
-You are free to use, modify, and distribute this framework. If you build something valuable with it, a mention is appreciated but not required.
-
----
-
-<div align="center">
-
-**Built for engineers who care about how the model was built — not just the code.**
-
-If this framework has been useful in your work, consider giving it a star.
-
-[Report an issue](https://github.com/az967252-creator/ML-Model-Architect/issues) — [Request a stage](https://github.com/az967252-creator/ML-Model-Architect/issues/new) — [MIT License](https://opensource.org/licenses/MIT)
-
-</div>

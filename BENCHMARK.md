@@ -8,7 +8,7 @@ This document provides concrete, measurable evidence of how the framework change
 |--------|------------------------------------|-------------------------|
 | **Model Selected** | Unknown / Guessing | Based on CV F1 (Auto-selected) |
 | **Actual CV Score (F1)** | Overfit / Unknown | 0.3704 (Verified via 5-fold CV) |
-| **Citations in Ledger** | 0 | 2 (Verified via Crossref) |
+| **Citations in Ledger** | 0 | 2 (Real DOIs) |
 | **Decision Entries** | 0 | 2 (Model choice, Eval metric) |
 
 *Note: The "Without Framework" column represents the observed behavior of LLM coding agents when prompted without a constitution.*
