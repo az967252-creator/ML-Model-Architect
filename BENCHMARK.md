@@ -11,4 +11,4 @@ This document provides concrete, measurable evidence of how the framework change
 | **Citations in Ledger** | 0 | 2 (Real DOIs) |
 | **Decision Entries** | 0 | 2 (Model choice, Eval metric) |
 
-*Note: The "Without Framework" column represents the observed behavior of LLM coding agents when prompted without a constitution.*
+*Note: The "Without Framework" column represents the observed behavior of LLM coding agents when prompted without a constitution. No specific transcript is recorded for this column, it represents the default baseline behavior.*

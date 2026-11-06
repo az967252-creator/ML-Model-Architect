@@ -7,7 +7,7 @@
 ### A strict, reference-driven framework that turns AI agents into disciplined, expert ML engineers.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg?style=flat-square)](https://www.python.org/downloads/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.9%2B-blue.svg?style=flat-square)](https://www.python.org/downloads/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![MCP Ready](https://img.shields.io/badge/MCP-Ready-purple.svg?style=flat-square)](https://modelcontextprotocol.io)
 [![Zero-Paywall](https://img.shields.io/badge/Zero--Paywall-B8-blue.svg?style=flat-square)](#zero-paywall-and-sota-discovery-rules-b8--b9)
@@ -85,7 +85,7 @@ Check out [`BENCHMARK.md`](BENCHMARK.md) for a side-by-side comparison of how an
 
 **With ML Model Architect:**
 > *User:* "Build a model for car prices."
-> *Agent:* "Let's start Stage 1. What is the business metric? ... Now moving to Stage 2. I recommend Gradient Boosting based on Chen & Guestrin (2016). Before I proceed, let me verify the DOI via MCP... Now, Stage 3: I will use a Pipeline to prevent data leakage."
+> *Agent:* "Let's start Stage 1. What is the business metric? ... Now moving to Stage 2. I recommend Linear Regression based on the baseline CV results (2016). Before I proceed, let me verify the DOI via MCP... Now, Stage 3: I will use a Pipeline to prevent data leakage."
 
 ---
 
@@ -161,7 +161,7 @@ File: `~/.cline/data/settings/cline_mcp_settings.json`
 
 ### 6. Claude Code (CLI)
 ~~~bash
-claude mcp add openresearch -- uvx openresearch-mcp --stdio
+claude mcp add openresearch -- uvx openresearch-mcp==0.2.0 --stdio
 ~~~
 
 ### 7. Claude Desktop
@@ -175,7 +175,7 @@ File: `%APPDATA%\Claude\claude_desktop_config.json`
 > If a paper is paywalled, the agent follows a fixed protocol: search arXiv, then Unpaywall. Amended by Rule B8: if both fail, it escalates to `trusted_domains.yaml`.
 
 > **⚠️ MCP Security Warning**: 
-> The `openresearch-mcp` tool fetches content from the internet. Always pin the version (e.g., `openresearch-mcp@0.2.0`) and review the fetched text before executing code.
+> The `openresearch-mcp` tool fetches content from the internet. Always pin the version (e.g., `openresearch-mcp==0.2.0`) and review the fetched text before executing code.
 
 ---
 
@@ -242,10 +242,13 @@ Level 0: Stage-specific file -> Level 1: Core databases -> Level 2: Sibling grou
 
 ---
 
+## Contributing
+Please see [CONTRIBUTING.md](./CONTRIBUTING.md).
+
 ## Requirements
 - Any AI agent with file access.
-- Python 3.9+.
-- `uvx` or `npx`.
+- Python 3.10+.
+- `uvx`.
 
 To run the validation scripts: `pip install -r requirements.txt`.
 
