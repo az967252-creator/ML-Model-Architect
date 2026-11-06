@@ -24,4 +24,4 @@ jobs:
       - name: Generate Case Study Reports
         run: python examples/case-study-churn/run_case_study.py
       - name: Enforce Constitution on Example
-        run: python scripts/enforce_constitution.py examples/case-study-churn/DECISIONS.md
+        run: python scripts/enforce_constitution.py DECISIONS.md
