@@ -25,7 +25,7 @@ PCA, t-SNE, UMAP, MDS
 - UMAP initialization-sensitive
 
 ## 5. Recommended Baseline
-PCA (n_components=0.95)
+PCA (n_components=0.95) (heuristic, no source)
 
 ## 6. Key Hyperparameters
 n_components (2-50), perplexity (5-50) (heuristic, no source)

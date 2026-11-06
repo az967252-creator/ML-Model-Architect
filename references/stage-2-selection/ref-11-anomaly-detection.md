@@ -24,7 +24,7 @@ IsolationForest, Autoencoder, OneClassSVM, LOF
 - High false positives
 
 ## 5. Recommended Baseline
-IsolationForest (contamination=0.05)
+IsolationForest (contamination=0.05) (heuristic, no source)
 
 ## 6. Key Hyperparameters
 contamination (0.01-0.2), n_estimators (100-500) (heuristic, no source)

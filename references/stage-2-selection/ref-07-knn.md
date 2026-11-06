@@ -24,7 +24,7 @@ KNeighborsClassifier, KNeighborsRegressor
 - Curse of dimensionality
 
 ## 5. Recommended Baseline
-KNeighborsClassifier (k=5)
+KNeighborsClassifier (k=5) (heuristic, no source)
 
 ## 6. Key Hyperparameters
 n_neighbors (3-51), weights (uniform/distance) (heuristic, no source)

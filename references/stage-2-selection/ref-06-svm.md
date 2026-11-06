@@ -24,7 +24,7 @@ SVC, SVR, LinearSVC, OneClassSVM
 - Sensitive to feature scaling
 
 ## 5. Recommended Baseline
-SVC (RBF kernel, C=1.0, gamma=scale)
+SVC (RBF kernel, C=1.0, gamma=scale) (heuristic, no source)
 
 ## 6. Key Hyperparameters
 C (1e-3 to 1e3), gamma (1e-4 to 1), kernel (rbf/linear/poly) (heuristic, no source)

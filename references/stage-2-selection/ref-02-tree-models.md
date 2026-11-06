@@ -25,7 +25,7 @@ DecisionTree, RandomForest, ExtraTrees
 - Memory-heavy on large data
 
 ## 5. Recommended Baseline
-RandomForestClassifier (n_estimators=100-300)
+RandomForestClassifier (n_estimators=100-300) (heuristic, no source)
 
 ## 6. Key Hyperparameters
 n_estimators (100-1000), max_depth (5-30), min_samples_leaf (1-20) (heuristic, no source)

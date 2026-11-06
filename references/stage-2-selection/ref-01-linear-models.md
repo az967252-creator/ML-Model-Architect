@@ -25,7 +25,7 @@ LinearRegression, LogisticRegression, Ridge, Lasso
 - Sensitive to outliers
 
 ## 5. Recommended Baseline
-LogisticRegression or LinearRegression
+LogisticRegression or LinearRegression (heuristic, no source)
 
 ## 6. Key Hyperparameters
 C (1e-4 to 1e3), penalty (l1/l2), solver (heuristic, no source)

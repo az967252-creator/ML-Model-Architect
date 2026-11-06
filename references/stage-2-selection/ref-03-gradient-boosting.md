@@ -25,7 +25,7 @@ XGBoost, LightGBM, CatBoost
 - Prone to overfitting on noisy data
 
 ## 5. Recommended Baseline
-XGBoost (learning_rate=0.1, n_estimators=200)
+XGBoost (learning_rate=0.1, n_estimators=200) (heuristic, no source)
 
 ## 6. Key Hyperparameters
 learning_rate (0.01-0.3), n_estimators (100-2000), max_depth (3-10), subsample (0.6-1.0) (heuristic, no source)

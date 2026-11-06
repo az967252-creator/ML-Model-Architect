@@ -26,7 +26,7 @@ K-Means, DBSCAN, Hierarchical, GaussianMixture
 - Hierarchical O(n^2)
 
 ## 5. Recommended Baseline
-K-Means (k=2..10, silhouette)
+K-Means (k=2..10, silhouette) (heuristic, no source)
 
 ## 6. Key Hyperparameters
 n_clusters (2-20), eps (percentile-based), min_samples (3-20) (heuristic, no source)

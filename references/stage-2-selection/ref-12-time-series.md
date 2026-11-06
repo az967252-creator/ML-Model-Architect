@@ -24,7 +24,7 @@ ARIMA, Prophet, LSTM, TCN, XGBoost, Transformer
 - Deep models data-hungry
 
 ## 5. Recommended Baseline
-Seasonal naive forecast
+Seasonal naive forecast (heuristic, no source)
 
 ## 6. Key Hyperparameters
 p/d/q (0-5), lag_window (1-30), hidden_size (16-256) (heuristic, no source)

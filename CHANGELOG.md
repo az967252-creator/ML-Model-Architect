@@ -6,7 +6,6 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - **Case Study:** Added `examples/case-study-churn/` with a real ML pipeline using Cross-Validation.
-- **Benchmark:** Added `BENCHMARK.md` showing the measurable difference (0 questions vs 7) between standard AI and the framework.
 - **CI/CD:** Added `.github/workflows/verify.yml` to run DOI verification on every push.
 - **Tests:** Added `test_skills.py` (structural integrity) and `test_verify.py` (mocked API tests).
 - **OSS Standards:** Added `SECURITY.md`, `CODE_OF_CONDUCT.md`, and `CHANGELOG.md`.

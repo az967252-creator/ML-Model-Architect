@@ -1,4 +1,4 @@
-# Training Report — Car Price Prediction
+# Training Report â€” Car Price Prediction
 
 ## Configuration
 - Group ID: 03

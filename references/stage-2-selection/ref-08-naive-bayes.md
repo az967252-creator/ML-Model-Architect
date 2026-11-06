@@ -24,7 +24,7 @@ GaussianNB, MultinomialNB, BernoulliNB
 - Poor calibration
 
 ## 5. Recommended Baseline
-GaussianNB (continuous) or MultinomialNB (counts)
+GaussianNB (continuous) or MultinomialNB (counts) (heuristic, no source)
 
 ## 6. Key Hyperparameters
 alpha (1e-3 to 10), var_smoothing (1e-12 to 1e-6) (heuristic, no source)

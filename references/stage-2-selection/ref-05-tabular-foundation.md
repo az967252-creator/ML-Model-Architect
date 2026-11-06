@@ -25,7 +25,7 @@ TabPFN, TabPFN-2, TabPFN-3
 - No native interpretability
 
 ## 5. Recommended Baseline
-TabPFNClassifier/Regressor (default)
+TabPFNClassifier/Regressor (default) (heuristic, no source)
 
 ## 6. Key Hyperparameters
 n_estimators (1-32), context_size (512-1024) (heuristic, no source)
