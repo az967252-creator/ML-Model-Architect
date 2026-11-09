@@ -1,23 +1,19 @@
 #!/usr/bin/env python3
 import sys
 import re
-import requests
 import yaml
 from pathlib import Path
 from urllib.parse import urlparse
 
 ALLOWED_TOKENS = {"heuristic", "reference-gap", "n/a (business context)"}
 
-def check_doi(doi):
-    clean_doi = doi.strip()
+def is_trusted_url(url, whitelist):
     try:
-        r = requests.get(f"https://api.crossref.org/works/{clean_doi}", timeout=10)
-        if r.status_code == 200: return "OK"
-        d = requests.get(f"https://api.datacite.org/dois/{clean_doi}", timeout=10)
-        if d.status_code == 200: return "OK"
-        return "FAKE"
-    except requests.exceptions.RequestException:
-        return "NETWORK_ERROR"
+        hostname = urlparse(url).hostname
+        if not hostname: return False
+        return any(hostname == d or hostname.endswith('.' + d) for d in whitelist)
+    except Exception:
+        return False
 
 def enforce(filepath):
     if not Path(filepath).exists():
@@ -38,15 +34,22 @@ def enforce(filepath):
         q_idx = headers.index("question")
         ref_idx = headers.index("reference")
     except ValueError:
-        print("❌ ERROR: Ledger table is missing required headers (Stage, Type, Question, Reference).")
+        print("❌ ERROR: Ledger table is missing required headers.")
         sys.exit(1)
 
     violations = 0
+    wl_path = Path(__file__).parent.parent / "trusted_domains.yaml"
+    whitelist = []
+    if wl_path.exists():
+        whitelist = yaml.safe_load(wl_path.read_text(encoding="utf-8")).get("domains", [])
+
     for line in lines[1:]:
         cols = [c.strip() for c in line.split("|")[1:-1]]
-        if len(cols) < len(headers): continue
+        if len(cols) < len(headers): 
+            print(f"❌ VIOLATION: Malformed row: {line[:30]}...")
+            violations += 1
+            continue
             
-        dec_id = cols[id_idx]
         dec_type = cols[type_idx].lower()
         question = cols[q_idx]
         ref = cols[ref_idx]
@@ -56,32 +59,21 @@ def enforce(filepath):
                 continue
                 
             if "10." in ref:
+                # Just check format, not network (verify_dois handles network)
                 doi_match = re.search(r'10\.\d{4,9}/[^\s|]+', ref)
-                if doi_match:
-                    doi_to_check = doi_match.group(0).strip(")")
-                    status = check_doi(doi_to_check)
-                    if status == "FAKE":
-                        print(f"❌ FAKE DOI: Decision '{question}' cites {doi_to_check}")
-                        violations += 1
-                    elif status == "NETWORK_ERROR":
-                        print(f"⚠️ WARNING: Network error checking DOI for '{question}'.")
-                else:
+                if not doi_match:
                     print(f"❌ INVALID DOI FORMAT: Decision '{question}' -> {ref}")
                     violations += 1
             elif "http" in ref.lower():
-                wl_path = Path(__file__).parent.parent / "trusted_domains.yaml"
-                if wl_path.exists():
-                    whitelist = yaml.safe_load(wl_path.read_text(encoding="utf-8"))["domains"]
-                    domain = urlparse(ref).netloc
-                    if not any(d in domain for d in whitelist):
-                        print(f"❌ UNTRUSTED URL: Decision '{question}' cites {domain}")
-                        violations += 1
+                if not is_trusted_url(ref, whitelist):
+                    print(f"❌ UNTRUSTED URL: Decision '{question}' cites {ref}")
+                    violations += 1
             else:
-                print(f"❌ INVALID REFERENCE: Decision '{question}' reference is neither DOI, trusted URL, nor allowed token.")
+                print(f"❌ INVALID REFERENCE: Decision '{question}' ref is neither DOI, trusted URL, nor token.")
                 violations += 1
                 
     if violations == 0:
-        print("✅ All technical decisions have valid references or allowed heuristics.")
+        print("✅ All technical decisions have valid reference formats.")
     else:
         print(f"\n⚠️ Found {violations} violations.")
         sys.exit(1)
