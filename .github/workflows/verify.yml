@@ -21,9 +21,8 @@ jobs:
         run: python -m unittest discover -s tests
       - name: Verify DOIs (Strict Mode)
         run: python scripts/verify_dois.py --strict
-      - name: Enforce Constitution on All Examples
-        run: |
-          for file in examples/*/DECISIONS.md; do
-            echo "Checking $file..."
-            python scripts/enforce_constitution.py "$file"
-          done
+      - name: Enforce Constitution on All Examples (online DOI check)
+        run: python scripts/enforce_constitution.py --online examples/*/DECISIONS.md
+
+      - name: Scan sandbox (static allowlist filter)
+        run: python scripts/scan_sandbox.py
