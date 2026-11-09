@@ -21,5 +21,9 @@ jobs:
         run: python -m unittest discover -s tests
       - name: Verify DOIs (Strict Mode)
         run: python scripts/verify_dois.py --strict
-      - name: Enforce Constitution on Static Example
-        run: python scripts/enforce_constitution.py examples/delivery-delay-prediction/DECISIONS.md
+      - name: Enforce Constitution on All Examples
+        run: |
+          for file in examples/*/DECISIONS.md; do
+            echo "Checking $file..."
+            python scripts/enforce_constitution.py "$file"
+          done
