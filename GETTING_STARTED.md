@@ -15,7 +15,7 @@ Add the following to your IDE's MCP configuration file (see the main README for 
   "mcpServers": {
     "openresearch": {
       "command": "uvx",
-      "args": ["openresearch-mcp", "--stdio"]
+      "args": ["openresearch-mcp@0.2.0", "--stdio"]
     }
   }
 }

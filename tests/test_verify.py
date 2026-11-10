@@ -8,6 +8,8 @@ from unittest.mock import patch, MagicMock
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'scripts')))
 import verify_dois
 
+verify_dois.RETRY_DELAYS = (0, 0)   # tests must never really sleep
+
 class TestVerifyDois(unittest.TestCase):
 
     def test_empty_title(self):

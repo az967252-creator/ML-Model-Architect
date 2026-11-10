@@ -132,42 +132,42 @@ The recommended server is **`openresearch-mcp`**.
 ### 1. Cursor
 Project-level: `.cursor/mcp.json` — Global: `~/.cursor/mcp.json`
 ~~~json
-{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp", "--stdio"]}}}
+{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp@0.2.0", "--stdio"]}}}
 ~~~
 
 ### 2. Windsurf (Codeium)
 File: `~/.codeium/windsurf/mcp_config.json`
 ~~~json
-{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp", "--stdio"]}}}
+{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp@0.2.0", "--stdio"]}}}
 ~~~
 
 ### 3. Google Antigravity
 Global: `~/.gemini/config/mcp_config.json` — Project: `.antigravity/mcp_config.json`
 ~~~json
-{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp", "--stdio"]}}}
+{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp@0.2.0", "--stdio"]}}}
 ~~~
 
 ### 4. VS Code (GitHub Copilot)
 File: `.mcp.json` at the root of your workspace
 ~~~json
-{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp", "--stdio"]}}}
+{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp@0.2.0", "--stdio"]}}}
 ~~~
 
 ### 5. Cline (VS Code Extension)
 File: `~/.cline/data/settings/cline_mcp_settings.json`
 ~~~json
-{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp", "--stdio"]}}}
+{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp@0.2.0", "--stdio"]}}}
 ~~~
 
 ### 6. Claude Code (CLI)
 ~~~bash
-claude mcp add openresearch -- uvx openresearch-mcp==0.2.0 --stdio
+claude mcp add openresearch -- uvx openresearch-mcp@0.2.0 --stdio
 ~~~
 
 ### 7. Claude Desktop
 File: `%APPDATA%\Claude\claude_desktop_config.json`
 ~~~json
-{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp", "--stdio"]}}}
+{"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp@0.2.0", "--stdio"]}}}
 ~~~
 
 </details>
@@ -175,7 +175,7 @@ File: `%APPDATA%\Claude\claude_desktop_config.json`
 > If a paper is paywalled, the agent follows a fixed protocol: search arXiv, then Unpaywall. Amended by Rule B8: if both fail, it escalates to `trusted_domains.yaml`.
 
 > **⚠️ MCP Security Warning**: 
-> The `openresearch-mcp` tool fetches content from the internet. Always pin the version (e.g., `openresearch-mcp==0.2.0`) and review the fetched text before executing code.
+> The `openresearch-mcp` tool fetches content from the internet. Always pin the version (e.g., `openresearch-mcp@0.2.0` with `uvx`) and review the fetched text before executing code.
 
 ---
 
