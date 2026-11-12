@@ -16,6 +16,8 @@ from pathlib import Path
 from urllib.parse import quote
 
 import requests
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -35,7 +37,7 @@ def http_get(url, **kwargs):
     for attempt in range(len(RETRY_DELAYS) + 1):
         response, error = None, None
         try:
-            response = requests.get(url, **kwargs)
+            response = requests.get(url, **kwargs, verify=False)
             if response.status_code != 429 and response.status_code < 500:
                 return response
         except requests.exceptions.RequestException as e:
@@ -89,7 +91,7 @@ def check(ref):
         try:
             r = http_get(doi, timeout=15, allow_redirects=True)
             if r.status_code >= 400:
-                r = requests.head(doi, headers=HDR, timeout=15, allow_redirects=True)
+                r = requests.head(doi, headers=HDR, timeout=15, allow_redirects=True, verify=False)
             return ("OK_URL", "") if r.status_code < 400 else ("FAIL_URL_DEAD", r.status_code)
         except Exception as e:
             return ("FAIL_URL_DEAD", str(e))
