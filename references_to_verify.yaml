@@ -192,7 +192,7 @@ groups:
   - citation: Breck, E., et al. (2019). Data Validation for Machine Learning. MLSys.
     title: Data Validation for Machine Learning
     year: 2019
-    doi_or_url: https://proceedings.mlsys.org/paper_files/paper/2019/hash/928f1160f9d5c3b0f834c0a7741037f8-Abstract.html
+    doi_or_url: https://www.sysml.cc/doc/2019/167.pdf
     source_type: conference
     claimed_peer_reviewed: true
     evidence_url: https://www.sysml.cc/doc/2019/167.pdf
