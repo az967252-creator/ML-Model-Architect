@@ -3,10 +3,14 @@ name: Verify References & Skills
 on:
   push:
     branches: [ main ]
-  schedule:
-    - cron: '0 0 * * 0' # Run every Sunday at midnight
   pull_request:
     branches: [ main ]
+  schedule:
+    - cron: '0 0 * * 0' # Run every Sunday at midnight
+
+permissions:
+  contents: read
+  issues: write
 
 jobs:
   test:
@@ -21,7 +25,16 @@ jobs:
         run: pip install -r requirements.txt
       - name: Run Unit Tests
         run: python -m unittest discover -s tests
+      - name: Scan Sandbox
+        run: python scripts/scan_sandbox.py
       - name: Verify DOIs (Relaxed)
         run: python scripts/verify_dois.py
       - name: Enforce Constitution
         run: python scripts/enforce_constitution.py examples/delivery-delay-prediction/DECISIONS.md --allow-offline
+      - name: Live Network Check (Scheduled Only)
+        if: github.event_name == 'schedule'
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: python scripts/verify_dois.py --strict

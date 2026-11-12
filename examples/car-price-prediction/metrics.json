@@ -2,16 +2,22 @@
     "Dummy (Mean Baseline)": {
         "cv_rmse": 12148.19,
         "cv_std": 333.36,
-        "test_rmse": 12223.19
+        "cv_se": 149.08,
+        "test_rmse": 12223.19,
+        "complexity": 0
     },
     "Linear Regression": {
         "cv_rmse": 2333.97,
         "cv_std": 75.06,
-        "test_rmse": 2303.08
+        "cv_se": 33.57,
+        "test_rmse": 2303.08,
+        "complexity": 1
     },
     "Gradient Boosting": {
         "cv_rmse": 2360.57,
         "cv_std": 61.44,
-        "test_rmse": 2198.66
+        "cv_se": 27.48,
+        "test_rmse": 2198.66,
+        "complexity": 2
     }
 }
