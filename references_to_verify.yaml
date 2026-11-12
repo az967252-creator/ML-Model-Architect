@@ -195,6 +195,7 @@ groups:
     doi_or_url: https://proceedings.mlsys.org/paper_files/paper/2019/hash/928f1160f9d5c3b0f834c0a7741037f8-Abstract.html
     source_type: conference
     claimed_peer_reviewed: true
+    evidence_url: https://www.sysml.cc/doc/2019/167.pdf
   - citation: 'Baylor, D., et al. (2017). TFX: A TensorFlow-Based Production-Scale
       Machine Learning Platform. KDD.'
     title: 'TFX: A TensorFlow-Based Production-Scale Machine Learning Platform'
