@@ -150,3 +150,9 @@ Because human review is prone to fatigue (Sandbox Injection Bypass), the followi
 1. After the AI writes code to `sandbox/`, it MUST run `python scripts/scan_sandbox.py`.
 2. The scan checks for dangerous imports and commands (`os.system`, `requests`, `eval`, etc.).
 3. If the scan fails (exit code 1), the AI MUST warn the user and MUST NOT tell them to run it until they manually review the flagged lines.
+
+### C6 - Red Team Token Economics
+To prevent excessive token consumption:
+1. The `red_team.py` script MUST run rule-based checks first (regex) for free.
+2. For deep LLM analysis, it MUST use a single API call (`--deep` flag) simulating all 8 personas at once.
+3. The LLM will only analyze *new* decisions (Incremental Analysis).
