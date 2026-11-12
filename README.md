@@ -148,7 +148,7 @@ Global: `~/.gemini/config/mcp_config.json` — Project: `.antigravity/mcp_config
 ~~~
 
 ### 4. VS Code (GitHub Copilot)
-File: `.mcp.json` at the root of your workspace
+File: `.vscode/mcp.json`
 ~~~json
 {"mcpServers": {"openresearch": {"command": "uvx", "args": ["openresearch-mcp@0.2.0", "--stdio"]}}}
 ~~~

@@ -53,7 +53,7 @@ for name, (complexity, pipeline) in models.items():
     cv_scores = cross_val_score(pipeline, X_train, y_train, cv=5, scoring='neg_root_mean_squared_error')
     cv_rmse = -cv_scores.mean()
     cv_std = cv_scores.std()
-    cv_se = cv_std / math.sqrt(5)
+    cv_se = cv_std / math.sqrt(5) # Standard Error = Std / sqrt(k)
     
     pipeline.fit(X_train, y_train)
     preds = pipeline.predict(X_test)
