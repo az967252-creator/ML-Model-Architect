@@ -34,6 +34,7 @@ groups:
     doi_or_url: 10.1145/2939672.2939785
     source_type: conference
     claimed_peer_reviewed: true
+    exception: foundational_classic
   - citation: Prokhorenkova, L., et al. (2018). CatBoost. NeurIPS.
     title: 'CatBoost: unbiased boosting with categorical features'
     year: 2018

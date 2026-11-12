@@ -3,6 +3,8 @@ name: Verify References & Skills
 on:
   push:
     branches: [ main ]
+  schedule:
+    - cron: '0 0 * * 0' # Run every Sunday at midnight
   pull_request:
     branches: [ main ]
 

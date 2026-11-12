@@ -3,12 +3,12 @@ import numpy as np
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.dummy import DummyRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 import json
-import os
 
 # 1. Generate Synthetic Data with NON-LINEARITY
 np.random.seed(42)
@@ -42,14 +42,9 @@ preprocessor = ColumnTransformer(
 
 # 4. Baselines and Models
 models = {
-    "Linear Regression": Pipeline([
-        ('preprocessor', preprocessor),
-        ('model', LinearRegression())
-    ]),
-    "Gradient Boosting": Pipeline([
-        ('preprocessor', preprocessor),
-        ('model', GradientBoostingRegressor(n_estimators=100, max_depth=3, random_state=42))
-    ])
+    "Dummy (Mean Baseline)": Pipeline([('preprocessor', preprocessor), ('model', DummyRegressor())]),
+    "Linear Regression": Pipeline([('preprocessor', preprocessor), ('model', LinearRegression())]),
+    "Gradient Boosting": Pipeline([('preprocessor', preprocessor), ('model', GradientBoostingRegressor(n_estimators=100, max_depth=3, random_state=42))])
 }
 
 results = {}
@@ -60,15 +55,15 @@ for name, pipeline in models.items():
     # 5-fold CV
     cv_scores = cross_val_score(pipeline, X_train, y_train, cv=5, scoring='neg_root_mean_squared_error')
     cv_rmse = -cv_scores.mean()
+    cv_std = cv_scores.std()
     
     # Fit and Test
     pipeline.fit(X_train, y_train)
     preds = pipeline.predict(X_test)
     test_rmse = np.sqrt(mean_squared_error(y_test, preds))
     
-    results[name] = {"cv_rmse": round(cv_rmse, 2), "test_rmse": round(test_rmse, 2)}
+    results[name] = {"cv_rmse": round(cv_rmse, 2), "cv_std": round(cv_std, 2), "test_rmse": round(test_rmse, 2)}
     
-    # PROPER ML PRACTICE: Model selection must be based on CV score, never on Test score.
     if cv_rmse < best_rmse:
         best_rmse = cv_rmse
         best_model = name
@@ -76,10 +71,10 @@ for name, pipeline in models.items():
 # 5. Output Real Metrics
 print(f"Best Model (by CV RMSE): {best_model}")
 for name, metrics in results.items():
-    print(f"{name} -> CV RMSE: {metrics['cv_rmse']} | Test RMSE: {metrics['test_rmse']}")
+    print(f"{name} -> CV RMSE: {metrics['cv_rmse']} (+/- {metrics['cv_std']}) | Test RMSE: {metrics['test_rmse']}")
 
 # 6. Generate Reports dynamically
-report_content = f"""# Training Report — Car Price Prediction
+report_content = f"""# Training Report — Car Price Prediction (Synthetic Demo)
 
 ## Configuration
 - Group ID: 03
@@ -89,11 +84,12 @@ report_content = f"""# Training Report — Car Price Prediction
 ## Data Preparation
 - Preprocessing wrapped inside `ColumnTransformer` within the Pipeline (No Leakage).
 
-## Experiment Results
-| Model | CV RMSE | Test RMSE |
-|-------|---------|-----------|
-| Linear Regression | {results['Linear Regression']['cv_rmse']} | {results['Linear Regression']['test_rmse']} |
-| Gradient Boosting | {results['Gradient Boosting']['cv_rmse']} | {results['Gradient Boosting']['test_rmse']} |
+## Experiment Results (5-Fold CV)
+| Model | CV RMSE (Mean +/- Std) | Test RMSE |
+|-------|------------------------|-----------|
+| Dummy (Mean Baseline) | {results['Dummy (Mean Baseline)']['cv_rmse']} +/- {results['Dummy (Mean Baseline)']['cv_std']} | {results['Dummy (Mean Baseline)']['test_rmse']} |
+| Linear Regression | {results['Linear Regression']['cv_rmse']} +/- {results['Linear Regression']['cv_std']} | {results['Linear Regression']['test_rmse']} |
+| Gradient Boosting | {results['Gradient Boosting']['cv_rmse']} +/- {results['Gradient Boosting']['cv_std']} | {results['Gradient Boosting']['test_rmse']} |
 
 **Winning Model:** {best_model} (CV RMSE: {best_rmse:.2f})
 """
