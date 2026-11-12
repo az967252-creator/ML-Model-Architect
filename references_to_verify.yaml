@@ -37,7 +37,7 @@ groups:
     exception: foundational_classic
     verified_by: Ahmed Zain
     verified_date: '2026-11-12'
-    evidence_url: https://doi.org/10.1145/2939672.2939785
+    evidence_url: https://arxiv.org/abs/1603.02754
   - citation: Prokhorenkova, L., et al. (2018). CatBoost. NeurIPS.
     title: 'CatBoost: unbiased boosting with categorical features'
     year: 2018
