@@ -13,7 +13,7 @@ name: "k-NN"
 F1, ROC-AUC / MAE, RMSE
 
 ## 2. Validation Protocol
-StratifiedKFold 5-fold
+KFold 5-fold
 
 ## 3. Problem Catalog
 - Curse of dimensionality | Metric learning
@@ -27,3 +27,7 @@ StratifiedKFold 5-fold
 
 ## References
 - Cover, T., & Hart, P. (1967). Nearest neighbor pattern classification. IEEE Trans. (DOI: 10.1109/TIT.1967.1053964)
+
+## 4. Out of Scope
+- Imbalance handling: Not applicable for regression.
+- Missing values: Handled in the Pipeline (Imputer).

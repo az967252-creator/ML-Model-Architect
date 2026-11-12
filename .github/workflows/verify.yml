@@ -20,7 +20,7 @@ jobs:
       - name: Run Unit Tests
         run: python -m unittest discover -s tests
       - name: Verify DOIs (Strict Mode)
-        run: python scripts/verify_dois.py --strict
+        run: python scripts/verify_dois.py --check-md --strict
       - name: Enforce Constitution on All Examples (online DOI check)
         run: python scripts/enforce_constitution.py --online examples/*/DECISIONS.md
 

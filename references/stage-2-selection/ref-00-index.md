@@ -21,7 +21,7 @@ Load this file FIRST. Then load only the specific group file when reached.
 | 07 | k-NN | knn | [classification, regression] | [tabular] | [balanced] | [small] | ref-07-knn.md |
 | 08 | Naive Bayes | naive-bayes | [classification] | [tabular, text] | [interpretability-first] | [small, medium] | ref-08-naive-bayes.md |
 | 09 | Clustering | clustering | [clustering] | [tabular] | [balanced] | [small, medium, large] | ref-09-clustering.md |
-| 10 | Dimensionality Reduction | dimensionality-reduction | [clustering] | [tabular] | [balanced] | [small, medium, large] | ref-10-dimensionality-reduction.md |
+| 10 | Dimensionality Reduction | dimensionality-reduction | [preprocessing] | [tabular] | [balanced] | [small, medium, large] | ref-10-dimensionality-reduction.md |
 | 11 | Anomaly Detection | anomaly-detection | [anomaly] | [tabular, sequential] | [balanced] | [small, medium, large] | ref-11-anomaly-detection.md |
 | 12 | Time Series | time-series | [time-series] | [sequential] | [balanced] | [medium, large] | ref-12-time-series.md |
 

@@ -13,7 +13,7 @@ name: "Tabular Foundation Models"
 F1, ROC-AUC / MAE, RMSE
 
 ## 2. Validation Protocol
-StratifiedKFold 5-fold
+KFold 5-fold
 
 ## 3. Problem Catalog
 - No native interpretability | Post-hoc explainers
@@ -27,3 +27,7 @@ StratifiedKFold 5-fold
 
 ## References
 - Hollmann, N., et al. (2025). Accurate predictions on small data with a tabular foundation model. Nature. (DOI: 10.1038/s41586-024-08328-6)
+
+## 4. Out of Scope
+- Imbalance handling: Not applicable for regression.
+- Missing values: Handled in the Pipeline (Imputer).

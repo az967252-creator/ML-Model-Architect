@@ -49,11 +49,10 @@ response a trigger and a cost.
 
 ## 6. References (Verified)
 - Sadeghian, A. et al. (2026). Retrain, Alert, or Rollback? A Three-Response Decision Framework for Production ML Under Concept Drift. arXiv:2611.02251. DOI: 10.48550/arXiv.2611.02251
-- Hafezi, T. et al. (2026). A Multi-Dimensional Taxonomy and Practical Framework for MLOps Monitoring. IEEE.
 - Dasari, S. (2026). When to Retrain: An Empirical Study of Retraining Policies for Streaming ML. arXiv:2608.19488. DOI: 10.48550/arXiv.2608.19488
-- Shcherbinin et al. (2026). Adaptive Mechanisms for Model Retraining in Production. Semantic Scholar CorpusID: 286298538.
-- KodeKloud. (2026). CI/CD for Machine Learning: Best Practices and Tools.
 
 
 ## 8. Direct Source Access (MCP Required)
 > You MUST use MCP to search for the DOI and read the full text.
+
+> Note: The deployment strategy references are currently marked as `reference-gap` pending peer-reviewed alternatives.

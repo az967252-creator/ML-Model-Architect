@@ -13,7 +13,7 @@ name: "Gradient Boosting"
 F1, PR-AUC, ROC-AUC / MAE, RMSE
 
 ## 2. Validation Protocol
-StratifiedKFold 5-fold + Nested CV
+KFold 5-fold + Nested CV
 
 ## 3. Problem Catalog
 - LightGBM overfitting | Enforce max_depth
@@ -28,3 +28,7 @@ StratifiedKFold 5-fold + Nested CV
 ## References
 - Chen, T., & Guestrin, C. (2016). XGBoost. KDD. (DOI: 10.1145/2939672.2939785)
 - Prokhorenkova, L., et al. (2018). CatBoost. NeurIPS. (DOI: 10.48550/arXiv.1706.09516)
+
+## 4. Out of Scope
+- Imbalance handling: Not applicable for regression.
+- Missing values: Handled in the Pipeline (Imputer).

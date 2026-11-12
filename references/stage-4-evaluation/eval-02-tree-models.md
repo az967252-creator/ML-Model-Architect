@@ -13,7 +13,7 @@ name: "Tree Models"
 F1, ROC-AUC, PR-AUC / MAE, RMSE
 
 ## 2. Validation Protocol
-StratifiedKFold 5-fold
+KFold 5-fold
 
 ## 3. Problem Catalog
 - Imbalance | Pruning + Resampling
@@ -27,3 +27,7 @@ StratifiedKFold 5-fold
 
 ## References
 - Breiman, L. (2001). Random Forests. Machine Learning. (DOI: 10.1023/A:1010933404324)
+
+## 4. Out of Scope
+- Imbalance handling: Not applicable for regression.
+- Missing values: Handled in the Pipeline (Imputer).

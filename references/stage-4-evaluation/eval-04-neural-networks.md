@@ -28,3 +28,7 @@ StratifiedKFold + Hold-out mandatory
 ## References
 - LeCun, Y., et al. (2015). Deep learning. Nature. (DOI: 10.1038/nature14539)
 - Grinsztajn, L., et al. (2022). Why do tree-based models still outperform deep learning on typical tabular data? NeurIPS. (DOI: 10.48550/arXiv.2207.08815)
+
+## 4. Out of Scope
+- Imbalance handling: Not applicable for regression.
+- Missing values: Handled in the Pipeline (Imputer).

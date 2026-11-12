@@ -13,7 +13,7 @@ name: "Linear Models"
 F1, ROC-AUC, Brier Score / MAE, RMSE
 
 ## 2. Validation Protocol
-StratifiedKFold 5-fold
+KFold 5-fold
 
 ## 3. Problem Catalog
 - Overfitting | Increase regularization
@@ -28,3 +28,7 @@ StratifiedKFold 5-fold
 ## References
 - Hastie, T., et al. (2009). The Elements of Statistical Learning (Ch. 3). Springer. (DOI: 10.1007/978-0-387-84858-7)
 - Zou, H., & Hastie, T. (2005). Regularization and variable selection via the elastic net. JRSS-B. (DOI: 10.1111/j.1467-9868.2005.00503.x)
+
+## 4. Out of Scope
+- Imbalance handling: Not applicable for regression.
+- Missing values: Handled in the Pipeline (Imputer).
