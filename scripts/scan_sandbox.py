@@ -1,5 +1,6 @@
 import ast
 import os
+import re
 import sys
 
 SANDBOX_DIR = os.path.join(os.path.dirname(__file__), '..', 'sandbox')
@@ -33,6 +34,9 @@ class SandboxVisitor(ast.NodeVisitor):
             self.violations.append((node.lineno, "Relative import not allowed"))
         if node.module and node.module.split('.')[0] not in self.allowed_imports:
             self.violations.append((node.lineno, f"Untrusted import: {node.module}"))
+        for alias in node.names:
+            if alias.name in self.banned_attrs or alias.name in self.banned_names:
+                self.violations.append((node.lineno, f"Banned name imported: {alias.name}"))
         self.generic_visit(node)
 
     def visit_Name(self, node):
@@ -46,9 +50,25 @@ class SandboxVisitor(ast.NodeVisitor):
             self.violations.append((node.lineno, f"Banned attribute: {a}"))
         self.generic_visit(node)
 
+    IO_ATTRS = {'read_csv','read_json','read_parquet','read_excel','read_table','read_html','read_xml',
+                'to_csv','to_json','to_parquet','to_excel','savefig','load','save','savez','loadtxt','savetxt','fromfile','tofile'}
+
+    @staticmethod
+    def _bad_path(v):
+        return isinstance(v, str) and ('://' in v or v.startswith(('/', '~', '\\\\')) or re.match(r'^[A-Za-z]:[\\/]', v) is not None)
+
+    def visit_Call(self, node):
+        if isinstance(node.func, ast.Attribute) and node.func.attr in self.IO_ATTRS:
+            for arg in list(node.args[:1]) + [k.value for k in node.keywords if k.arg in {'path', 'filepath_or_buffer', 'fname', 'file', 'fname_or_buf'}]:
+                if isinstance(arg, ast.Constant) and self._bad_path(arg.value):
+                    self.violations.append((node.lineno, f"I/O call with URL/absolute path: {str(arg.value)[:25]}"))
+        self.generic_visit(node)
+
     def visit_keyword(self, node):
-        if node.arg == 'allow_pickle' and isinstance(node.value, ast.Constant) and node.value.value is True:
-            self.violations.append((node.value.lineno, "allow_pickle=True is not allowed"))
+        if node.arg is None:
+            self.violations.append((node.value.lineno, "**kwargs unpacking is not allowed"))
+        elif node.arg == 'allow_pickle' and not (isinstance(node.value, ast.Constant) and node.value.value is False):
+            self.violations.append((node.value.lineno, "allow_pickle must be the literal False"))
         self.generic_visit(node)
         
     def visit_Constant(self, node):
