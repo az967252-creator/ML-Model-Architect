@@ -15,6 +15,22 @@ Instead, email the maintainer directly at **az967252@gmail.com** with:
 
 We will acknowledge your email within 48 hours and provide a timeline for a patch.
 
+
+## Branch Protection (Recommended Configuration)
+
+The following GitHub settings are required to enforce the review process:
+
+1. **Require a pull request before merging** (for `main`).
+2. **Require approvals** (at least 1).
+3. **Require review from Code Owners** (configured via `.github/CODEOWNERS`).
+4. **Require status checks to pass** (select `test`, `sota-pr-guard`, and `live-network-check`).
+5. **Require conversation resolution** before merging.
+6. **Do not allow bypassing the above settings** (even for admins).
+
+**Note on single-maintainer workflow:** If you are the sole maintainer, you must either:
+- Add a second reviewer (recommended), or
+- Allow yourself admin bypass (weaker, but documented here).
+
 ## Security Architecture (How We Protect You)
 
 ### 1. Zero-Trust MCP Fetching (Rule B8 & F4)

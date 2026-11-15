@@ -242,6 +242,13 @@ Level 0: Stage-specific file -> Level 1: Core databases -> Level 2: Sibling grou
 
 ---
 
+## Known Limitations
+
+- **Agent compliance is not automatically tested.** The 62 unit tests verify the scripts (AST scanner, DOI verifier, 1-SE rule), but the AI agent's adherence to the Constitution (stopping at Reference Gaps, requesting approval, refusing Fast Mode) must be verified manually. See `tests/BEHAVIORAL_TESTS.md` for the test scenarios.
+- **The benchmark is an illustrative synthetic demonstration.** It shows the selection logic in action, not real-world performance.
+- **The AST scanner is a lint tripwire, not a sandbox.** It blocks known patterns but can be bypassed by advanced obfuscation. Runtime isolation (Docker) is the real security boundary.
+- **Test count:** The number of tests decreased from 69 to 62 because the tests were reorganized into classes (unittest counts class methods individually). The current 62 tests cover all critical paths.
+
 ## Contributing
 Please see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
