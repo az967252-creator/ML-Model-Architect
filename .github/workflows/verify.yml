@@ -6,11 +6,10 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    - cron: '0 0 * * 0' # Run every Sunday at midnight
+    - cron: '0 0 * * 0'
 
 permissions:
   contents: read
-  issues: write
 
 jobs:
   test:
@@ -31,10 +30,59 @@ jobs:
         run: python scripts/verify_dois.py
       - name: Enforce Constitution
         run: python scripts/enforce_constitution.py examples/delivery-delay-prediction/DECISIONS.md --allow-offline
-      - name: Live Network Check (Scheduled Only)
-        if: github.event_name == 'schedule'
+
+  sota-pr-guard:
+    if: github.head_ref == 'auto-sota-candidates'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify SOTA PR only touches candidates.yaml
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+          CHANGED=$(git diff --name-only "$BASE" "$HEAD")
+          echo "Changed files:"
+          echo "$CHANGED"
+          INVALID=$(echo "$CHANGED" | grep -v '^references/candidates.yaml$' || true)
+          if [ -n "$INVALID" ]; then
+            echo "::error::SOTA PR touched files beyond references/candidates.yaml"
+            exit 1
+          fi
+          echo "OK: Only candidates.yaml was modified."
+
+  live-network-check:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Live DOI Check (Strict)
+        id: live
+        continue-on-error: true
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 10
           max_attempts: 3
           command: python scripts/verify_dois.py --strict
+      - name: Open Issue on Failure
+        if: steps.live.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Automated DOI check failed',
+              body: 'The weekly live DOI verification found broken or fake DOIs.',
+              labels: ['automated', 'reference-check']
+            })
