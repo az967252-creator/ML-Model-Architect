@@ -35,3 +35,10 @@ Even human review can be bypassed via code obfuscation. We provide `scripts/scan
 - **Mandatory:** Every AI agent must run this static analyzer before a human executes the generated code.
 - The scanner checks for dangerous patterns (`os.system`, `subprocess`, `eval`, `requests`, `socket`, etc.).
 - If it finds a violation, it blocks execution and exits with code 1.
+
+### The Real Barrier: Container Isolation
+The AST scanner (`scan_sandbox.py`) is a **tripwire**, not a sandbox. It catches obvious malicious patterns but can be bypassed by advanced obfuscation.
+The true security boundary is **runtime isolation**. Sandbox code MUST be executed in a locked-down container:
+~~~bash
+docker run --rm -v "%cd%":/app -w /app --network none --read-only --cap-drop ALL --user 1000 --pids-limit 100 --memory 2g python:3.10 python your_script.py
+~~~
