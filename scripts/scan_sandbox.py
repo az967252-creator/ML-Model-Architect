@@ -92,7 +92,7 @@ def main():
                         has_violations = True
                         print(f"🚨 WARNING in {file}:")
                         for line, msg in v: print(f"  Line {line}: {msg}")
-            elif ext not in {'.csv', '.json', '.yaml', '.yml', '.txt', '.parquet'}:
+            elif ext not in {'.csv', '.json', '.yaml', '.yml', '.txt', '.parquet', '.md'}:
                 print(f"🚨 REJECTED: Unrecognized file type: {file}")
                 has_violations = True
                     
