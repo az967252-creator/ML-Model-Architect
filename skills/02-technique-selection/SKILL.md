@@ -86,3 +86,6 @@ For each excluded family, show one line:
 - [ ] Transition criterion agreed.
 - [ ] Every option had pros/cons + reference anchor.
 - [ ] User explicitly approved TECH-CHOICE.md.
+- [ ] Deterministic plan compiled into `PLAN.manifest.json` (from `_shared/TEMPLATE-PLAN-MANIFEST.json`).
+- [ ] Plan locked cryptographically: `python scripts/lock_plan.py PLAN.manifest.json`.
+- [ ] Lock verified: `python scripts/run_policy.py verify PLAN.manifest.json`.

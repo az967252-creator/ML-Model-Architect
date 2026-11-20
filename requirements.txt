@@ -1,5 +1,7 @@
 requests
 pyyaml
+numpy>=1.24.0
+scikit-learn>=1.3.0
 
 # Advanced Features
 mcp>=1.0.0

@@ -6,3 +6,10 @@ __pycache__/
 projects/
 references/verified/
 references/pdf/
+.kilo/
+*.patch
+*.lock
+*.egg-info/
+.pytest_cache/
+TRAINING-REPORT.md
+metrics.json

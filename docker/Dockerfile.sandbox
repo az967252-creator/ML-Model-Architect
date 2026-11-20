@@ -1,0 +1,16 @@
+# Minimal hardened sandbox execution image
+FROM python:3.11-slim
+
+# Install core scientific packages
+RUN pip install --no-cache-dir \
+    numpy>=1.24.0 \
+    pandas>=2.0.0 \
+    scikit-learn>=1.3.0
+
+# Create non-privileged sandbox user
+RUN useradd -m -u 1000 sandboxuser
+USER sandboxuser
+WORKDIR /sandbox
+
+# Security: Default entrypoint
+CMD ["python", "--version"]

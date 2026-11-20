@@ -22,6 +22,31 @@ project_path = os.path.join(examples_dir, selected_project)
 # Display Decisions Ledger
 st.header(f"📁 Project: {selected_project.capitalize().replace('-', ' ')}")
 
+# Display Deterministic Plan Manifest if exists
+plan_file = os.path.join(project_path, "PLAN.manifest.json")
+if os.path.exists(plan_file):
+    st.subheader("🔒 Deterministic Plan & Run Policy")
+    try:
+        import json
+        with open(plan_file, "r", encoding="utf-8") as pf:
+            plan_data = json.load(pf)
+        
+        col_p1, col_p2, col_p3 = st.columns(3)
+        col_p1.metric("Plan Version", plan_data.get("plan_version", "1.0.0"))
+        col_p2.metric("Execution Steps", len(plan_data.get("execution_dag", [])))
+        
+        lock_file = plan_file.replace(".manifest.json", ".lock")
+        is_locked = os.path.exists(lock_file)
+        col_p3.metric("Cryptographic Lock", "✅ Active (SHA-256)" if is_locked else "⚠️ Unlocked")
+        
+        with st.expander("🔍 View Execution DAG Steps", expanded=False):
+            for step in plan_data.get("execution_dag", []):
+                st.markdown(f"**Stage {step.get('stage')}: `{step.get('step_id')}`** — {step.get('action_type')}")
+                st.caption(f"Ref: `{step.get('reference_anchor')}` | Target: `{step.get('target_file', 'N/A')}`")
+    except Exception as e:
+        st.error(f"Error parsing plan manifest: {e}")
+    st.divider()
+
 dec_file = os.path.join(project_path, "DECISIONS.md")
 if os.path.exists(dec_file):
     st.subheader("📝 Decision Ledger")

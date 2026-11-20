@@ -239,6 +239,7 @@ Level 0: Stage-specific file -> Level 1: Core databases -> Level 2: Sibling grou
 | **D** | Stage gates | Input, Reference, Verification, Token, Exit. |
 | **E** | Violation handling | If the agent breaks a rule, it stops and asks. |
 | **F** | Mandatory search | Read the actual source via MCP, never memory alone. |
+| **G** | Deterministic Run Policy | Immutable plan (`PLAN.manifest.json` + SHA-256 lock) & Grounded ReAct loop. |
 
 ---
 

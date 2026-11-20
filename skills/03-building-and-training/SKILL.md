@@ -13,15 +13,24 @@ outputs: TRAINING-REPORT.md
 ## Input Gate
 
 > **MCP REQUIREMENT:** Before setting hyperparameters, use your MCP tool to read the actual training paper for this algorithm (e.g., XGBoost paper).
+## part A - Load (Lazy)
+1. TECH-CHOICE.md must exist with group_id set (01-12).
+2. `PLAN.manifest.json` and `PLAN.lock` must exist and pass integrity check:
+   `python scripts/run_policy.py verify PLAN.manifest.json`
+If missing or tampered: STOP immediately.
 
-TECH-CHOICE.md must exist with group_id set (01-12). If missing: STOP.
+## Part B — Grounded ReAct Loop Execution (Constitution Part G)
 
-## Part A — Load (Lazy)
-- _shared/TEMPLATE-TRAINING-REPORT.md
-- references/stage-3-training/training-<group_id>.md ONLY
-- Do NOT load other training files.
+Execution MUST proceed strictly through the locked DAG steps:
+For each step in `PLAN.manifest.json`:
+1. **THINK**: Read ONLY the allowed context for this step (`allowed_context` and `reference_anchor`). Ground all choices in client requirements and cited literature.
+2. **ACT**: Generate code or artifacts inside `sandbox/` corresponding to `target_file`.
+3. **OBSERVE**: Run AST scan (`python scripts/scan_sandbox.py`) and empirical cross-validation.
+4. **ASSERT**: Verify step completion via `python scripts/run_policy.py check-step PLAN.manifest.json <STEP_ID>`.
+   - If passed: Advance to the next DAG step.
+   - If failed: Re-enter THINK with the error message. Do NOT proceed forward.
 
-## Part B — Reference-Driven Workflow
+## Part C — Reference-Driven Workflow
 
 Every technical decision must find its anchor in the training reference.
 If missing: escalate per Constitution B2.

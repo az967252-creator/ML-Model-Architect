@@ -6,7 +6,8 @@ import sys
 SANDBOX_DIR = os.path.join(os.path.dirname(__file__), '..', 'sandbox')
 
 class SandboxVisitor(ast.NodeVisitor):
-    def __init__(self):
+    def __init__(self, filename=None):
+        self.filename = filename
         self.violations = []
         self.allowed_imports = {
             'pandas', 'numpy', 'sklearn', 'xgboost', 'lightgbm', 'catboost', 
@@ -76,6 +77,9 @@ class SandboxVisitor(ast.NodeVisitor):
             if '../' in node.value or '..\\' in node.value:
                 self.violations.append((node.lineno, f"Suspicious path traversal: {node.value[:20]}..."))
         self.generic_visit(node)
+
+# Alias for external tools importing Scanner
+Scanner = SandboxVisitor
 
 def scan_code(code, filename):
     try:
