@@ -37,6 +37,7 @@ jobs:
           python examples/car-price-prediction/train.py
           python examples/delivery-delay-prediction/train.py
           python examples/financial-anomaly-detection/train.py
+          python examples/case-study-churn/train.py
       - name: Verify DOIs (Relaxed)
         run: python scripts/verify_dois.py
       - name: Enforce Constitution across Examples

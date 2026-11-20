@@ -11,5 +11,5 @@ references/pdf/
 *.lock
 *.egg-info/
 .pytest_cache/
-TRAINING-REPORT.md
-metrics.json
+/TRAINING-REPORT.md
+/metrics.json
