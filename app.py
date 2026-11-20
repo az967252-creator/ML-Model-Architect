@@ -4,9 +4,9 @@ import os
 import glob
 import re
 
-st.set_page_config(page_title="ML Model Architect Dashboard", page_icon="🏛️", layout="wide")
+st.set_page_config(page_title="ML Model Architect Dashboard", layout="wide")
 
-st.title("🏛️ ML Model Architect Dashboard")
+st.title("ML Model Architect — Governance & Audit Dashboard")
 st.markdown("**A strict, reference-driven framework that turns AI agents into disciplined ML engineers.**")
 
 # Find all projects in the examples folder
@@ -20,12 +20,12 @@ selected_project = st.sidebar.selectbox("Choose a project:", projects)
 project_path = os.path.join(examples_dir, selected_project)
 
 # Display Decisions Ledger
-st.header(f"📁 Project: {selected_project.capitalize().replace('-', ' ')}")
+st.header(f"Project: {selected_project.capitalize().replace('-', ' ')}")
 
 # Display Deterministic Plan Manifest if exists
 plan_file = os.path.join(project_path, "PLAN.manifest.json")
 if os.path.exists(plan_file):
-    st.subheader("🔒 Deterministic Plan & Run Policy")
+    st.subheader("[PLAN] Deterministic Plan & Run Policy")
     try:
         import json
         with open(plan_file, "r", encoding="utf-8") as pf:
@@ -37,9 +37,9 @@ if os.path.exists(plan_file):
         
         lock_file = plan_file.replace(".manifest.json", ".lock")
         is_locked = os.path.exists(lock_file)
-        col_p3.metric("Cryptographic Lock", "✅ Active (SHA-256)" if is_locked else "⚠️ Unlocked")
+        col_p3.metric("Cryptographic Lock", "LOCKED (SHA-256)" if is_locked else "UNLOCKED")
         
-        with st.expander("🔍 View Execution DAG Steps", expanded=False):
+        with st.expander("View Execution DAG Steps", expanded=False):
             for step in plan_data.get("execution_dag", []):
                 st.markdown(f"**Stage {step.get('stage')}: `{step.get('step_id')}`** — {step.get('action_type')}")
                 st.caption(f"Ref: `{step.get('reference_anchor')}` | Target: `{step.get('target_file', 'N/A')}`")
@@ -49,7 +49,7 @@ if os.path.exists(plan_file):
 
 dec_file = os.path.join(project_path, "DECISIONS.md")
 if os.path.exists(dec_file):
-    st.subheader("📝 Decision Ledger")
+    st.subheader("[LEDGER] Decision Ledger")
     
     # Parse the markdown table into a pandas dataframe
     with open(dec_file, "r", encoding="utf-8") as f:
@@ -84,7 +84,7 @@ else:
 
 # Display Training Report
 st.divider()
-st.subheader("🎯 Training Report")
+st.subheader("[REPORT] Training Report")
 train_file = os.path.join(project_path, "TRAINING-REPORT.md")
 if os.path.exists(train_file):
     with open(train_file, "r", encoding="utf-8") as f:
@@ -96,6 +96,6 @@ else:
 premortem_file = os.path.join(project_path, "PRE_MORTEM.md")
 if os.path.exists(premortem_file):
     st.divider()
-    st.subheader("🚨 Pre-mortem Analysis")
+    st.subheader("[RISK] Pre-mortem Analysis")
     with open(premortem_file, "r", encoding="utf-8") as f:
         st.markdown(f.read())

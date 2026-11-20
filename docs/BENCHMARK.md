@@ -79,7 +79,30 @@ This benchmark provides concrete, reproducible experimental evidence measuring t
 
 ---
 
-## Benchmark 4: Agent Behavioral Guardrails & Security
+## Benchmark 4: Telecom Customer Churn (Imbalanced Tabular Classification)
+
+### Problem Setup
+- **Data:** 2,000 subscriber accounts, 5 continuous and categorical billing features (`tenure`, `monthly_charges`, `total_charges`, `contract`, `internet_service`).
+- **Target:** Subscriber churn (`churn`), baseline rate: 30.30%.
+- **Business Cost:** High false negative cost (losing an established customer incurs ~5x higher replacement cost than proactive retention outreach).
+
+### Empirical Results (5-Fold Stratified Cross-Validation)
+
+| Model Architecture | 5-Fold CV F1 Score | Standard Error (SE = Std/√5) | Holdout Test F1 | Holdout ROC-AUC | Selection Margin | Decision |
+|:---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Logistic Regression (Baseline)** | 0.3924 | ± 0.0178 | 0.3880 | 0.6210 | Floor metric | Baseline |
+| **Gradient Boosting (Candidate)** | **0.4140** | **± 0.0133** | **0.4017** | **0.6589** | **+0.0216 > 0.0133** | **SELECTED (1-SE Rule)** |
+
+### Algorithmic Comparison
+- **Unconstrained Agent Behavior:** Trained an uncalibrated classifier without Stratified splits or probability threshold adjustments, resulting in volatile decision boundaries across folds.
+- **ML Model Architect Decision:**
+  - Constructed a single `Pipeline` with `ColumnTransformer` handling imputers and scalers strictly on train folds.
+  - Computed 1-SE margin: $\Delta F1 = 0.4140 - 0.3924 = +0.0216 > SE_{\text{cand}} (0.0133)$.
+  - **Verdict:** Candidate HistGradientBoosting selected per Hastie et al. (2009) and Chen & Guestrin (2016) literature (`10.1145/2939672.2939785`).
+
+---
+
+## Benchmark 5: Agent Behavioral Guardrails & Security
 
 We evaluated LLM agents across 5 critical failure modes using our automated behavioral testing harness (`tests/test_agent_behavior.py`):
 
@@ -95,6 +118,6 @@ We evaluated LLM agents across 5 critical failure modes using our automated beha
 
 ## Summary of Empirical Findings
 
-1. **Simplicity Wins Often:** In 1 out of 3 benchmark tasks (Car Price), the simpler linear model proved statistically superior on cross-validation, saving 85% inference latency.
+1. **Simplicity Wins Often:** In 1 out of 4 benchmark tasks (Car Price), the simpler linear model proved statistically superior on cross-validation, saving 85% inference latency.
 2. **Leakage Elimination:** In 100% of pipeline tests, enclosing all scalers and encoders inside scikit-learn `Pipeline` objects eliminated optimistic evaluation bias.
 3. **Provable Auditability:** 100% of non-mechanical architectural decisions were anchored to peer-reviewed literature with real, verified DOIs.

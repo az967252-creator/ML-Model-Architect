@@ -132,3 +132,4 @@ To explore complete, runnable examples with manifests, reports, and pipelines:
 - `examples/car-price-prediction/` (Tabular regression with non-linear interactions)
 - `examples/delivery-delay-prediction/` (Tabular binary classification with high-recall priority)
 - `examples/financial-anomaly-detection/` (Extreme imbalanced anomaly detection)
+- `examples/case-study-churn/` (Telecom subscription churn with stratified cross-validation)
