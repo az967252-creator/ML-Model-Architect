@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "plan_version": "1.0.0",
+  "project_id": "car-price-prediction",
+  "generated_at": "2026-11-20T12:00:00Z",
+  "status": "LOCKED",
+  "client_grounding": {
+    "task_type": "regression",
+    "target_column": "price",
+    "business_metric": "RMSE",
+    "cost_priority": "balanced",
+    "max_allowed_latency_ms": 20,
+    "hardware_constraints": "CPU-only, memory < 1GB"
+  },
+  "execution_dag": [
+    {
+      "step_id": "STEP_01_PIPELINE_SPECIFICATION",
+      "stage": 3,
+      "description": "Construct single scikit-learn Pipeline with zero data leakage.",
+      "reference_anchor": "10.1145/2939672.2939785",
+      "allowed_context": [
+        "REQUIREMENTS.md",
+        "TECH-CHOICE.md",
+        "references/stage-3-training/training-01-linear-models.md"
+      ],
+      "pre_conditions": [
+        "file_exists('REQUIREMENTS.md')",
+        "file_exists('TECH-CHOICE.md')"
+      ],
+      "action_type": "GENERATE_CODE",
+      "target_file": "train.py",
+      "post_assertions": [
+        "file_exists('train.py')",
+        "ast_scanner_passed('train.py')",
+        "is_single_sklearn_pipeline('train.py')"
+      ]
+    },
+    {
+      "step_id": "STEP_02_BASELINE_EXPERIMENT",
+      "stage": 3,
+      "description": "Train and evaluate baseline and candidate models with 5-fold cross-validation.",
+      "reference_anchor": "Foundational",
+      "allowed_context": [
+        "TECH-CHOICE.md"
+      ],
+      "pre_conditions": [
+        "file_exists('train.py')"
+      ],
+      "action_type": "RUN_EXPERIMENT",
+      "target_file": "TRAINING-REPORT.md",
+      "post_assertions": [
+        "file_exists('TRAINING-REPORT.md')",
+        "cv_folds_logged(5)"
+      ]
+    },
+    {
+      "step_id": "STEP_03_CANDIDATE_MODEL_AND_1SE_RULE",
+      "stage": 4,
+      "description": "Empirical comparison of models using 1-SE rule.",
+      "reference_anchor": "10.1007/978-0-387-84858-7",
+      "allowed_context": [
+        "references/stage-4-evaluation/eval-01-linear-models.md"
+      ],
+      "pre_conditions": [
+        "file_exists('TRAINING-REPORT.md')"
+      ],
+      "action_type": "EVALUATE_AND_DECIDE",
+      "target_file": "EVALUATION-REPORT.md",
+      "post_assertions": [
+        "file_exists('EVALUATION-REPORT.md')",
+        "assert_1se_rule_applied()",
+        "decision_logged_in_ledger('DECISIONS.md')"
+      ]
+    }
+  ]
+}

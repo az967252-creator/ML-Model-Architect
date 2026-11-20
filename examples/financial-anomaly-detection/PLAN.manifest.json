@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "plan_version": "1.0.0",
+  "project_id": "financial-anomaly-detection",
+  "generated_at": "2026-11-20T12:00:00Z",
+  "status": "LOCKED",
+  "client_grounding": {
+    "task_type": "anomaly",
+    "target_column": "is_fraud",
+    "business_metric": "PR-AUC",
+    "cost_priority": "high_precision",
+    "max_allowed_latency_ms": 10,
+    "hardware_constraints": "CPU-only, memory < 2GB"
+  },
+  "execution_dag": [
+    {
+      "step_id": "STEP_01_PIPELINE_SPECIFICATION",
+      "stage": 3,
+      "description": "Construct Isolation Forest outlier detection pipeline.",
+      "reference_anchor": "10.1109/ICDM.2008.17",
+      "allowed_context": [
+        "REQUIREMENTS.md",
+        "TECH-CHOICE.md",
+        "references/stage-3-training/training-11-anomaly-detection.md"
+      ],
+      "pre_conditions": [
+        "file_exists('REQUIREMENTS.md')",
+        "file_exists('TECH-CHOICE.md')"
+      ],
+      "action_type": "GENERATE_CODE",
+      "target_file": "train.py",
+      "post_assertions": [
+        "file_exists('train.py')",
+        "ast_scanner_passed('train.py')",
+        "is_single_sklearn_pipeline('train.py')"
+      ]
+    },
+    {
+      "step_id": "STEP_02_BASELINE_EXPERIMENT",
+      "stage": 3,
+      "description": "Evaluate statistical Z-score baseline against Isolation Forest candidate.",
+      "reference_anchor": "10.1109/ICDM.2008.17",
+      "allowed_context": [
+        "TECH-CHOICE.md"
+      ],
+      "pre_conditions": [
+        "file_exists('train.py')"
+      ],
+      "action_type": "RUN_EXPERIMENT",
+      "target_file": "TRAINING-REPORT.md",
+      "post_assertions": [
+        "file_exists('TRAINING-REPORT.md')"
+      ]
+    },
+    {
+      "step_id": "STEP_03_CANDIDATE_MODEL_AND_1SE_RULE",
+      "stage": 4,
+      "description": "Empirical comparison of Isolation Forest against baseline.",
+      "reference_anchor": "10.1007/978-0-387-84858-7",
+      "allowed_context": [
+        "references/stage-4-evaluation/eval-11-anomaly-detection.md"
+      ],
+      "pre_conditions": [
+        "file_exists('TRAINING-REPORT.md')"
+      ],
+      "action_type": "EVALUATE_AND_DECIDE",
+      "target_file": "EVALUATION-REPORT.md",
+      "post_assertions": [
+        "file_exists('EVALUATION-REPORT.md')",
+        "decision_logged_in_ledger('DECISIONS.md')"
+      ]
+    }
+  ]
+}

@@ -197,16 +197,25 @@ File: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ~~~text
 ML-Model-Architect/
-|-- _constitution/          # Rules A-F
-|-- skills/                 # 5 sequential stages
-|-- references/             # 12 ML groups x 3 stages
-|-- _shared/                # Output templates
-|-- scripts/                # verify_dois, scan_sandbox, fetch_sota
-|-- tests/                  # Mocked unit tests (test_skills, test_verify)
-|-- sandbox/                # AI-generated code for human review
-|-- examples/               # Full end-to-end examples
-|-- trusted_domains.yaml    # Zero-Paywall whitelist
+|-- _constitution/          # Constitution Rules A-G (Deterministic Plan & Grounded ReAct)
+|-- _shared/                # Templates: requirements, tech-choice, reports & TEMPLATE-PLAN-MANIFEST.json
+|-- bin/                    # Platform CLI wrappers (mla, ml-architect)
+|-- docker/                 # Container sandbox definition (Dockerfile.sandbox)
+|-- examples/               # End-to-end runnable pipelines with manifests & reports
+|   |-- car-price-prediction/
+|   |-- delivery-delay-prediction/
+|   |-- financial-anomaly-detection/
+|   `-- case-study-churn/
+|-- mcp_server/             # Local knowledge vector retrieval server (MCP)
+|-- references/             # 12 ML groups x 3 stages + catalog
+|-- sandbox/                # AI-generated code isolation area
+|-- scripts/                # Unified CLI, lock_plan, run_policy, verify_dois, scan_sandbox, docker
+|-- skills/                 # Sequential stages 01-05 with strict exit gates
+|-- tests/                  # 79 unit tests + behavioral evaluation suite
+|-- app.py                  # Streamlit governance & plan dashboard
+|-- pyproject.toml          # PEP 621 package metadata & CLI entry points
 |-- references_to_verify.yaml
+|-- trusted_domains.yaml
 |-- requirements.txt
 `-- README.md
 ~~~
