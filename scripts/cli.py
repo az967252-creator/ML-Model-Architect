@@ -115,7 +115,7 @@ def main(argv=None):
     p_enforce.set_defaults(func=cmd_enforce)
 
     # verify-dois command
-    p_dois = subparsers.add_parser("verify-dois", help="Verify all references in references_to_verify.yaml.")
+    p_dois = subparsers.add_parser("verify-dois", help="Verify all references in references/references_to_verify.yaml.")
     p_dois.set_defaults(func=cmd_verify_dois)
 
     # dashboard command

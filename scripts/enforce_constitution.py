@@ -34,7 +34,13 @@ DOI_HOSTS = {"doi.org", "dx.doi.org"}
 # --------------------------------------------------------------------------
 def load_whitelist(path=None):
     """Return a list of (host, path_prefix) rules from trusted_domains.yaml."""
-    path = Path(path) if path else Path(__file__).resolve().parent.parent / "trusted_domains.yaml"
+    if path:
+        path = Path(path)
+    else:
+        root = Path(__file__).resolve().parent.parent
+        path = root / "references" / "trusted_domains.yaml"
+        if not path.exists():
+            path = root / "trusted_domains.yaml"
     if not path.exists():
         return []
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}

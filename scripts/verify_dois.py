@@ -135,7 +135,10 @@ def check(ref):
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     strict, check_md = "--strict" in argv, "--check-md" in argv
-    data = yaml.safe_load((ROOT / "references_to_verify.yaml").read_text(encoding="utf-8"))
+    ref_file = ROOT / "references" / "references_to_verify.yaml"
+    if not ref_file.exists():
+        ref_file = ROOT / "references_to_verify.yaml"
+    data = yaml.safe_load(ref_file.read_text(encoding="utf-8"))
     fails, warns, exceptions = 0, 0, 0
 
     print(f"{'GROUP':<8} {'STATUS':<24} {'REFERENCE'}")

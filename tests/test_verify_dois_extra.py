@@ -114,7 +114,10 @@ class TestPolicy(unittest.TestCase):
                              "FAIL_SOURCE_TYPE", st)
 
     def test_every_reference_in_the_real_yaml_passes_policy(self):
-        data = yaml.safe_load((ROOT / "references_to_verify.yaml").read_text(encoding="utf-8"))
+        ref_file = ROOT / "references" / "references_to_verify.yaml"
+        if not ref_file.exists():
+            ref_file = ROOT / "references_to_verify.yaml"
+        data = yaml.safe_load(ref_file.read_text(encoding="utf-8"))
         bad = [(r["doi_or_url"], verify_dois.check_policy(r)) for g in data["groups"] for r in g["refs"]
                if verify_dois.check_policy(r)]
         self.assertEqual(bad, [])

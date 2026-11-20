@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DOCS = ["README.md", "GETTING_STARTED.md", "SECURITY.md"]
+DOCS = ["README.md", "docs/GETTING_STARTED.md", ".github/SECURITY.md"]
 
 
 class TestMcpIsPinned(unittest.TestCase):

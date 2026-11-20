@@ -73,7 +73,7 @@ In practice, this framework makes the agent do four things it would not do on it
 
 ## Proof of Value
 
-Check out [`BENCHMARK.md`](BENCHMARK.md) for a side-by-side comparison of how an AI agent behaves with and without this framework.
+Check out [`BENCHMARK.md`](docs/BENCHMARK.md) for a side-by-side comparison of how an AI agent behaves with and without this framework.
 
 ## Illustrative Example
 
@@ -328,9 +328,11 @@ File: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ~~~text
 ML-Model-Architect/
+|-- .github/                # CI workflows, issue templates & community health (CONTRIBUTING, SECURITY, CODE_OF_CONDUCT)
 |-- _constitution/          # Constitution Rules A-G (Deterministic Plan & Grounded ReAct)
 |-- _shared/                # Templates: requirements, tech-choice, reports & TEMPLATE-PLAN-MANIFEST.json
 |-- bin/                    # Platform CLI wrappers (mla, ml-architect)
+|-- docs/                   # Extended guides (GETTING_STARTED.md, BENCHMARK.md)
 |-- docker/                 # Container sandbox definition (Dockerfile.sandbox)
 |-- examples/               # End-to-end runnable pipelines with manifests & reports
 |   |-- car-price-prediction/
@@ -338,17 +340,15 @@ ML-Model-Architect/
 |   |-- financial-anomaly-detection/
 |   `-- case-study-churn/
 |-- mcp_server/             # Local knowledge vector retrieval server (MCP)
-|-- references/             # 12 ML groups x 3 stages + catalog
+|-- references/             # 12 ML groups x 3 stages, references_to_verify.yaml & trusted_domains.yaml
 |-- sandbox/                # AI-generated code isolation area
 |-- scripts/                # Unified CLI, lock_plan, run_policy, verify_dois, scan_sandbox, docker
 |-- skills/                 # Sequential stages 01-05 with strict exit gates
 |-- tests/                  # 79 unit tests + behavioral evaluation suite
 |-- app.py                  # Streamlit governance & plan dashboard
 |-- pyproject.toml          # PEP 621 package metadata & CLI entry points
-|-- references_to_verify.yaml
-|-- trusted_domains.yaml
-|-- requirements.txt
-`-- README.md
+|-- requirements.txt        # Python dependencies
+`-- README.md               # Main project overview & engineering blueprints
 ~~~
 
 ---
@@ -391,7 +391,7 @@ Level 0: Stage-specific file -> Level 1: Core databases -> Level 2: Sibling grou
 - **Test Suite Status:** Currently 79 automated tests across 11 test modules covering 100% of critical paths in under 1.1s.
 
 ## Contributing
-Please see [CONTRIBUTING.md](./CONTRIBUTING.md).
+Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md).
 
 ## Requirements
 - Any AI agent with file access.
