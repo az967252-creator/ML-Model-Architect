@@ -9,6 +9,8 @@ references/pdf/
 .kilo/
 *.patch
 *.lock
+dist/
+build/
 *.egg-info/
 .pytest_cache/
 /TRAINING-REPORT.md
