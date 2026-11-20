@@ -37,8 +37,12 @@ TRAINING-REPORT.md must exist and be user-approved.
 4. Error analysis
    Residuals / confusion matrix / per-segment breakdown.
 
-5. Confidence intervals
-   Bootstrap (1000 iterations) or cross-validation folds.
+5. Confidence intervals & 1-SE Model Selection Rule
+   Compute fold standard error: SE = Std / sqrt(k).
+   Apply Hastie et al. (2009) 1-SE Rule (10.1007/978-0-387-84858-7): select the simplest model within 1 SE of the best cross-validation score.
+
+6. Deterministic Plan Assertion Verification
+   Evaluate: `assert_1se_rule_applied()` and `decision_logged_in_ledger('DECISIONS.md')`.
 
 ## Part C — Problem Catalog (Reference-Based Diagnosis)
 
@@ -57,5 +61,6 @@ Forbidden: proposing a fix from "experience".
 - [ ] Leakage checks done and documented.
 - [ ] Error analysis done.
 - [ ] Metrics compared to Stage 1 baseline.
+- [ ] 1-SE Model Selection Rule applied and documented.
 - [ ] CIs computed where possible.
 - [ ] User approved EVALUATION-REPORT.md.

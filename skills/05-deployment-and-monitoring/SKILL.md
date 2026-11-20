@@ -58,4 +58,5 @@ No invention. Every proposed solution must have a citation.
 - [ ] Alert thresholds defined with references.
 - [ ] Retraining policy defined with reference.
 - [ ] Model lineage + unified logging enabled.
+- [ ] All DAG steps in PLAN.manifest.json verified as COMPLETED via policy engine.
 - [ ] User approved DEPLOYMENT-REPORT.md.
