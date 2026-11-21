@@ -203,7 +203,7 @@ def evaluate_reference(ref, rules, locator_text="", row_type=None):
 # --------------------------------------------------------------------------
 # Main logic
 # --------------------------------------------------------------------------
-def enforce(filepath, online=False, allow_offline=False, max_heuristic_ratio=0.4, doi_checker=check_doi, whitelist=None):
+def enforce(filepath, online=False, allow_offline=False, max_heuristic_ratio=0.4, doi_checker=check_doi, whitelist=None, allow_empty=False):
     """Check one ledger file. Returns the exit code (0, 1 or 2)."""
     path = Path(filepath)
     if not path.exists():
@@ -296,6 +296,14 @@ def enforce(filepath, online=False, allow_offline=False, max_heuristic_ratio=0.4
             print(f"❌ VIOLATION: heuristic ratio {ratio:.1%} exceeds maximum allowed threshold of {max_heuristic_ratio:.1%}.")
             violations += 1
 
+    if checked == 0:
+        if allow_empty:
+            print(f"ℹ️ Ledger contains 0 technical decisions (--allow-empty specified).")
+            return 0
+        else:
+            print(f"⚠️ WARNING: Ledger contains 0 technical decisions. At least one technical decision is required (or pass --allow-empty).")
+            return 1
+
     if violations:
         print(f"\n❌ Found {violations} violation(s) in {checked} technical decision(s).")
         return 1
@@ -313,11 +321,12 @@ def main(argv=None):
     parser.add_argument("--online", action="store_true", help="also verify every DOI on Crossref/DataCite")
     parser.add_argument("--allow-offline", action="store_true", help="network errors are warnings, not failures")
     parser.add_argument("--max-heuristic-ratio", type=float, default=0.4, help="maximum ratio of heuristic/reference-gap decisions (default 0.4)")
+    parser.add_argument("--allow-empty", action="store_true", help="allow ledgers with zero technical decisions")
     args = parser.parse_args(argv)
     worst = 0
     for f in args.files:
         print(f"== {f}")
-        worst = max(worst, enforce(f, online=args.online, allow_offline=args.allow_offline, max_heuristic_ratio=args.max_heuristic_ratio))
+        worst = max(worst, enforce(f, online=args.online, allow_offline=args.allow_offline, max_heuristic_ratio=args.max_heuristic_ratio, allow_empty=args.allow_empty))
     return worst
 
 

@@ -35,20 +35,11 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.model_selection import select_1se_model, compute_1se_from_folds
+from benchmarks.latency_util import measure_p99_latency_ms
 from benchmarks.unconstrained_agent.naive_car_price import run_naive_car_price
 from benchmarks.unconstrained_agent.naive_delivery_delay import run_naive_delivery_delay
 from benchmarks.unconstrained_agent.naive_financial_anomaly import run_naive_anomaly
 from benchmarks.unconstrained_agent.naive_telecom_churn import run_naive_churn
-
-
-def measure_p99_latency_ms(model: Any, X_sample: Any, n_repeats: int = 100) -> float:
-    """Measure 99th percentile inference latency in milliseconds."""
-    latencies = []
-    for _ in range(n_repeats):
-        t0 = time.perf_counter()
-        _ = model.predict(X_sample)
-        latencies.append((time.perf_counter() - t0) * 1000)
-    return float(np.percentile(latencies, 99))
 
 
 # -----------------------------------------------------------------------------
@@ -314,6 +305,15 @@ def run_financial_anomaly_benchmark() -> Dict[str, Any]:
     pr_auc_c = float(average_precision_score(y_test, scores))
     p99_lat = measure_p99_latency_ms(iso_pipe, X_test.iloc[:1])
 
+    # Select model: If Z-score baseline ties Isolation Forest within 1e-3, select Baseline per Occam's razor / 1-SE parsimony
+    diff_pr = pr_auc_c - pr_auc_b
+    if diff_pr <= 1e-3:
+        selected_model = "Statistical Z-Score Baseline"
+        selection_rule = f"Baseline Selected: Univariate Z-Score ties Isolation Forest PR-AUC ({pr_auc_b:.4f} vs {pr_auc_c:.4f}) within 1e-3 margin (Hastie 1-SE / Occam's razor parsimony)"
+    else:
+        selected_model = "Isolation Forest Pipeline"
+        selection_rule = f"Candidate Selected: Isolation Forest PR-AUC ({pr_auc_c:.4f}) exceeds baseline ({pr_auc_b:.4f}) by > 1e-3"
+
     naive_res = run_naive_anomaly(df)
 
     return {
@@ -340,8 +340,8 @@ def run_financial_anomaly_benchmark() -> Dict[str, Any]:
                 "fit_time_ms": round(fit_time_ms, 2),
                 "p99_latency_ms": round(p99_lat, 2),
             },
-            "selected_model": "Isolation Forest Pipeline",
-            "selection_rule": f"Isolation Forest PR-AUC ({pr_auc_c:.4f}) outperforms univariate baseline ({pr_auc_b:.4f}) without oracle parameter",
+            "selected_model": selected_model,
+            "selection_rule": selection_rule,
             "leakage_detected": False,
         },
         "naive_baseline": naive_res,

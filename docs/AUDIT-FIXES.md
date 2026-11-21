@@ -13,7 +13,22 @@ This document tracks the remediation of 15 verified engineering and architectura
 | **R3** | Dataflow AST Leakage Detector | [x] Completed | `c57b146` | `src/ml_model_architect/policy.py`, `tests/test_run_policy.py` | `tests/test_run_policy.py::TestLeakageDetectorAST` (7 tests: aliases, inline calls, SelectKBest, fillna, target encoding, helpers) |
 | **R4** | Ledger & Plan Lock Hardening | [x] Completed | `1ea23c8` | `src/ml_model_architect/enforcer.py`, `src/ml_model_architect/locker.py`, `trusted_domains.yaml` | `tests/test_enforce.py` (locator regex, technical promotion, tier B scoping), `tests/test_run_policy.py` (`verify_plan_git`) |
 | **R5** | Scanner Resource Exhaustion / DoS | [x] Completed | `01660c8` | `src/ml_model_architect/scanner.py`, `tests/test_scan_sandbox_extra.py` | `tests/test_scan_sandbox_extra.py::TestDoSAttacks` (sleep, large range, array multiplication, dynamic joblib) |
-| **R6** | Test Suite Honesty & Limitations | [x] Completed | Pending | `tests/test_lock_plan.py`, `docs/BEHAVIORAL_TESTS.md`, `README.md`, `docs/AUDIT-FIXES.md` | `tests/test_lock_plan.py` (9 real unit tests), README Known Limitations honesty disclaimer |
+| **R6** | Test Suite Honesty & Limitations | [x] Completed | `0d5a891` | `tests/test_lock_plan.py`, `docs/BEHAVIORAL_TESTS.md`, `README.md`, `docs/AUDIT-FIXES.md` | `tests/test_lock_plan.py` (9 real unit tests), README Known Limitations honesty disclaimer |
+
+---
+
+## Round 3 Final Polish Summary
+
+| Item | Focus Domain | Status | Primary Files Changed | Proving Tests / Evidence |
+|:---:|:---|:---:|:---|:---|
+| **1** | README Rigor & Claims | [x] Completed | `README.md` | Rigor matrix removes ungrounded percentages; claims bounded to CI verification; naive scripted baseline nomenclature |
+| **2** | Financial Anomaly Parsimony Selection | [x] Completed | `benchmarks/run_benchmarks.py`, `benchmarks/results.json`, `docs/BENCHMARK.md`, `README.md` | When Z-score ties IF (PR-AUC 1.0000), baseline selected per 1-SE rule; `tests/test_benchmarks.py::TestBenchmarks::test_results_json_structure` |
+| **3** | Citation Traceability & Verification | [x] Completed | `references/references_to_verify.yaml`, `README.md`, `docs/BENCHMARK.md`, `tests/test_benchmarks.py` | Mapped HistGradientBoosting to Ke et al. (2017), Z-Score to Ruff et al. (2021); `tests/test_benchmarks.py::TestBenchmarks::test_every_cited_reference_in_table_exists_in_yaml` |
+| **4** | Unified Latency Measurement & Ranges | [x] Completed | `benchmarks/latency_util.py`, `benchmarks/run_benchmarks.py`, `benchmarks/unconstrained_agent/*.py`, `README.md` | Single `measure_p99_latency_ms` with warm-up cycles; README expresses timing as ranges with host hardware note |
+| **5** | Scanner > 1e8 & While Loop Bounding | [x] Completed | `src/ml_model_architect/scanner.py`, `tests/test_scan_sandbox_extra.py` | Blocks >1e8 in range/arange/zeros/ones/mult; flags non-constant while loops without break/counter; `tests/test_scan_sandbox_extra.py` (4 passed, 51 subtests) |
+| **6** | Leakage Detection Tuple & Container Support | [x] Completed | `src/ml_model_architect/policy.py`, `tests/test_run_policy.py` | Unpacks tuples, tracks list/dict-held transformers; `tests/test_run_policy.py` (3 new tests, 27 passed) |
+| **7** | Ledger Zero Technical Decisions Guard | [x] Completed | `src/ml_model_architect/enforcer.py`, `src/ml_model_architect/cli.py`, `tests/test_enforce.py` | Exits non-zero on 0 technical decisions unless `--allow-empty`; `tests/test_enforce.py` (34 passed) |
+| **8** | CI Hardening & Docker Smoke Job | [x] Completed | `.github/workflows/verify.yml`, `docs/AUDIT-FIXES.md` | Removed `\|\| true` from behavioral runner; added `docker-smoke` job; resolved pending status |
 
 ---
 

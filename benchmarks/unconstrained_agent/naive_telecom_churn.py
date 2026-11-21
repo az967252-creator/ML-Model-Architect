@@ -11,15 +11,7 @@ from sklearn.model_selection import KFold, cross_val_score
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import f1_score
-
-
-def measure_p99_latency_ms(model, sample, n_repeats: int = 100) -> float:
-    latencies = []
-    for _ in range(n_repeats):
-        t_start = time.perf_counter()
-        _ = model.predict(sample)
-        latencies.append((time.perf_counter() - t_start) * 1000)
-    return float(np.percentile(latencies, 99))
+from benchmarks.latency_util import measure_p99_latency_ms
 
 
 def run_naive_churn(df: pd.DataFrame) -> dict:

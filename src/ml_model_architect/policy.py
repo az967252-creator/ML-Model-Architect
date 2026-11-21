@@ -76,6 +76,7 @@ class PipelineASTValidator(ast.NodeVisitor):
         self.imported_pipeline_classes = set()
         self.imported_transformers = {}  # alias -> class_name
         self.transformer_vars = set()  # names of variables holding transformer instances
+        self.transformer_containers = set()  # names of containers (lists, dicts, tuples) holding transformers
         self.fitted_before_split_vars = set()
         self.local_functions = {}  # name -> FunctionDef
         self.visiting_functions = set()
@@ -172,11 +173,48 @@ class PipelineASTValidator(ast.NodeVisitor):
                 if isinstance(target, ast.Name):
                     self.transformer_vars.add(target.id)
 
+        # Check tuple/list unpacking e.g. scaler, imputer = StandardScaler(), SimpleImputer()
+        for target in node.targets:
+            if isinstance(target, (ast.Tuple, ast.List)) and isinstance(node.value, (ast.Tuple, ast.List)):
+                for elt_target, elt_val in zip(target.elts, node.value.elts):
+                    if isinstance(elt_target, ast.Name):
+                        if (isinstance(elt_val, ast.Call) and self.is_transformer_call(elt_val)) or (isinstance(elt_val, ast.Name) and elt_val.id in self.transformer_vars):
+                            self.transformer_vars.add(elt_target.id)
+
+        # Check list/tuple containers e.g. transformers = [StandardScaler()]
+        if isinstance(node.value, (ast.List, ast.Tuple)):
+            has_transformer = any(
+                (isinstance(elt, ast.Call) and self.is_transformer_call(elt))
+                or (isinstance(elt, ast.Name) and elt.id in self.transformer_vars)
+                for elt in node.value.elts
+            )
+            if has_transformer:
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        self.transformer_containers.add(target.id)
+
+        # Check dict containers e.g. t_dict = {"scaler": StandardScaler()}
+        if isinstance(node.value, ast.Dict):
+            has_transformer = any(
+                (isinstance(val, ast.Call) and self.is_transformer_call(val))
+                or (isinstance(val, ast.Name) and val.id in self.transformer_vars)
+                for val in node.value.values
+            )
+            if has_transformer:
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        self.transformer_containers.add(target.id)
+
         # Check variable aliasing (e.g., s2 = s1)
-        if isinstance(node.value, ast.Name) and node.value.id in self.transformer_vars:
-            for target in node.targets:
-                if isinstance(target, ast.Name):
-                    self.transformer_vars.add(target.id)
+        if isinstance(node.value, ast.Name):
+            if node.value.id in self.transformer_vars:
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        self.transformer_vars.add(target.id)
+            elif node.value.id in self.transformer_containers:
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        self.transformer_containers.add(target.id)
 
         # Check pre-split pandas manual scaling via .mean() or .std()
         if (self.train_test_split_lineno is None or effective_lineno < self.train_test_split_lineno) and not self._inside_column_transformer:
@@ -239,12 +277,19 @@ class PipelineASTValidator(ast.NodeVisitor):
         finally:
             self.visiting_functions.remove(func_name)
 
+    def visit_For(self, node):
+        if isinstance(node.iter, ast.Name) and node.iter.id in self.transformer_containers:
+            if isinstance(node.target, ast.Name):
+                self.transformer_vars.add(node.target.id)
+        self.generic_visit(node)
+
     def visit_Call(self, node):
         effective_lineno = self.current_call_context_lineno or node.lineno
         func = node.func
         func_name = None
         caller_name = ""
         is_inline_transformer = False
+        is_subscript_transformer = False
 
         if isinstance(func, ast.Name):
             func_name = func.id
@@ -255,6 +300,16 @@ class PipelineASTValidator(ast.NodeVisitor):
             elif isinstance(func.value, ast.Call):
                 if self.is_transformer_call(func.value):
                     is_inline_transformer = True
+            elif isinstance(func.value, ast.Subscript):
+                sub = func.value
+                if isinstance(sub.value, ast.Name) and sub.value.id in self.transformer_containers:
+                    is_subscript_transformer = True
+                elif isinstance(sub.value, (ast.List, ast.Tuple)):
+                    if any((isinstance(e, ast.Call) and self.is_transformer_call(e)) or (isinstance(e, ast.Name) and e.id in self.transformer_vars) for e in sub.value.elts):
+                        is_subscript_transformer = True
+                elif isinstance(sub.value, ast.Dict):
+                    if any((isinstance(v, ast.Call) and self.is_transformer_call(v)) or (isinstance(v, ast.Name) and v.id in self.transformer_vars) for v in sub.value.values):
+                        is_subscript_transformer = True
 
         # Pre-split check flag
         is_pre_split = (self.train_test_split_lineno is None or effective_lineno < self.train_test_split_lineno) and not self._inside_column_transformer
@@ -305,6 +360,11 @@ class PipelineASTValidator(ast.NodeVisitor):
                 if is_pre_split:
                     self.leakage_violations.append(
                         f"Data leakage detected: inline transformer call '.{func_name}()' at line {effective_lineno} before train_test_split."
+                    )
+            elif is_subscript_transformer:
+                if is_pre_split:
+                    self.leakage_violations.append(
+                        f"Data leakage detected: container/subscript transformer '.{func_name}()' called at line {effective_lineno} before train_test_split."
                     )
             elif caller_is_transformer and (caller_name not in self.pipeline_names and "pipe" not in caller_name.lower()):
                 if is_pre_split:

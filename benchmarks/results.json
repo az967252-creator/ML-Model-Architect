@@ -1,7 +1,7 @@
 {
   "benchmark_suite_version": "1.0.0",
-  "timestamp_utc": "2026-11-21T17:18:14Z",
-  "total_runtime_seconds": 14.35,
+  "timestamp_utc": "2026-11-21T19:23:08Z",
+  "total_runtime_seconds": 15.1,
   "benchmarks": [
     {
       "benchmark_id": "BENCH-01",
@@ -19,8 +19,8 @@
             "cv_std": 372.71,
             "cv_se": 166.68,
             "test_rmse": 12223.19,
-            "fit_time_ms": 7.43,
-            "p99_latency_ms": 5.98,
+            "fit_time_ms": 7.59,
+            "p99_latency_ms": 7.02,
             "complexity": 0
           },
           "Linear Regression": {
@@ -28,8 +28,8 @@
             "cv_std": 83.92,
             "cv_se": 37.53,
             "test_rmse": 2303.08,
-            "fit_time_ms": 8.05,
-            "p99_latency_ms": 5.09,
+            "fit_time_ms": 8.36,
+            "p99_latency_ms": 4.75,
             "complexity": 1
           },
           "Gradient Boosting": {
@@ -37,8 +37,8 @@
             "cv_std": 61.3,
             "cv_se": 27.41,
             "test_rmse": 2194.51,
-            "fit_time_ms": 138.06,
-            "p99_latency_ms": 5.71,
+            "fit_time_ms": 134.26,
+            "p99_latency_ms": 4.88,
             "complexity": 2
           }
         },
@@ -52,8 +52,8 @@
         "cv_rmse": 2354.95,
         "cv_se": 26.45,
         "test_rmse": 2194.51,
-        "fit_time_ms": 127.51,
-        "p99_latency_ms": 5.75,
+        "fit_time_ms": 127.54,
+        "p99_latency_ms": 5.46,
         "data_leakage": false,
         "violated_rule": "G3 (Empirical 1-SE Override)"
       },
@@ -63,8 +63,8 @@
         "cv_rmse": 2354.95,
         "cv_se": 26.45,
         "test_rmse": 2194.51,
-        "fit_time_ms": 127.51,
-        "p99_latency_ms": 5.75,
+        "fit_time_ms": 127.54,
+        "p99_latency_ms": 5.46,
         "data_leakage": false,
         "violated_rule": "G3 (Empirical 1-SE Override)"
       }
@@ -86,8 +86,8 @@
             "cv_std": 0.0105,
             "cv_se": 0.0047,
             "test_f1": 0.9586,
-            "fit_time_ms": 24.62,
-            "p99_latency_ms": 6.71,
+            "fit_time_ms": 24.21,
+            "p99_latency_ms": 6.91,
             "complexity": 0,
             "cv_score": 0.958197082535273
           },
@@ -96,8 +96,8 @@
             "cv_std": 0.0069,
             "cv_se": 0.0031,
             "test_f1": 0.9824,
-            "fit_time_ms": 289.12,
-            "p99_latency_ms": 15.84,
+            "fit_time_ms": 307.06,
+            "p99_latency_ms": 14.43,
             "complexity": 1,
             "cv_score": 0.9847160591231295
           }
@@ -112,8 +112,8 @@
         "chosen_model": "Logistic Regression (Leaked Preprocessing)",
         "failure_mode": "Data Leakage (StandardScaler fitted across full dataset before split)",
         "test_f1": 0.9377,
-        "fit_time_ms": 10.42,
-        "p99_latency_ms": 1.59,
+        "fit_time_ms": 10.48,
+        "p99_latency_ms": 1.55,
         "data_leakage": true,
         "violated_rule": "G1 / Stage 3 Leakage Gate (Missing Pipeline Boundary)"
       },
@@ -121,8 +121,8 @@
         "chosen_model": "Logistic Regression (Leaked Preprocessing)",
         "failure_mode": "Data Leakage (StandardScaler fitted across full dataset before split)",
         "test_f1": 0.9377,
-        "fit_time_ms": 10.42,
-        "p99_latency_ms": 1.59,
+        "fit_time_ms": 10.48,
+        "p99_latency_ms": 1.55,
         "data_leakage": true,
         "violated_rule": "G1 / Stage 3 Leakage Gate (Missing Pipeline Boundary)"
       }
@@ -152,11 +152,11 @@
           "f1_score": 0.4231,
           "pr_auc": 1.0,
           "roc_auc": 1.0,
-          "fit_time_ms": 175.22,
-          "p99_latency_ms": 13.75
+          "fit_time_ms": 174.82,
+          "p99_latency_ms": 14.31
         },
-        "selected_model": "Isolation Forest Pipeline",
-        "selection_rule": "Isolation Forest PR-AUC (1.0000) outperforms univariate baseline (1.0000) without oracle parameter",
+        "selected_model": "Statistical Z-Score Baseline",
+        "selection_rule": "Baseline Selected: Univariate Z-Score ties Isolation Forest PR-AUC (1.0000 vs 1.0000) within 1e-3 margin (Hastie 1-SE / Occam's razor parsimony)",
         "leakage_detected": false
       },
       "naive_baseline": {
@@ -168,8 +168,8 @@
         "f1_score": 0.9474,
         "roc_auc": 1.0,
         "pr_auc": 1.0,
-        "fit_time_ms": 24.36,
-        "p99_latency_ms": 1.42,
+        "fit_time_ms": 25.44,
+        "p99_latency_ms": 1.32,
         "data_leakage": false,
         "violated_rule": "B1 / Stage 1 Framing Gate (Imbalanced metric selection)"
       },
@@ -182,8 +182,8 @@
         "f1_score": 0.9474,
         "roc_auc": 1.0,
         "pr_auc": 1.0,
-        "fit_time_ms": 24.36,
-        "p99_latency_ms": 1.42,
+        "fit_time_ms": 25.44,
+        "p99_latency_ms": 1.32,
         "data_leakage": false,
         "violated_rule": "B1 / Stage 1 Framing Gate (Imbalanced metric selection)"
       }
@@ -205,8 +205,8 @@
             "cv_std": 0.0446,
             "cv_se": 0.0199,
             "test_f1": 0.4103,
-            "fit_time_ms": 23.72,
-            "p99_latency_ms": 6.88,
+            "fit_time_ms": 23.77,
+            "p99_latency_ms": 6.25,
             "complexity": 0,
             "cv_score": 0.39241795963857273
           },
@@ -215,8 +215,8 @@
             "cv_std": 0.0333,
             "cv_se": 0.0149,
             "test_f1": 0.4017,
-            "fit_time_ms": 292.32,
-            "p99_latency_ms": 11.17,
+            "fit_time_ms": 282.17,
+            "p99_latency_ms": 14.79,
             "complexity": 1,
             "cv_score": 0.41401024825514215
           }
@@ -232,8 +232,8 @@
         "failure_mode": "Cross-Fold Preprocessing Leakage (Scaler fit before KFold; non-stratified split)",
         "cv_f1": 0.3984,
         "cv_se": 0.009,
-        "fit_time_ms": 271.26,
-        "p99_latency_ms": 4.36,
+        "fit_time_ms": 269.91,
+        "p99_latency_ms": 4.02,
         "data_leakage": true,
         "violated_rule": "Stage 4 Evaluation Gate / B7 Empirical Validation"
       },
@@ -242,8 +242,8 @@
         "failure_mode": "Cross-Fold Preprocessing Leakage (Scaler fit before KFold; non-stratified split)",
         "cv_f1": 0.3984,
         "cv_se": 0.009,
-        "fit_time_ms": 271.26,
-        "p99_latency_ms": 4.36,
+        "fit_time_ms": 269.91,
+        "p99_latency_ms": 4.02,
         "data_leakage": true,
         "violated_rule": "Stage 4 Evaluation Gate / B7 Empirical Validation"
       }

@@ -59,8 +59,12 @@ class TestReferences(unittest.TestCase):
         disguised_metric = HEADER + "| 1 | 1 | other | Business metric? | A) acc B) f1 | F1-Score | Valid technical reasoning exceeding twenty characters | none | user | d |\n"
         self.assertEqual(run(disguised_metric), 1)
 
-        # Truly non-technical data row without model names passes
-        clean_data = HEADER + "| 1 | 1 | data | Customer region column? | A) US B) EU | US | Valid business reasoning exceeding twenty characters | none | user | d |\n"
+        # Truly non-technical data row without model names passes when accompanied by valid technical decision
+        clean_data = (
+            HEADER
+            + "| 1 | 1 | data | Customer region column? | A) US B) EU | US | Valid business reasoning exceeding twenty characters | none | user | d |\n"
+            + "| 2 | 2 | technique | Model family? | A) Linear B) Trees | A | Linear regression for simple baseline interpretation | 10.1145/2939672.2939785 @ Sec 3.1 | user | d |\n"
+        )
         self.assertEqual(run(clean_data), 0)
 
     def test_allowed_tokens(self):
@@ -81,7 +85,19 @@ class TestReferences(unittest.TestCase):
             self.assertEqual(run(ledger((typ, "none"))), 1, typ)
 
     def test_non_technical_type_not_checked(self):
-        self.assertEqual(run(ledger(("data", "none"))), 0)
+        # Non-technical row (data) does not require a valid DOI, as long as a technical row exists
+        text = ledger(("data", "none"), ("technique", "10.1145/2939672.2939785 @ Sec 3.1"))
+        self.assertEqual(run(text), 0)
+
+    def test_zero_technical_decisions_fails_without_flag(self):
+        # Zero technical decisions exits with code 1
+        text = ledger(("data", "none"))
+        self.assertEqual(run(text, allow_empty=False), 1)
+
+    def test_zero_technical_decisions_passes_with_allow_empty(self):
+        # Zero technical decisions exits with code 0 when allow_empty=True
+        text = ledger(("data", "none"))
+        self.assertEqual(run(text, allow_empty=True), 0)
 
     def test_unknown_type_misc_rejected(self):
         self.assertEqual(run(ledger(("misc", "none"))), 1)

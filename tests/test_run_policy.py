@@ -437,6 +437,64 @@ class TestPolicyEngine(unittest.TestCase):
         self.assertFalse(passed)
         self.assertIn("s.fit_transform()", msg)
 
+    def test_leakage_tuple_unpacking(self):
+        engine = PolicyEngine(self.plan_path, base_dir=self.test_dir)
+        fpath = os.path.join(self.test_dir, "leak_tuple.py")
+        code = (
+            "from sklearn.preprocessing import StandardScaler\n"
+            "from sklearn.impute import SimpleImputer\n"
+            "from sklearn.pipeline import Pipeline\n"
+            "from sklearn.linear_model import LogisticRegression\n"
+            "from sklearn.model_selection import train_test_split\n"
+            "scaler, imputer = StandardScaler(), SimpleImputer()\n"
+            "X_scaled = scaler.fit_transform(X)\n"
+            "X_tr, X_te, y_tr, y_te = train_test_split(X_scaled, y)\n"
+            "pipe = Pipeline([('clf', LogisticRegression())])\n"
+            "pipe.fit(X_tr, y_tr)\n"
+        )
+        Path(fpath).write_text(code, encoding="utf-8")
+        passed, msg = engine.evaluate_assertion("is_single_sklearn_pipeline('leak_tuple.py')")
+        self.assertFalse(passed)
+        self.assertIn("scaler.fit_transform()", msg)
+
+    def test_leakage_list_held_transformer(self):
+        engine = PolicyEngine(self.plan_path, base_dir=self.test_dir)
+        fpath = os.path.join(self.test_dir, "leak_list.py")
+        code = (
+            "from sklearn.preprocessing import StandardScaler\n"
+            "from sklearn.pipeline import Pipeline\n"
+            "from sklearn.linear_model import LogisticRegression\n"
+            "from sklearn.model_selection import train_test_split\n"
+            "transformers = [StandardScaler()]\n"
+            "X_scaled = transformers[0].fit_transform(X)\n"
+            "X_tr, X_te, y_tr, y_te = train_test_split(X_scaled, y)\n"
+            "pipe = Pipeline([('clf', LogisticRegression())])\n"
+            "pipe.fit(X_tr, y_tr)\n"
+        )
+        Path(fpath).write_text(code, encoding="utf-8")
+        passed, msg = engine.evaluate_assertion("is_single_sklearn_pipeline('leak_list.py')")
+        self.assertFalse(passed)
+        self.assertIn("container/subscript transformer '.fit_transform()'", msg)
+
+    def test_leakage_dict_held_transformer(self):
+        engine = PolicyEngine(self.plan_path, base_dir=self.test_dir)
+        fpath = os.path.join(self.test_dir, "leak_dict.py")
+        code = (
+            "from sklearn.preprocessing import StandardScaler\n"
+            "from sklearn.pipeline import Pipeline\n"
+            "from sklearn.linear_model import LogisticRegression\n"
+            "from sklearn.model_selection import train_test_split\n"
+            "t_dict = {'scaler': StandardScaler()}\n"
+            "X_scaled = t_dict['scaler'].fit_transform(X)\n"
+            "X_tr, X_te, y_tr, y_te = train_test_split(X_scaled, y)\n"
+            "pipe = Pipeline([('clf', LogisticRegression())])\n"
+            "pipe.fit(X_tr, y_tr)\n"
+        )
+        Path(fpath).write_text(code, encoding="utf-8")
+        passed, msg = engine.evaluate_assertion("is_single_sklearn_pipeline('leak_dict.py')")
+        self.assertFalse(passed)
+        self.assertIn("container/subscript transformer '.fit_transform()'", msg)
+
 
 if __name__ == "__main__":
     unittest.main()

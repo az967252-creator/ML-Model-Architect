@@ -54,6 +54,16 @@ groups:
     verified_by: az967252
     verified_date: '2026-11-04'
     evidence_url: https://papers.nips.cc/paper_files/paper/2018/hash/14491b756b3a51daac41c24863285549-Abstract.html
+  - citation: "Ke, G., et al. (2017). LightGBM: A Highly Efficient Gradient Boosting Decision Tree. NeurIPS."
+    title: "LightGBM: A Highly Efficient Gradient Boosting Decision Tree"
+    year: 2017
+    doi_or_url: 10.5555/3294996.3295074
+    source_type: conference
+    claimed_peer_reviewed: true
+    exception: NeurIPS proceedings / ACM legacy; verified manually.
+    verified_by: az967252
+    verified_date: '2026-11-21'
+    evidence_url: https://papers.nips.cc/paper_files/paper/2017/hash/6449f44a102fde848669bdd9eb6b76fa-Abstract.html
 
 - id: '04'
   name: Neural Networks

@@ -245,36 +245,36 @@ To empirically evaluate whether constitutional governance improves machine learn
 | **Naive Baseline Failure Mode** | Severe Preprocessing Leakage (scaler fit before split) | Overfitting small dataset; ignored 1-SE parsimony | Optimizes raw accuracy on 3% positive stream (missing anomalies) | Cross-Fold Preprocessing Leakage (scaler fit before non-stratified KFold) |
 | **Framework Baseline Model** | Logistic Regression (`cv=5`, F1: 0.9582 $\pm$ 0.0047) | Linear Regression (`cv=5`, RMSE: 2,333.97 $\pm$ 37.53) | Univariate Z-Score Baseline (F1: 0.9268, PR-AUC: 1.0000) | Logistic Regression (`cv=5`, F1: 0.3924 $\pm$ 0.0199) |
 | **Framework Candidate Model** | HistGradientBoosting (`cv=5`, F1: 0.9847 $\pm$ 0.0031) | Gradient Boosting (`cv=5`, RMSE: 2,356.81 $\pm$ 27.41) | Isolation Forest Pipeline (contamination='auto', PR-AUC: 1.0000) | HistGradientBoosting (`cv=5`, F1: 0.4140 $\pm$ 0.0149) |
-| **1-SE Rule Decision (Hastie et al. 2009)** | **Candidate Selected:** $\Delta = 0.0265 > \text{SE} = 0.0031$ | **Baseline Selected:** Linear beats GB on CV RMSE (2333.97 vs 2356.81) | **Candidate Selected:** IF PR-AUC (1.0000) matches Z-Score without oracle | **Candidate Selected:** $\Delta = 0.0216 > \text{SE} = 0.0149$ |
-| **Final Generalization Metric** | **Holdout F1: 0.9824** | **Holdout RMSE: 2,303.08** (Fit: 8.1ms vs 138.1ms; p99: 5.1ms) | **Holdout PR-AUC: 1.0000** (ROC-AUC: 1.0000) | **Holdout F1: 0.4017** (Holdout ROC-AUC: 0.6589) |
-| **Formal Citation Traceability** | 100% Verified (Chen & Guestrin 2016) | 100% Verified (Hastie et al. 2009) | 100% Verified (Liu et al. 2008) | 100% Verified (Chen & Guestrin 2016) |
+| **1-SE Rule Decision (Hastie et al. 2009)** | **Candidate Selected:** $\Delta = 0.0265 > \text{SE} = 0.0031$ | **Baseline Selected:** Linear beats GB on CV RMSE (2333.97 vs 2356.81) | **Baseline Selected:** Z-Score PR-AUC (1.0000) ties IF (1.0000); simpler baseline chosen per 1-SE parsimony | **Candidate Selected:** $\Delta = 0.0216 > \text{SE} = 0.0149$ |
+| **Final Generalization Metric** | **Holdout F1: 0.9824** | **Holdout RMSE: 2,303.08** (Fit: ~8-15ms vs ~130-160ms; p99: ~5ms) | **Holdout PR-AUC: 1.0000** (ROC-AUC: 1.0000) | **Holdout F1: 0.4017** (Holdout ROC-AUC: 0.6589) |
+| **Formal Citation Traceability** | 100% Verified (Ke et al. 2017) | 100% Verified (Hastie et al. 2009) | 100% Verified (Ruff et al. 2021) | 100% Verified (Ke et al. 2017) |
 
 > [!NOTE]
-> In the Car Price benchmark, the naive baseline directly selected Gradient Boosting Regressor without parsimony testing. Under ML Model Architect, the **1-SE Rule** verified that Gradient Boosting offered no statistically significant gain over Linear Regression on validation folds (CV RMSE: 2,333.97 vs 2,356.81). The simpler model was selected, delivering a fit time of 8.1 ms vs 138.1 ms for Gradient Boosting (a 17x fit speedup) with p99 inference latency of 5.1 ms and a holdout RMSE difference of 108.57 (2,303.08 vs 2,194.51) on synthetic test data.
+> In the Car Price benchmark, the naive baseline directly selected Gradient Boosting Regressor without parsimony testing. Under ML Model Architect, the **1-SE Rule** verified that Gradient Boosting offered no statistically significant gain over Linear Regression on validation folds (CV RMSE: 2,333.97 vs 2,356.81). The simpler model was selected, delivering a fit time of ~8-15 ms vs ~130-160 ms for Gradient Boosting (a ~10-17x fit speedup) with single-sample p99 inference latency of ~5 ms and a holdout RMSE difference of 108.57 (2,303.08 vs 2,194.51) on synthetic test data (hardware note: measured on standard x86_64 CPU; exact timings vary across host environments; see results.json for local run).
 
 ---
 
 ### 2. Engineering Rigor and Safety Verification Matrix
 
-| Evaluation Vector | Unconstrained Standard Agent | ML Model Architect Framework | Practical Operational Impact |
+| Evaluation Vector | Naive Scripted Baseline | ML Model Architect Framework | Practical Operational Impact |
 |---|---|---|---|
-| **Hallucinated Academic Citations** | ~28.0% fabricated or invalid DOIs | **0.0%** (Verified via CrossRef / arXiv) | Eliminates reliance on non-existent theoretical claims. |
-| **Data Leakage in Transformations** | Frequent (~65% fit preprocessor on full data) | **Static leakage heuristics** (single `Pipeline` AST verification) | Prevents overly optimistic offline evaluations that collapse in production. |
-| **Arbitrary Step Skipping** | Common ("Fast mode" bypass under prompt drift) | **0.0%** (Enforced via cryptographic SHA-256 DAG) | Guarantees all preprocessing, CV, and diagnostic steps execute. |
+| **Hallucinated Academic Citations** | Common (fabricated or invalid DOIs) | **DOI existence + title/year match verified in CI (does not prove the cited paper supports the claim)** | Eliminates reliance on non-existent theoretical claims. |
+| **Data Leakage in Transformations** | Frequent (fit preprocessor on full data before split) | **Static leakage heuristics** (single `Pipeline` AST verification) | Prevents overly optimistic offline evaluations that collapse in production. |
+| **Arbitrary Step Skipping** | Common ("Fast mode" bypass under prompt drift) | **Plan hash verified; skipped steps fail status** | Guarantees all preprocessing, CV, and diagnostic steps execute. |
 | **Host System Execution Security** | Vulnerable (`os.system`, unsanitized imports) | **AST scan = tripwire; Docker = isolation boundary** | Static tripwires paired with container-level isolation. |
 | **Model Complexity Bias** | Biased toward fashionable, opaque architectures | **Empirical Override via 1-SE Rule** | Enforces Occam's Razor, reducing compute costs and deployment latency. |
 | **Automated Test Suite Status** | 0 unit tests | **150+ Unit Tests (100% Passing in <4s)** | Continuous regression safety via automated GitHub Actions CI. |
 
 ---
 
-## Comparative Protocol: Unconstrained vs. Governed Agent
+## Comparative Protocol: Naive Baseline vs. Governed Pipeline
 
-The following comparative log illustrates the behavioral divergence between an unconstrained LLM agent and an agent governed by ML Model Architect:
+The following comparative log illustrates the behavioral divergence between an unconstrained naive baseline and a workflow governed by ML Model Architect:
 
 ### Scenario: "Build a predictive model for car valuation."
 
 ```text
-[UNCONSTRAINED AI AGENT]
+[NAIVE SCRIPTED BASELINE (ILLUSTRATIVE)]
 1. Ingests prompt and immediately emits code.
 2. Fits StandardScaler on the entire dataset before train_test_split (Critical Data Leakage).
 3. Instantiates RandomForestRegressor with arbitrary, unreferenced hyperparameters.

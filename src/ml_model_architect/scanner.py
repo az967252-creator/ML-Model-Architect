@@ -114,6 +114,21 @@ class SandboxVisitor(ast.NodeVisitor):
             has_break = any(isinstance(n, ast.Break) for n in ast.walk(node))
             if not has_break:
                 self.violations.append((node.lineno, "Unbounded infinite loop without break"))
+        else:
+            # Flag while <non-constant cond> without break or bounded counter
+            has_break = any(isinstance(n, ast.Break) for n in ast.walk(node))
+            has_counter = False
+            for n in ast.walk(node):
+                if isinstance(n, ast.AugAssign) and isinstance(n.target, ast.Name):
+                    has_counter = True
+                    break
+                elif isinstance(n, ast.Assign):
+                    for t in n.targets:
+                        if isinstance(t, ast.Name) and isinstance(n.value, ast.BinOp):
+                            has_counter = True
+                            break
+            if not has_break and not has_counter:
+                self.violations.append((node.lineno, "while loop with non-constant condition lacks break or bounded counter"))
         self.generic_visit(node)
 
     def visit_Call(self, node):
@@ -192,11 +207,22 @@ class SandboxVisitor(ast.NodeVisitor):
                 elif arg.value > 10:
                     self.violations.append((node.lineno, f"time.sleep({arg.value}) exceeds 10s maximum allowed literal (DoS risk)"))
 
-        # Check range() and np.arange() bounds
-        if func_name == "range" or (func_name == "arange" and caller_name in {"np", "numpy"}):
-            for a in node.args:
-                if isinstance(a, ast.Constant) and isinstance(a.value, (int, float)) and a.value > 10**7:
-                    self.violations.append((node.lineno, f"{func_name}() literal argument {a.value} exceeds 10^7 limit (CPU/memory DoS risk)"))
+        # Check range(), np.arange(), np.zeros(), np.ones() bounds
+        if func_name in {"range", "arange", "zeros", "ones"}:
+            is_checked = (
+                func_name == "range"
+                or (caller_name in {"np", "numpy"} and func_name in {"arange", "zeros", "ones"})
+            )
+            if is_checked:
+                for a in node.args:
+                    if isinstance(a, ast.Constant) and isinstance(a.value, (int, float)):
+                        limit = 10**7 if func_name in {"range", "arange"} else 10**8
+                        if a.value > limit:
+                            self.violations.append((node.lineno, f"{func_name}() literal argument {a.value} exceeds limit (CPU/memory DoS risk)"))
+                    elif isinstance(a, (ast.Tuple, ast.List)):
+                        for elt in a.elts:
+                            if isinstance(elt, ast.Constant) and isinstance(elt.value, (int, float)) and elt.value > 10**8:
+                                self.violations.append((node.lineno, f"{func_name}() shape argument {elt.value} exceeds 10^8 limit (CPU/memory DoS risk)"))
 
         # Check joblib.load and skops.io.load non-literal paths
         if func_name == "load" and (caller_name in {"joblib", "skops", "io"} or any(t in caller_name for t in ["joblib", "skops"])):

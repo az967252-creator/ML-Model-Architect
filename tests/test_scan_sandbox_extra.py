@@ -43,6 +43,9 @@ class TestScannerGaps(unittest.TestCase):
         "x = [0] * 1000000000",
         "import joblib\np = 'model.pkl'\njoblib.load(p)",
         "import skops.io as sio\np = 'm.skops'\nsio.load(p)",
+        "import numpy as np\nnp.zeros(200000000)",
+        "import numpy as np\nnp.ones((1000, 200000000))",
+        "while active:\n    do_something()",
     ]
 
     MUST_PASS = [
@@ -61,6 +64,10 @@ class TestScannerGaps(unittest.TestCase):
         "x = [0] * 100",
         "import joblib\njoblib.load('model.pkl')",
         "import skops.io as sio\nsio.load('m.skops')",
+        "import numpy as np\nnp.zeros((10, 10))",
+        "import numpy as np\nnp.ones(100)",
+        "i = 0\nwhile i < 10:\n    i += 1",
+        "while active:\n    break",
     ]
 
     def test_gaps_are_closed(self):

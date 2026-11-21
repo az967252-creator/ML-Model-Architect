@@ -10,15 +10,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc_auc_score, average_precision_score
-
-
-def measure_p99_latency_ms(model, sample, n_repeats: int = 100) -> float:
-    latencies = []
-    for _ in range(n_repeats):
-        t_start = time.perf_counter()
-        _ = model.predict(sample)
-        latencies.append((time.perf_counter() - t_start) * 1000)
-    return float(np.percentile(latencies, 99))
+from benchmarks.latency_util import measure_p99_latency_ms
 
 
 def run_naive_anomaly(df: pd.DataFrame) -> dict:

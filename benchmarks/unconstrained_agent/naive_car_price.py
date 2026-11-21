@@ -12,15 +12,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.metrics import root_mean_squared_error
-
-
-def measure_p99_latency_ms(predict_fn, sample, n_repeats: int = 100) -> float:
-    latencies = []
-    for _ in range(n_repeats):
-        t_start = time.perf_counter()
-        _ = predict_fn(sample)
-        latencies.append((time.perf_counter() - t_start) * 1000)
-    return float(np.percentile(latencies, 99))
+from benchmarks.latency_util import measure_p99_latency_ms
 
 
 def run_naive_car_price(df: pd.DataFrame) -> dict:

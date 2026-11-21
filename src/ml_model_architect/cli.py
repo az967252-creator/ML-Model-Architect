@@ -290,6 +290,7 @@ def cmd_enforce(args):
         online=args.online,
         allow_offline=not args.online,
         max_heuristic_ratio=args.max_heuristic_ratio,
+        allow_empty=getattr(args, "allow_empty", False),
     )
     sys.exit(exit_code)
 
@@ -374,6 +375,7 @@ def main(argv=None):
     p_enforce.add_argument("ledger", nargs="?", default="DECISIONS.md", help="Path to DECISIONS.md")
     p_enforce.add_argument("--online", action="store_true", help="Perform live Crossref DOI lookups")
     p_enforce.add_argument("--max-heuristic-ratio", type=float, default=0.4, help="Max allowed heuristic/reference-gap ratio")
+    p_enforce.add_argument("--allow-empty", action="store_true", help="Allow ledger with zero technical decisions")
     p_enforce.set_defaults(func=cmd_enforce)
 
     # verify-dois

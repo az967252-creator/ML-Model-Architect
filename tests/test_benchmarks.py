@@ -64,6 +64,18 @@ class TestBenchmarks(unittest.TestCase):
         self.assertEqual(res.returncode, 0, f"render_benchmark_md.py --check failed: {res.stderr}\n{res.stdout}")
         self.assertIn("OK: Benchmark documentation", res.stdout)
 
+    def test_every_cited_reference_in_table_exists_in_yaml(self):
+        import yaml
+        yaml_path = ROOT / "references" / "references_to_verify.yaml"
+        with open(yaml_path, "r", encoding="utf-8") as f:
+            ref_data = yaml.safe_load(f)
+        all_citations = " ".join(r["citation"] for g in ref_data["groups"] for r in g["refs"])
+
+        # Check references cited in benchmark table
+        self.assertIn("Ke, G., et al. (2017)", all_citations)
+        self.assertIn("Hastie, T., et al. (2009)", all_citations)
+        self.assertIn("Ruff, L., et al. (2021)", all_citations)
+
 
 if __name__ == "__main__":
     unittest.main()
