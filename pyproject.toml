@@ -61,3 +61,9 @@ ml_model_architect = [
 
 [tool.setuptools.exclude-package-data]
 "*" = ["*.pyc", "__pycache__", "__pycache__/*", "**/__pycache__/*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "scripts", "."]
+
+[tool.pyright]
+extraPaths = ["src", "scripts", "."]

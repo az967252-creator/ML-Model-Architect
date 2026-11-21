@@ -2,9 +2,20 @@ import os
 import sys
 import tempfile
 import unittest
+from pathlib import Path
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "scripts")))
-import enforce_constitution as ec  # noqa: E402
+ROOT = Path(__file__).resolve().parent.parent
+SRC = ROOT / "src"
+SCRIPTS = ROOT / "scripts"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
+
+try:
+    import ml_model_architect.enforcer as ec
+except ImportError:
+    import enforce_constitution as ec  # type: ignore # noqa: E402
 
 HEADER = ("| # | Stage | Type | Question | Options | Chosen | Reason | Reference | decided_by | Date |\n"
           "|---|---|---|---|---|---|---|---|---|---|\n")
