@@ -78,7 +78,7 @@ jobs:
           (cd /tmp && /tmp/clean_env/bin/mla --version)
           (cd /tmp && /tmp/clean_env/bin/mla init tmp_proj)
           (cd /tmp && /tmp/clean_env/bin/mla scan tmp_proj/sandbox/example_task.py)
-          (cd /tmp && /tmp/clean_env/bin/mla enforce tmp_proj/DECISIONS.md)
+          (cd /tmp && /tmp/clean_env/bin/mla enforce tmp_proj/DECISIONS.md --allow-empty)
           (cd /tmp && /tmp/clean_env/bin/mla status tmp_proj/PLAN.manifest.json)
 
   docker-smoke:
@@ -87,6 +87,8 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       - name: Build Sandbox Docker Image
         run: docker build -f docker/Dockerfile.sandbox -t mla-sandbox:smoke .
+      - name: Smoke Test Sandbox Execution
+        run: docker run --rm mla-sandbox:smoke python -c "import numpy, sklearn, xgboost, lightgbm, catboost; print('Docker sandbox smoke OK')"
 
   sota-pr-guard:
     if: github.head_ref == 'auto-sota-candidates'

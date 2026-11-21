@@ -99,6 +99,19 @@ class TestCLI(unittest.TestCase):
         ret = main(["scan", str(clean_file)])
         self.assertEqual(ret, 0)
 
+    def test_cli_enforce_allow_empty(self):
+        proj_dir = Path(self.test_dir) / "enforce_proj"
+        main(["init", str(proj_dir)])
+        # empty scaffolded ledger should fail without --allow-empty
+        with self.assertRaises(SystemExit) as cm:
+            main(["enforce", str(proj_dir / "DECISIONS.md")])
+        self.assertEqual(cm.exception.code, 1)
+
+        # with --allow-empty it should succeed
+        with self.assertRaises(SystemExit) as cm:
+            main(["enforce", str(proj_dir / "DECISIONS.md"), "--allow-empty"])
+        self.assertEqual(cm.exception.code, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

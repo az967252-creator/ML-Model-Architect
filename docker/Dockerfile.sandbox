@@ -1,6 +1,11 @@
 # Minimal hardened sandbox execution image for ML Model Architect
 FROM python:3.11-slim
 
+# Install system dependencies (OpenMP runtime required by LightGBM and XGBoost)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgomp1 \
+ && rm -rf /var/lib/apt/lists/*
+
 # Install core scientific and ML packages with exact pinned versions
 # Every spec is quoted to prevent shell redirection or version ambiguity
 RUN pip install --no-cache-dir \
@@ -11,7 +16,7 @@ RUN pip install --no-cache-dir \
     "joblib==1.4.2" \
     "xgboost==2.1.4" \
     "lightgbm==4.6.0" \
-    "catboost==1.2.7" \
+    "catboost==1.2.8" \
     "matplotlib==3.10.1" \
     "seaborn==0.13.2" \
     "skops==0.10.0" \

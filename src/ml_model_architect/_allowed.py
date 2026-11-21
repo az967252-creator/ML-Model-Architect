@@ -12,7 +12,7 @@ ALLOWED_PACKAGES = {
     "joblib": "1.4.2",
     "xgboost": "2.1.4",
     "lightgbm": "4.6.0",
-    "catboost": "1.2.7",
+    "catboost": "1.2.8",
     "matplotlib": "3.10.1",
     "seaborn": "0.13.2",
     "skops": "0.10.0",
