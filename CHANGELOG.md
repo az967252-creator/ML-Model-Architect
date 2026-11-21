@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2026-11-21
+
+Official Production General Availability (GA) Release. Incorporates complete hardening, single source-of-truth packaging in `src/`, unified `mla` CLI, benchmark parsimony rules, verified DOI traceability, AST tripwire boundaries, Docker container isolation, and 100% CI pass rate.
+
 ## [1.0.0-rc.2] - 2026-11-21
 
 ### Added
