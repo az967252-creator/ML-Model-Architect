@@ -91,7 +91,9 @@ def http_get(url, **kwargs):
             time.sleep(RETRY_DELAYS[attempt])
     if response is not None:
         return response
-    raise error
+    if error is not None:
+        raise error
+    raise RuntimeError(f"Failed to fetch {url}")
 
 
 def check_policy(ref):
