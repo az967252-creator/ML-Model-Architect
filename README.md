@@ -305,7 +305,23 @@ Result: Fully verifiable, leak-free, production-ready machine learning artifact 
 
 ### 1. Installation
 
-Clone the repository and install the framework in editable mode with full CLI bindings:
+#### Option A: Direct Installation via PyPI (Recommended)
+
+Install the official package directly from PyPI:
+
+```bash
+pip install ml-model-architect
+```
+
+To install with local vector search MCP server support:
+
+```bash
+pip install "ml-model-architect[mcp]"
+```
+
+#### Option B: Clone and Install from Source (Developer Mode)
+
+For development and direct source access:
 
 ```bash
 git clone https://github.com/az967252-creator/ML-Model-Architect.git
@@ -315,7 +331,7 @@ cd ML-Model-Architect
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install package and dependencies
+# Install package and dependencies in editable mode
 pip install -e .
 ```
 

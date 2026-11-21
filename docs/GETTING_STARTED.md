@@ -13,19 +13,28 @@ This guide will get you from zero to your first strictly grounded, reference-dri
 
 ## Step 1: Install the Framework CLI
 
-Clone the repository and install the unified CLI tool:
+### Option A: Install via PyPI (Recommended)
 
-~~~bash
+```bash
+pip install ml-model-architect
+```
+
+### Option B: Install from Source (Developer Mode)
+
+```bash
 git clone https://github.com/az967252-creator/ML-Model-Architect.git
 cd ML-Model-Architect
 
 # Install package in editable mode
 pip install -e .
+```
 
-# Test that the CLI is ready:
+### Verify CLI Installation:
+
+```bash
 mla --version
 # (or use ./bin/mla on Windows/Linux)
-~~~
+```
 
 ---
 
