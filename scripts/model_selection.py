@@ -10,6 +10,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 import ml_model_architect.model_selection as _impl
+from ml_model_architect.model_selection import *  # noqa: F401, F403
 
 # Transparent proxying for direct imports and unittest.mock patching
 sys.modules[__name__] = _impl

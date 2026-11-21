@@ -6,8 +6,15 @@ import shutil
 import json
 from pathlib import Path
 
-from scripts.cli import main
-from scripts.lock_plan import make_writable
+ROOT = Path(__file__).resolve().parent.parent
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from ml_model_architect.cli import main
+from ml_model_architect.locker import make_writable
 
 SAMPLE_PLAN = {
     "plan_version": "1.0.0",
