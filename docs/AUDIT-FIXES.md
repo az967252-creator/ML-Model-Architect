@@ -19,7 +19,7 @@ This document tracks the remediation of 15 verified engineering and architectura
 | **11** | Security Claims | Phase 1 | [x] Completed | Clarify AST tripwire vs. Docker isolation boundary in README and docs |
 | **12** | Constitution Alignment | Phase 4c | [x] Completed | A1 vs Skill 2 suggested options, B3/B8 Tier A/B sources, consistent rule numbering |
 | **13** | Test Suite & CI | Phase 3 | [x] Completed | Behavioral scenario harness, modular 1-SE rule, pinned CI actions, Python 3.11-3.13 matrix |
-| **14** | Secondary Tooling | Phase 6 | [ ] Pending | Audit executive_summary, pre_mortem, generate_diagram, red_team, app.py, local_knowledge |
+| **14** | Secondary Tooling | Phase 6 | [x] Completed | Audit executive_summary, pre_mortem, generate_diagram, red_team, app.py, local_knowledge |
 | **15** | Package Restructuring | Phase 7 | [ ] Pending | `src/ml_model_architect/`, importlib.resources, `mla init`, wheel smoke test |
 
 ---
@@ -71,10 +71,11 @@ This document tracks the remediation of 15 verified engineering and architectura
 - [x] Updated `examples/DISCLAIMER.md` and dynamic evaluation reports.
 
 ### Phase 6: Secondary Tools Hardening (Issue 14)
-- [ ] Hardened `executive_summary.py`, `pre_mortem.py`, `generate_diagram.py`, `red_team.py`.
-- [ ] Streamlit dashboard rigor score alignment in `app.py`.
-- [ ] MCP local knowledge indexing in `mcp_server/local_knowledge.py`.
-- [ ] Rename `scripts/verify_references.py` to `scripts/pdf_to_markdown.py`.
+- [x] Hardened `executive_summary.py`, `pre_mortem.py`, `generate_diagram.py`, `red_team.py`.
+- [x] Streamlit dashboard error handling & relative paths in `app.py`.
+- [x] MCP local knowledge indexing & fallback in `mcp_server/local_knowledge.py`.
+- [x] Renamed `scripts/verify_references.py` to `scripts/pdf_to_markdown.py`.
+- [x] Comprehensive test coverage in `tests/test_tools.py`.
 
 ### Phase 7: Packaging & Developer Experience (Issue 15)
 - [ ] Restructure into `src/ml_model_architect/` package layout.
