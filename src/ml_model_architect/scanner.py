@@ -4,6 +4,12 @@ scripts/scan_sandbox.py - Static AST security tripwire analyzer for sandbox code
 Enforces Constitution Rules F4 and F4.1.
 Fail-closed on missing/empty directories, blocks dynamic evaluation, non-literal I/O paths,
 unbounded loops, and unauthorized filesystem writes.
+
+SECURITY ARCHITECTURE NOTICE:
+The AST scanner functions as a fast static tripwire to immediately flag developer oversights,
+unbounded resource allocations, and obvious malicious patterns. The true, authoritative
+security boundary is the Docker container environment (with strict memory limits, pids-limit,
+cpu limits, zero network connectivity, and timeout enforcement).
 """
 
 import ast
@@ -14,7 +20,12 @@ import sys
 
 from ._allowed import ALLOWED_IMPORTS
 
-SANDBOX_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sandbox"))
+SANDBOX_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "sandbox"))
+if not os.path.exists(SANDBOX_DIR):
+    # Fallback to local cwd sandbox if invoked from arbitrary working directory
+    alt_sandbox = os.path.abspath("sandbox")
+    if os.path.exists(alt_sandbox):
+        SANDBOX_DIR = alt_sandbox
 
 class SandboxVisitor(ast.NodeVisitor):
     def __init__(self, filename=None):
@@ -160,6 +171,52 @@ class SandboxVisitor(ast.NodeVisitor):
             if node.func.id.startswith("fetch_"):
                 self.violations.append((node.lineno, f"Dataset downloader forbidden: {node.func.id}"))
 
+        # 3. DoS tripwire checks
+        func_name = None
+        caller_name = ""
+        if isinstance(node.func, ast.Name):
+            func_name = node.func.id
+        elif isinstance(node.func, ast.Attribute):
+            func_name = node.func.attr
+            if isinstance(node.func.value, ast.Name):
+                caller_name = node.func.value.id
+
+        # Check time.sleep bounding
+        if func_name == "sleep":
+            if not node.args:
+                self.violations.append((node.lineno, "time.sleep() without arguments forbidden"))
+            else:
+                arg = node.args[0]
+                if not (isinstance(arg, ast.Constant) and isinstance(arg.value, (int, float))):
+                    self.violations.append((node.lineno, "time.sleep() with non-literal duration forbidden (DoS risk)"))
+                elif arg.value > 10:
+                    self.violations.append((node.lineno, f"time.sleep({arg.value}) exceeds 10s maximum allowed literal (DoS risk)"))
+
+        # Check range() and np.arange() bounds
+        if func_name == "range" or (func_name == "arange" and caller_name in {"np", "numpy"}):
+            for a in node.args:
+                if isinstance(a, ast.Constant) and isinstance(a.value, (int, float)) and a.value > 10**7:
+                    self.violations.append((node.lineno, f"{func_name}() literal argument {a.value} exceeds 10^7 limit (CPU/memory DoS risk)"))
+
+        # Check joblib.load and skops.io.load non-literal paths
+        if func_name == "load" and (caller_name in {"joblib", "skops", "io"} or any(t in caller_name for t in ["joblib", "skops"])):
+            if node.args:
+                path_arg = node.args[0]
+                if not (isinstance(path_arg, ast.Constant) and isinstance(path_arg.value, str)):
+                    self.violations.append((node.lineno, f"{caller_name}.load() with non-literal path forbidden (untrusted deserialization DoS)"))
+
+        self.generic_visit(node)
+
+    def visit_BinOp(self, node):
+        # DoS check: list/array multiplication by literal > 10**8
+        if isinstance(node.op, ast.Mult):
+            factor = None
+            if isinstance(node.right, ast.Constant) and isinstance(node.right.value, (int, float)):
+                factor = node.right.value
+            elif isinstance(node.left, ast.Constant) and isinstance(node.left.value, (int, float)):
+                factor = node.left.value
+            if factor is not None and factor > 10**8:
+                self.violations.append((node.lineno, f"Multiplication factor {factor} > 10^8 forbidden (memory exhaustion DoS risk)"))
         self.generic_visit(node)
 
     def visit_keyword(self, node):

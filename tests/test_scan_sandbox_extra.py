@@ -35,6 +35,14 @@ class TestScannerGaps(unittest.TestCase):
         "import pandas as pd\npd.DataFrame().to_csv('relative_file.csv')",
         "while True:\n    pass",
         "while 1:\n    x = 1",
+        # R5 DoS tripwire vectors
+        "import time\ntime.sleep(60)",
+        "import time\ns = 5\ntime.sleep(s)",
+        "for i in range(100000000):\n    pass",
+        "import numpy as np\nnp.arange(20000000)",
+        "x = [0] * 1000000000",
+        "import joblib\np = 'model.pkl'\njoblib.load(p)",
+        "import skops.io as sio\np = 'm.skops'\nsio.load(p)",
     ]
 
     MUST_PASS = [
@@ -48,6 +56,11 @@ class TestScannerGaps(unittest.TestCase):
         "while True:\n    break",
         "for i in range(10):\n    pass",
         "print('Training...')",
+        "import time\ntime.sleep(1)",
+        "import numpy as np\nnp.arange(100)",
+        "x = [0] * 100",
+        "import joblib\njoblib.load('model.pkl')",
+        "import skops.io as sio\nsio.load('m.skops')",
     ]
 
     def test_gaps_are_closed(self):
