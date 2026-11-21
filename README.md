@@ -263,7 +263,7 @@ To empirically evaluate whether constitutional governance improves machine learn
 | **Arbitrary Step Skipping** | Common ("Fast mode" bypass under prompt drift) | **0.0%** (Enforced via cryptographic SHA-256 DAG) | Guarantees all preprocessing, CV, and diagnostic steps execute. |
 | **Host System Execution Security** | Vulnerable (`os.system`, unsanitized imports) | **AST scan = tripwire; Docker = isolation boundary** | Static tripwires paired with container-level isolation. |
 | **Model Complexity Bias** | Biased toward fashionable, opaque architectures | **Empirical Override via 1-SE Rule** | Enforces Occam's Razor, reducing compute costs and deployment latency. |
-| **Automated Test Suite Status** | 0 unit tests | **137+ Unit Tests (100% Passing in <3.5s)** | Continuous regression safety via automated GitHub Actions CI. |
+| **Automated Test Suite Status** | 0 unit tests | **150+ Unit Tests (100% Passing in <4s)** | Continuous regression safety via automated GitHub Actions CI. |
 
 ---
 
@@ -685,8 +685,11 @@ Key test modules include:
 
 ## Known Limitations and Threat Model
 
-* **Static AST Limitations:** The AST scanner (`scripts/scan_sandbox.py` / `src/ml_model_architect/scanner.py`) is a static linting tripwire. Highly obfuscated dynamic code (e.g., dynamically assembled string evaluations) can theoretically bypass static AST checks. For untrusted public code execution, the Docker sandbox (`docker/Dockerfile.sandbox` via `scripts/run_docker_sandbox.py`) must be deployed as the isolation boundary.
-* **Network Disconnection Mode:** When operating in offline or air-gapped secure environments, the live DOI network verification flag must be set to `--allow-offline` to prevent network timeout exceptions.
+* **Static AST Scanner (`scripts/scan_sandbox.py` / `src/ml_model_architect/scanner.py`):** The AST scanner is a static linting **tripwire**, not an execution containment sandbox. Dynamic reflection (`getattr`, `eval` via obfuscated imports), non-literal code assembly, or external shared objects can bypass static AST inspection. For executing untrusted public code, the Docker sandbox (`docker/Dockerfile.sandbox` via `scripts/run_docker_sandbox.py`) with strict kernel flags (`--security-opt=no-new-privileges`, `--read-only`, `--network=none`, `--pids-limit=64`) is the actual isolation boundary.
+* **Static Data Leakage Heuristics (`scripts/run_policy.py` / `src/ml_model_architect/policy.py`):** The dataflow leakage detector performs static AST traversal tracking transformer instantiation, import aliases, inline fit calls, and pandas pre-split aggregations within the pipeline script. It cannot trace inter-procedural dataflow through opaque external libraries, C-extensions, or dynamic runtime mutations.
+* **Cryptographic Plan Locking (`scripts/lock_plan.py` / `src/ml_model_architect/locker.py`):** Local plan locking is **tamper-evident, NOT tamper-proof**. An actor or script with local filesystem write permissions can delete or rewrite `PLAN.lock`. Real tamper-resistance requires anchoring the lock hash in committed git history (`verify_plan(..., check_git=True)`) or remote CI verification.
+* **Constitutional Ledger Enforcer (`scripts/enforce_constitution.py` / `src/ml_model_architect/enforcer.py`):** The enforcer verifies syntactic compliance: closed type taxonomy, justification length, heuristic ratio bounds, and DOI locator regex formats. It does not independently evaluate the mathematical validity or generalizability of cited academic papers to unobserved domain data.
+* **DOI Resolution & Network Modes (`scripts/verify_dois.py` / `src/ml_model_architect/verifier.py`):** In offline mode (`--allow-offline`), the verifier validates syntax only against strict DOI regex patterns. In live mode, it validates registration against CrossRef and DataCite APIs; however, it does not inspect full-text contents of paywalled articles.
 * **Controlled Benchmark Scope:** Datasets provided in `examples/` and `benchmarks/` are controlled synthetic benchmarks generated with known mathematical ground truth to isolate algorithmic decision-making under reproducible conditions.
 
 ---
@@ -710,7 +713,7 @@ mla status PLAN.manifest.json
 
 ## Contributing
 
-We welcome contributions from the machine learning engineering and AI safety communities. Please review [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) and [.github/CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md) prior to submitting pull requests. All submissions must pass the complete 137-test verification suite and static AST inspection.
+We welcome contributions from the machine learning engineering and AI safety communities. Please review [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) and [.github/CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md) prior to submitting pull requests. All submissions must pass the complete 150+ unit test verification suite and static AST inspection.
 
 ---
 

@@ -1,90 +1,106 @@
 # ML Model Architect — Audit Defect Remediation Tracking
 
-This document tracks the remediation of 15 verified engineering and architectural defects in `ML-Model-Architect (v1.0.0rc1)` as part of the `fix/audit-2026-11` audit cycle.
-
-## Remediation Status Summary
-
-| Issue # | Component / Domain | Phase | Status | Target Description |
-|:---:|:---|:---:|:---:|:---|
-| **1** | Enforcement Engine | Phase 2a | [x] Completed | Real AST policy assertions, single-pipeline check, metrics.json schema validation |
-| **2** | Sandbox Scanner | Phase 1 | [x] Completed | Fail-closed scanner, comprehensive AST bypass defenses, allowlist-by-function |
-| **3** | Docker Sandbox | Phase 1 | [x] Completed | Pinned dependencies, `_allowed.py` shared sync, runtime security flags, timeout |
-| **4** | Decision Ledger | Phase 2b | [x] Completed | Closed type taxonomy, reason length check, `--max-heuristic-ratio`, DOI locators |
-| **5** | Plan Lock Engine | Phase 2c | [x] Completed | Remove `--unlock` from agent CLI, ledger manifest hash, default base_dir to manifest dir |
-| **6** | DOI Verification | Phase 2d | [x] Completed | Remove verify=False, derive peer review from registry, 365d exception expiry, strict CI |
-| **7** | Empirical Benchmarks | Phase 5 | [x] Completed | Real OpenML/UCI benchmark script, latency measurements, remove ungrounded claims |
-| **8** | Reference Examples | Phase 5 | [x] Completed | Naive agent comparison, model naming consistency, dynamic evaluation reports |
-| **9** | Reference Catalog | Phase 4a | [x] Completed | Non-empty catalog claims, >=2 refs per group, sourced hyperparameters, lint script |
-| **10** | Decision Tree Scope | Phase 4b | [x] Completed | Preprocessing Level 1 task, explicit tabular/time-series scope bounding |
-| **11** | Security Claims | Phase 1 | [x] Completed | Clarify AST tripwire vs. Docker isolation boundary in README and docs |
-| **12** | Constitution Alignment | Phase 4c | [x] Completed | A1 vs Skill 2 suggested options, B3/B8 Tier A/B sources, consistent rule numbering |
-| **13** | Test Suite & CI | Phase 3 | [x] Completed | Behavioral scenario harness, modular 1-SE rule, pinned CI actions, Python 3.11-3.13 matrix |
-| **14** | Secondary Tooling | Phase 6 | [x] Completed | Audit executive_summary, pre_mortem, generate_diagram, red_team, app.py, local_knowledge |
-| **15** | Package Restructuring | Phase 7 | [x] Completed | `src/ml_model_architect/`, importlib.resources, `mla init`, wheel smoke test |
+This document tracks the remediation of 15 verified engineering and architectural defects in `ML-Model-Architect (v1.0.0rc1)` and subsequent Round 2 hardening items (R1 through R6) in `v1.0.0rc2`.
 
 ---
 
-## Phase Execution Log
+## Round 2 Remediation Summary (rc2)
 
-### Phase 0: Baseline Capture
-- [x] Baseline test suite captured (`79 passed` via pytest).
-- [x] Baseline outputs captured for all 4 reference projects (`car-price`, `delivery-delay`, `financial-anomaly`, `case-study-churn`) and saved to `/tmp/baseline/`.
-- [x] Audit tracking document initialized (`docs/AUDIT-FIXES.md`).
+| Item | Focus Domain | Status | Commit | Primary Files Changed | Proving Tests / Evidence |
+|:---:|:---|:---:|:---:|:---|:---|
+| **R1** | Single Source of Truth & Clean Wheel | [x] Completed | `afb8133` | `src/ml_model_architect/`, `scripts/*.py`, `pyproject.toml`, `.github/workflows/verify.yml` | `tests/test_cli.py`, CI job `wheel-smoke-test` (isolated venv installation + CLI smoke checks) |
+| **R2** | Remove Claims Contradicted by Data | [x] Completed | `9ae1a83` | `benchmarks/results.json`, `docs/BENCHMARK.md`, `README.md`, `scripts/render_benchmark_md.py` | `tests/test_benchmarks.py::TestBenchmarks::test_readme_numbers_match_results_json` |
+| **R3** | Dataflow AST Leakage Detector | [x] Completed | `c57b146` | `src/ml_model_architect/policy.py`, `tests/test_run_policy.py` | `tests/test_run_policy.py::TestLeakageDetectorAST` (7 tests: aliases, inline calls, SelectKBest, fillna, target encoding, helpers) |
+| **R4** | Ledger & Plan Lock Hardening | [x] Completed | `1ea23c8` | `src/ml_model_architect/enforcer.py`, `src/ml_model_architect/locker.py`, `trusted_domains.yaml` | `tests/test_enforce.py` (locator regex, technical promotion, tier B scoping), `tests/test_run_policy.py` (`verify_plan_git`) |
+| **R5** | Scanner Resource Exhaustion / DoS | [x] Completed | `01660c8` | `src/ml_model_architect/scanner.py`, `tests/test_scan_sandbox_extra.py` | `tests/test_scan_sandbox_extra.py::TestDoSAttacks` (sleep, large range, array multiplication, dynamic joblib) |
+| **R6** | Test Suite Honesty & Limitations | [x] Completed | Pending | `tests/test_lock_plan.py`, `docs/BEHAVIORAL_TESTS.md`, `README.md`, `docs/AUDIT-FIXES.md` | `tests/test_lock_plan.py` (9 real unit tests), README Known Limitations honesty disclaimer |
 
-### Phase 1: Sandbox & Scanner (Issues 2, 3, 11)
-- [x] Fail-closed scanner on missing/empty sandbox directory.
-- [x] Argparse CLI support for scanning arbitrary files/directories.
-- [x] AST bypass defenses: `eval`, `query`, `ctypeslib`, `fetch_*`, `matplotlib.use`, `read_clipboard`, star-imports, unbounded loops, non-literal paths, write boundary containment.
-- [x] Function-level allowlist for I/O operations.
-- [x] Bypass tests in `tests/test_scan_sandbox_extra.py`.
-- [x] Dockerfile.sandbox pinned dependencies & shared `scripts/_allowed.py`.
-- [x] Container security flags (`--pids-limit`, `--security-opt`, `--user`, timeout, read-only mount with separate `out/`).
-- [x] Replace "100% Containment" claims in README/BENCHMARK with tripwire vs. isolation boundary distinction.
-- [x] Optuna + MLflow pinned in Docker and project extras.
+---
 
-### Phase 2: Enforcement Engine (Issues 1, 4, 5, 6)
-- [x] Phase 2a: Real AST policy assertions in `scripts/run_policy.py` & `_shared/metrics.schema.json`.
-- [x] Phase 2b: Closed ledger taxonomy, reason length, heuristic ratio, and locators in `scripts/enforce_constitution.py`.
-- [x] Phase 2c: Cryptographic plan locking hardening in `scripts/lock_plan.py`.
-- [x] Phase 2d: DOI verification rigor in `scripts/verify_dois.py`.
+## Remediation Status Summary (Round 1 & Round 2)
 
-### Phase 3: Tests & CI Modernization (Issue 13, CI part of 12)
-- [x] Behavioral evaluation harness (`tests/behavioral/run_scenarios.py`).
-- [x] Modular 1-SE rule in `scripts/model_selection.py`.
-- [x] Split requirements files (`requirements.txt`, `requirements-mcp.txt`, `requirements-dashboard.txt`).
-- [x] Commit-SHA pinned GitHub Actions & Dependabot configuration.
-- [x] CI matrix for Python 3.11, 3.12, 3.13 (`requires-python >=3.11`).
-- [x] SOTA workflow fix with 30-day cutoff and PR guard.
+| Issue # | Component / Domain | Phase | Status | Target Description | Verifying Test / Reference |
+|:---:|:---|:---:|:---:|:---|:---|
+| **1** | Enforcement Engine | Phase 2a / R3 | [x] Completed | Real AST policy assertions, single-pipeline check, metrics.json schema validation, dataflow leakage AST visitor | [test_run_policy.py:L14](file:///tests/test_run_policy.py#L14) |
+| **2** | Sandbox Scanner | Phase 1 / R5 | [x] Completed | Fail-closed scanner, comprehensive AST bypass defenses, allowlist-by-function, resource exhaustion bounds | [test_scan_sandbox_extra.py:L1](file:///tests/test_scan_sandbox_extra.py#L1) |
+| **3** | Docker Sandbox | Phase 1 | [x] Completed | Pinned dependencies, `_allowed.py` shared sync, runtime security flags (`--pids-limit`, `--read-only`, `--network none`) | `docker/Dockerfile.sandbox`, `scripts/run_docker_sandbox.py` |
+| **4** | Decision Ledger | Phase 2b / R4 | [x] Completed | Closed type taxonomy, reason length check (>=20 chars), `--max-heuristic-ratio`, strict DOI locators, Tier B scoping | [test_enforce.py:L14](file:///tests/test_enforce.py#L14) |
+| **5** | Plan Lock Engine | Phase 2c / R4 / R6 | [x] Completed | Cryptographic plan locking, CRLF invariance, git-anchored tamper verification (`--verify-git`), real unit tests | [test_lock_plan.py:L1](file:///tests/test_lock_plan.py#L1) |
+| **6** | DOI Verification | Phase 2d | [x] Completed | Remove verify=False, derive peer review from registry, 365d exception expiry, strict CI retry | [test_verify.py:L1](file:///tests/test_verify.py#L1), [test_verify_dois_extra.py:L1](file:///tests/test_verify_dois_extra.py#L1) |
+| **7** | Empirical Benchmarks | Phase 5 / R2 | [x] Completed | Real OpenML benchmark runner, measured p99 latency & fit times, results.json parity check | [test_benchmarks.py:L14](file:///tests/test_benchmarks.py#L14) |
+| **8** | Reference Examples | Phase 5 / R2 | [x] Completed | Naive baseline comparison, model naming consistency (HistGradientBoosting), dynamic evaluation reports | [test_enforce.py:L310](file:///tests/test_enforce.py#L310) |
+| **9** | Reference Catalog | Phase 4a | [x] Completed | Non-empty catalog claims, >=2 refs per group, sourced hyperparameters, lint script | `scripts/lint_references.py`, [test_docs_consistency.py:L1](file:///tests/test_docs_consistency.py#L1) |
+| **10** | Decision Tree Scope | Phase 4b | [x] Completed | Preprocessing Level 1 task, explicit tabular/time-series scope bounding | `references/stage-02-technique-selection/` |
+| **11** | Security Claims | Phase 1 / R6 | [x] Completed | Clarify AST tripwire vs. Docker isolation boundary in README, honest threat model | [README.md:L686](file:///README.md#L686) |
+| **12** | Constitution Alignment | Phase 4c / R4 | [x] Completed | A1 vs Skill 2 suggested options, B3/B8 Tier A/B source governance, 35 monotonic rules | [test_docs_consistency.py:L40](file:///tests/test_docs_consistency.py#L40) |
+| **13** | Test Suite & CI | Phase 3 / R6 | [x] Completed | Behavioral scenario harness, modular 1-SE rule, pinned CI actions, Python 3.11-3.13 matrix | [test_1se_rule.py:L1](file:///tests/test_1se_rule.py#L1), [test_evaluator_logic.py:L1](file:///tests/test_evaluator_logic.py#L1) |
+| **14** | Secondary Tooling | Phase 6 | [x] Completed | Hardened executive_summary, pre_mortem, generate_diagram, red_team, app.py, local_knowledge | [test_tools.py:L1](file:///tests/test_tools.py#L1) |
+| **15** | Package Restructuring | Phase 7 / R1 | [x] Completed | `src/ml_model_architect/`, importlib.resources, `mla init`, clean venv wheel smoke test | [test_cli.py:L1](file:///tests/test_cli.py#L1) |
 
-### Phase 4: References, Decision Tree & Constitution (Issues 9, 10, 12)
-- [x] Populate `references/catalog/` with verified claims and locators.
-- [x] Sourced hyperparameter ranges and `scripts/lint_references.py`.
-- [x] Stage 2 Decision Tree Level-1 Preprocessing & scope bounding.
-- [x] Two-tier source governance (Tier A vs. Tier B) in `trusted_domains.yaml`.
-- [x] Renumber constitutional articles and synchronize `scripts/count_rules.py`.
+---
 
-### Phase 5: Empirical Benchmarks & Examples (Issues 7, 8)
-- [x] Public dataset benchmark runner (`benchmarks/run_benchmarks.py`).
-- [x] Honest latency measurement and `benchmarks/results.json`.
-- [x] Scripted naive baseline comparison (`benchmarks/unconstrained_agent/`).
-- [x] Auto-rendered benchmark tables (`scripts/render_benchmark_md.py`).
-- [x] Updated `examples/DISCLAIMER.md` and dynamic evaluation reports.
+## Detailed Round 2 Execution Log
 
-### Phase 6: Secondary Tools Hardening (Issue 14)
-- [x] Hardened `executive_summary.py`, `pre_mortem.py`, `generate_diagram.py`, `red_team.py`.
-- [x] Streamlit dashboard error handling & relative paths in `app.py`.
-- [x] MCP local knowledge indexing & fallback in `mcp_server/local_knowledge.py`.
-- [x] Renamed `scripts/verify_references.py` to `scripts/pdf_to_markdown.py`.
-- [x] Comprehensive test coverage in `tests/test_tools.py`.
+### Item R1: Single Source of Truth + Working Wheel
+- **Problem**: 8 duplicate modules in `scripts/` diverged from `src/ml_model_architect/`. Wheel missing skills/references package data.
+- **Remediation**:
+  1. Converted all `scripts/*.py` into transparent 1-line forwarding shims importing from `src.ml_model_architect.*`.
+  2. Fixed all internal imports to package-relative in `src/ml_model_architect/`.
+  3. Packaged skills, references, templates, and constitution into `src/ml_model_architect/resources/` via `package_data` and `MANIFEST.in`.
+  4. Added `wheel-smoke-test` job in `.github/workflows/verify.yml` building wheel and verifying `mla --version`, `mla init`, `mla scan`, `mla enforce`, and `mla status` in a clean virtual environment without repo on `sys.path`.
+- **Commit**: `afb8133`
+- **Proving Test**: `tests/test_cli.py` (6 passed).
 
-### Phase 7: Packaging & Developer Experience (Issue 15)
-- [x] Restructure into `src/ml_model_architect/` package layout.
-- [x] Resource resolution via `importlib.resources`.
-- [x] `mla init <project>` scaffolding command.
-- [x] Wheel distribution build, validation, and smoke tests.
-- [x] Backward-compatibility CLI and script shims.
+### Item R2: Remove Claims Contradicted by Data
+- **Problem**: README claimed "85% lower latency" and "85% compute overhead" without measurement. Labeled baseline "Unconstrained LLM Agent" when it was scripted. Oracle contamination in IsolationForest.
+- **Remediation**:
+  1. Replaced ungrounded percentages with measured fit-times (8.1ms vs 138.1ms) and p99 latencies (5.1ms vs 5.7ms).
+  2. Renamed baseline to "Naive scripted baseline" throughout `results.json`, `BENCHMARK.md`, and `README.md`.
+  3. Replaced "zero loss in generalization" with exact holdout RMSE delta ($\Delta = 108.57$).
+  4. Changed `IsolationForest(contamination=0.03)` to `contamination='auto'` and reported PR-AUC (1.0000) and ROC-AUC (1.0000) honestly.
+  5. Deleted redundant root `BENCHMARK.md` (preserved canonical `docs/BENCHMARK.md`).
+  6. Fixed "XGBoost" delivery delay typo to "HistGradientBoosting".
+- **Commit**: `9ae1a83`
+- **Proving Test**: `tests/test_benchmarks.py::TestBenchmarks::test_readme_numbers_match_results_json` (PASSED).
 
-### Phase 8: Documentation Sync & Verification
-- [x] Synchronize README, GETTING_STARTED, CHANGELOG (`v1.0.0-rc.2`).
-- [x] Full test suite, benchmark suite, and bypass verification execution.
-- [x] Final remediation verification matrix.
+### Item R3: Dataflow AST Leakage Detector
+- **Problem**: Leakage checker used fragile string matching that missed aliases (`import ... as RS`), inline instantiations (`StandardScaler().fit_transform(X)`), and pandas pre-split statistics.
+- **Remediation**:
+  1. Implemented dataflow AST visitor tracking transformer instances across variable assignments, aliased imports, and inline calls.
+  2. Flagged pre-split `.fit()` and `.fit_transform()` before `train_test_split`.
+  3. Flagged pandas `.fillna(mean/median)`, `.groupby().transform()`, and manual standardization `(X - X.mean()) / X.std()`.
+  4. Scanned helper functions defined in the script for isolated leakage operations.
+  5. Softened doc wording to "static leakage heuristics".
+- **Commit**: `c57b146`
+- **Proving Test**: `tests/test_run_policy.py::TestLeakageDetectorAST` (7 tests, all PASSED).
+
+### Item R4: Ledger & Lock Hardening
+- **Problem**: Locators accepted any string with `@`. Non-technical rows mentioning algorithms bypassed technical reference rules. Local plan locks were vulnerable to silent tampering.
+- **Remediation**:
+  1. Required strict locator regex `(?:Sec|Section|p\.|page|Table|Fig|Figure|Eq|Theorem)\b` in `enforcer.py`.
+  2. If `data`, `framing`, or `other` rows mention algorithms, models, hyperparameters, or metrics, they are promoted to technical decisions and required to have peer-reviewed literature citations.
+  3. Scoped `trusted_domains.yaml` to `tier: B`: rejected for `technique`, `parameter`, `metric` and allowed only for `deployment` and `threshold`.
+  4. Added `verify_plan(..., check_git=True)` comparing lock hash to `git show HEAD:<manifest_rel_path>`.
+  5. Added git-verified plan lock step in `.github/workflows/verify.yml`.
+- **Commit**: `1ea23c8`
+- **Proving Test**: `tests/test_enforce.py` (3 new tests) & `tests/test_run_policy.py::TestLockPlan::test_verify_plan_git_committed` (all PASSED).
+
+### Item R5: Scanner DoS Residuals
+- **Problem**: Static scanner did not guard against CPU/memory exhaustion attacks (large `range()`, unbounded list multiplication, long `sleep()`, dynamic model deserialization).
+- **Remediation**:
+  1. Flagged `time.sleep()` with non-literal or literal > 10s.
+  2. Flagged `range()` / `np.arange()` with literal > 10**7.
+  3. Flagged list/array multiplication `[...] * N` with factor > 10**8.
+  4. Flagged non-literal path arguments in `joblib.load()` and `skops.io.load()`.
+  5. Clarified that static AST is a tripwire, and Docker container isolation is the true execution boundary.
+- **Commit**: `01660c8`
+- **Proving Test**: `tests/test_scan_sandbox_extra.py::TestDoSAttacks` (6 test methods, 44 subtests, all PASSED).
+
+### Item R6: Test Suite Honesty & Limitations
+- **Problem**: `tests/test_lock_plan.py` only subclassed tests from another file without own tests. Behavioral test table was empty. README lacked explicit per-check limitation disclaimers.
+- **Remediation**:
+  1. Converted `tests/test_lock_plan.py` into 9 independent unit tests covering CRLF invariance, lock creation, tampering, deletion, schema errors, and unlock authorization.
+  2. Completed sign-off table in `docs/BEHAVIORAL_TESTS.md` and added automated scheduled run step in `.github/workflows/verify.yml` with API key secrets.
+  3. Expanded `README.md` "Known Limitations and Threat Model" documenting exact operational boundaries of the AST scanner, leakage heuristics, plan locking, ledger enforcer, and DOI verifier.
+- **Commit**: In progress (R6)
+- **Proving Test**: `tests/test_lock_plan.py` (9 tests, all PASSED), `tests/test_evaluator_logic.py` (8 scenarios, all PASSED).

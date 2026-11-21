@@ -129,6 +129,13 @@ jobs:
           for f in examples/*/DECISIONS.md; do
             [ -f "$f" ] && python scripts/enforce_constitution.py "$f" --online
           done
+      - name: Run Behavioral Scenarios (Scheduled)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python tests/behavioral/run_scenarios.py --report docs/BEHAVIORAL_TESTS.md || true
       - name: Open Issue on Failure
         if: steps.live.outcome == 'failure'
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1
