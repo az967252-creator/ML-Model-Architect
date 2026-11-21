@@ -34,7 +34,7 @@
 * **Misaligned Optimization Metrics:** Selection of naive accuracy metrics on imbalanced distributions, obscuring classification failure.
 * **Ungrounded Production Deployments:** Rollouts lacking mathematical drift monitoring (PSI / Kolmogorov-Smirnov) or formal rollback criteria.
 
-ML Model Architect solves this paradigm through a **Constitutional Execution Engine**. Under this framework, the AI agent is governed by an immutable set of 26 constitutional articles, a cryptographically locked Directed Acyclic Graph (DAG), an isolated execution sandbox, and a mandatory Model Context Protocol (MCP) literature retrieval layer.
+ML Model Architect solves this paradigm through a **Constitutional Execution Engine**. Under this framework, the AI agent is governed by an immutable set of 35 constitutional articles, a cryptographically locked Directed Acyclic Graph (DAG), an isolated execution sandbox, and a mandatory Model Context Protocol (MCP) literature retrieval layer.
 
 > [!IMPORTANT]
 > **The Sovereign Axiom: "The Reference Is the Judge."**  
@@ -378,7 +378,7 @@ You are operating as ML-Model-Architect.
 You are strictly governed by the rules codified in _constitution/CONSTITUTION.md.
 
 Mandatory Protocol:
-1. Ingest _constitution/CONSTITUTION.md. All 26 rules (Parts A through G) are binding.
+1. Ingest _constitution/CONSTITUTION.md. All 35 rules (Parts A through G) are binding.
 2. Ingest skills/01-goals-and-requirements/SKILL.md.
 3. Initiate Stage 1. Present the opening MCQ funnel.
 4. Do NOT emit code or select algorithm families until Stage 1 Sufficiency Gate passes.
@@ -545,7 +545,7 @@ ML-Model-Architect/
 |   |-- CODE_OF_CONDUCT.md  # Professional standard of conduct
 |   `-- SECURITY.md         # Vulnerability disclosure policy and threat model
 |-- _constitution/          # Governing constitutional articles
-|   `-- CONSTITUTION.md     # Parts A through G: 26 formal governance rules
+|   `-- CONSTITUTION.md     # Parts A through G: 35 formal governance rules
 |-- _shared/                # Standardized output markdown templates and manifest schemas
 |   |-- TEMPLATE-REQUIREMENTS.md
 |   |-- TEMPLATE-TECH-CHOICE.md
@@ -646,16 +646,16 @@ When selecting references, the agent must ascend through a formal hierarchy:
 
 ## Constitutional Governance Matrix
 
-The framework is governed by 26 rules partitioned into seven constitutional parts:
+The framework is governed by 35 rules partitioned into seven constitutional parts:
 
 | Constitutional Part | Domain Scope | Primary Governed Invariants |
 |:---:|:---|:---|
-| **Part A** | **Decision Philosophy** | A1: Propose 2-3 options, never decide unilaterally. A2: Question gate before mechanical execution. A3: Immediate consultation on ambiguity. A4: Unrecorded decisions are non-existent. A5: Language protocol. |
-| **Part B** | **"The Reference Is the Judge"** | B1: No technical choice without verified citation. B2: Hierarchical reference escalation. B3: 6-criteria rigor gate. B4: Claim groundedness check. B7: Empirical cross-validation is final judge. B8: Zero-paywall whitelist protocol. B9: Trailing 6-month SOTA discovery. |
+| **Part A** | **Decision Philosophy** | A1: Propose 2-3 options, candidate options can be heuristic if tagged; never decide unilaterally. A2: Question gate before mechanical execution. A3: Immediate consultation on ambiguity. A4: Unrecorded decisions are non-existent. A5: Language protocol. |
+| **Part B** | **"The Reference Is the Judge"** | B1: No technical choice without verified citation. B2: Hierarchical reference escalation. B3: 6-criteria rigor gate (Tier A academic sources). B4: Claim groundedness check. B5: PRISMA protocol. B6: Reference gap handling. B7: Empirical cross-validation is final judge. B8: Zero-paywall whitelist protocol (Tier B operational sources). B9: Trailing 6-month SOTA discovery. |
 | **Part C** | **Token Economics** | C1: Lazy loading of stage references. C2: Stable prefix caching. C3: Reference context compaction. C4: Bounded response length. C5: Strict stage token budgets. C6: Red team regex pre-screening. |
-| **Part D** | **Stage Gates** | Enforces five mandatory stage transition gates: Input Gate, Reference Gate, Verification Gate, Token Gate, and Exit Gate. |
-| **Part E** | **Violation Handling** | Mandatory 4-step protocol on detected rule breach: 1. Halt immediately. 2. State violated rule. 3. Consult user. 4. Record near-violation in ledger. |
-| **Part F** | **Mandatory External Search** | F1: No reliance on internal model memory. F2: MCP paper acquisition. F3: Citation extraction log. F4: Sandbox isolation protocol. F4.1: Automated AST pre-scan. F5: External web content treated strictly as untrusted data. |
+| **Part D** | **Stage Gates** | D1: Input Gate. D2: Reference Gate. D3: Verification Gate. D4: Token Gate. D5: Exit Gate. |
+| **Part E** | **Violation Handling** | E1: Mandatory 4-step protocol on detected rule breach: 1. Halt immediately. 2. State violated rule. 3. Consult user. 4. Record near-violation in ledger. |
+| **Part F** | **Mandatory External Search** | F1: No reliance on internal model memory. F2: MCP paper acquisition. F3: Citation extraction log. F4: Sandbox isolation & AST pre-scan protocol. F5: External web content treated strictly as untrusted data. |
 | **Part G** | **Deterministic Execution** | G1: Immutable DAG manifest (`PLAN.manifest.json` + SHA-256 lock). G2: Grounded ReAct state machine (Think -> Act -> Observe -> Assert). G3: Empirical 1-SE override. G4: Zero skipped steps. |
 
 ---

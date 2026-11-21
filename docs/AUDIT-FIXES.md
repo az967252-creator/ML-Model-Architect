@@ -14,10 +14,10 @@ This document tracks the remediation of 15 verified engineering and architectura
 | **6** | DOI Verification | Phase 2d | [x] Completed | Remove verify=False, derive peer review from registry, 365d exception expiry, strict CI |
 | **7** | Empirical Benchmarks | Phase 5 | [ ] Pending | Real OpenML/UCI benchmark script, latency measurements, remove ungrounded claims |
 | **8** | Reference Examples | Phase 5 | [ ] Pending | Naive agent comparison, model naming consistency, dynamic evaluation reports |
-| **9** | Reference Catalog | Phase 4a | [ ] Pending | Non-empty catalog claims, >=2 refs per group, sourced hyperparameters, lint script |
-| **10** | Decision Tree Scope | Phase 4b | [ ] Pending | Preprocessing Level 1 task, explicit tabular/time-series scope bounding |
+| **9** | Reference Catalog | Phase 4a | [x] Completed | Non-empty catalog claims, >=2 refs per group, sourced hyperparameters, lint script |
+| **10** | Decision Tree Scope | Phase 4b | [x] Completed | Preprocessing Level 1 task, explicit tabular/time-series scope bounding |
 | **11** | Security Claims | Phase 1 | [x] Completed | Clarify AST tripwire vs. Docker isolation boundary in README and docs |
-| **12** | Constitution Alignment | Phase 4c | [ ] Pending | A1 vs Skill 2 suggested options, B3/B8 Tier A/B sources, consistent rule numbering |
+| **12** | Constitution Alignment | Phase 4c | [x] Completed | A1 vs Skill 2 suggested options, B3/B8 Tier A/B sources, consistent rule numbering |
 | **13** | Test Suite & CI | Phase 3 | [x] Completed | Behavioral scenario harness, modular 1-SE rule, pinned CI actions, Python 3.11-3.13 matrix |
 | **14** | Secondary Tooling | Phase 6 | [ ] Pending | Audit executive_summary, pre_mortem, generate_diagram, red_team, app.py, local_knowledge |
 | **15** | Package Restructuring | Phase 7 | [ ] Pending | `src/ml_model_architect/`, importlib.resources, `mla init`, wheel smoke test |
@@ -57,11 +57,11 @@ This document tracks the remediation of 15 verified engineering and architectura
 - [x] SOTA workflow fix with 30-day cutoff and PR guard.
 
 ### Phase 4: References, Decision Tree & Constitution (Issues 9, 10, 12)
-- [ ] Populate `references/catalog/` with verified claims and locators.
-- [ ] Sourced hyperparameter ranges and `scripts/lint_references.py`.
-- [ ] Stage 2 Decision Tree Level-1 Preprocessing & scope bounding.
-- [ ] Two-tier source governance (Tier A vs. Tier B) in `trusted_domains.yaml`.
-- [ ] Renumber constitutional articles and synchronize `scripts/count_rules.py`.
+- [x] Populate `references/catalog/` with verified claims and locators.
+- [x] Sourced hyperparameter ranges and `scripts/lint_references.py`.
+- [x] Stage 2 Decision Tree Level-1 Preprocessing & scope bounding.
+- [x] Two-tier source governance (Tier A vs. Tier B) in `trusted_domains.yaml`.
+- [x] Renumber constitutional articles and synchronize `scripts/count_rules.py`.
 
 ### Phase 5: Empirical Benchmarks & Examples (Issues 7, 8)
 - [ ] Public dataset benchmark runner (`benchmarks/run_benchmarks.py`).

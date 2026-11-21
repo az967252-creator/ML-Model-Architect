@@ -1,3 +1,17 @@
-# Catalog for Group 11
 group_id: "11"
-claims: []
+name: "Anomaly Detection"
+claims:
+  - claim: "Isolation Forest tree depth anomaly score"
+    value: "Anomalous instances have systematically shorter average path lengths in isolation trees"
+    source: "10.1109/ICDM.2008.17"
+    locator: "Sec 3"
+    status: "verified"
+    verified_by: "az967252-creator"
+    verified_date: "2026-11-10"
+  - claim: "Shallow vs Deep anomaly detection taxonomy"
+    value: "Isolation forests and one-class SVMs consistently strong on tabular anomalies"
+    source: "10.1109/JPROC.2021.3052449"
+    locator: "Sec IV"
+    status: "verified"
+    verified_by: "az967252-creator"
+    verified_date: "2026-11-10"

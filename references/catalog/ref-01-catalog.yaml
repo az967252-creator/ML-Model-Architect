@@ -1,3 +1,17 @@
-# Catalog for Group 01
 group_id: "01"
-claims: []
+name: "Linear Models"
+claims:
+  - claim: "Elastic Net balances L1 sparsity and L2 grouping"
+    value: "lambda1 * |beta| + lambda2 * |beta|^2"
+    source: "10.1111/j.1467-9868.2005.00503.x"
+    locator: "Sec 2.1"
+    status: "verified"
+    verified_by: "az967252-creator"
+    verified_date: "2026-11-10"
+  - claim: "1-SE rule for complexity selection in regularized models"
+    value: "Select simplest model within 1 SE of minimum CV error"
+    source: "10.1007/978-0-387-84858-7"
+    locator: "Sec 7.10"
+    status: "verified"
+    verified_by: "az967252-creator"
+    verified_date: "2026-11-10"

@@ -17,7 +17,7 @@ KFold 5-fold
 
 ## 3. Problem Catalog
 - Imbalance | Pruning + Resampling
-- Overfitting | Limit max_depth
+- Overfitting | Limit max_depth (10.1023/A:1010933404324 @ Sec 2)
 - Redundant features | Pruning
 
 

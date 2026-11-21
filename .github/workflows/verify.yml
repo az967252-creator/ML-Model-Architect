@@ -29,6 +29,8 @@ jobs:
         run: python -m pytest tests -v
       - name: Scan Sandbox
         run: python scripts/scan_sandbox.py
+      - name: Lint Hyperparameters & Thresholds
+        run: python scripts/lint_references.py
       - name: Verify Plan Template Schema
         run: |
           python scripts/lock_plan.py _shared/TEMPLATE-PLAN-MANIFEST.json

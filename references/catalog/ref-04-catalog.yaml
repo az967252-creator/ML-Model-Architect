@@ -1,3 +1,17 @@
-# Catalog for Group 04
 group_id: "04"
-claims: []
+name: "Neural Networks"
+claims:
+  - claim: "Tree models outperform deep learning on standard tabular datasets"
+    value: "Tree-based architectures remain state-of-the-art on tabular benchmarks"
+    source: "10.48550/arXiv.2207.08815"
+    locator: "Sec 4"
+    status: "verified"
+    verified_by: "az967252-creator"
+    verified_date: "2026-11-10"
+  - claim: "Representation learning requires inductive bias or pre-training"
+    value: "Deep neural networks excel on structured spatial and temporal representations"
+    source: "10.1038/nature14539"
+    locator: "Page 436"
+    status: "verified"
+    verified_by: "az967252-creator"
+    verified_date: "2026-11-10"

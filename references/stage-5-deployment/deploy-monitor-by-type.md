@@ -21,18 +21,18 @@ scope: by-task-type
 
 ## Time Series
 - Drift focus: seasonality shift, regime change.
-- Alert: forecast error (MASE) exceeds 1.5x training MASE.
-- Retraining: include recent windows; respect TimeSeriesSplit.
+- Alert: forecast error (MASE) exceeds 1.5x training MASE (heuristic).
+- Retraining: include recent windows (heuristic); respect TimeSeriesSplit.
 
 ## Anomaly Detection
 - Drift focus: anomaly rate, false positive rate.
-- Alert: FP rate doubles from baseline.
+- Alert: FP rate doubles from baseline (heuristic).
 - Metric: AUPRC, detection delay.
 
 ## Clustering
 - Drift focus: cluster population shift, silhouette drop.
-- Alert: Silhouette drop >0.1.
-- Retraining: only when assignment loses meaning (documented).
+- Alert: Silhouette drop >0.1 (heuristic).
+- Retraining: only when assignment loses meaning (heuristic) (documented).
 
 
 ## 8. Direct Source Access (MCP Required)

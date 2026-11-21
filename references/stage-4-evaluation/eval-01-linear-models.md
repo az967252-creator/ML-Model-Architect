@@ -16,7 +16,7 @@ F1, ROC-AUC, Brier Score / MAE, RMSE
 KFold 5-fold
 
 ## 3. Problem Catalog
-- Overfitting | Increase regularization
+- Overfitting | Increase regularization (10.1111/j.1467-9868.2005.00503.x @ Sec 2)
 - Outliers | Use RobustScaler
 - Non-linear | Check partial dependence
 

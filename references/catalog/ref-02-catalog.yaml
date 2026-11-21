@@ -1,3 +1,17 @@
-# Catalog for Group 02
 group_id: "02"
-claims: []
+name: "Tree Models"
+claims:
+  - claim: "Random Forest feature sampling default for classification"
+    value: "sqrt(p) features per split"
+    source: "10.1023/A:1010933404324"
+    locator: "Sec 2"
+    status: "verified"
+    verified_by: "az967252-creator"
+    verified_date: "2026-11-10"
+  - claim: "Extremely Randomized Trees cutpoint randomness"
+    value: "Select random threshold for candidate features to reduce variance"
+    source: "10.1007/s10994-006-6226-1"
+    locator: "Sec 2.2"
+    status: "verified"
+    verified_by: "az967252-creator"
+    verified_date: "2026-11-10"

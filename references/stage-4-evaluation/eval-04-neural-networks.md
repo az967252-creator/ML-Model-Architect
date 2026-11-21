@@ -16,7 +16,7 @@ F1, ROC-AUC / MAE, RMSE + Brier
 StratifiedKFold + Hold-out mandatory
 
 ## 3. Problem Catalog
-- Unstable convergence | Dropout
+- Unstable convergence | Dropout (10.1038/nature14539 @ Page 438)
 - NaN divergence | Check loss stability
 - Slow training | Multi-fidelity
 

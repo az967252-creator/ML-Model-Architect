@@ -1,3 +1,17 @@
-# Catalog for Group 05
 group_id: "05"
-claims: []
+name: "Tabular Foundation Models"
+claims:
+  - claim: "Prior-data Fitted Networks (TabPFN) inference latency"
+    value: "Inference in under 1 second without iterative gradient steps for small tabular samples"
+    source: "10.1038/s41586-024-08328-6"
+    locator: "Sec 1"
+    status: "verified"
+    verified_by: "az967252-creator"
+    verified_date: "2026-11-10"
+  - claim: "Deep neural networks tabular data taxonomy"
+    value: "Hybrid architectures and transformer embeddings for mixed tabular data"
+    source: "10.1109/TNNLS.2022.3229161"
+    locator: "Sec III"
+    status: "verified"
+    verified_by: "az967252-creator"
+    verified_date: "2026-11-10"

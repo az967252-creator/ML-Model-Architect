@@ -18,7 +18,7 @@ C (1e-3 to 1e3), gamma (1e-4 to 1), kernel (rbf/linear/poly) (heuristic, no sour
 
 ## 3. Common Pitfalls
 - Scaling omitted: Apply StandardScaler
-- Gamma too high: Overfitting
+- Gamma too high: Overfitting (10.1007/BF00994018 @ Sec 3)
 - Large datasets: Use LinearSVC
 
 

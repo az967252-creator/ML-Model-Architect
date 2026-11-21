@@ -17,7 +17,7 @@ learning_rate (0.01-0.3), n_estimators (100-2000), max_depth (3-10), subsample (
 
 
 ## 3. Common Pitfalls
-- LightGBM overfitting: Enforce max_depth
+- LightGBM overfitting: Enforce max_depth (10.1145/2939672.2939785 @ Sec 4.1)
 - Accuracy drop: Relax monotonicity
 - High memory: Prefer LightGBM
 

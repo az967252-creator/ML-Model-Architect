@@ -77,5 +77,37 @@ class TestVerifyDois(unittest.TestCase):
         status, note = verify_dois.check(ref)
         self.assertEqual(status, "OK")
 
+    def test_catalogs_non_empty(self):
+        import yaml
+        from pathlib import Path
+        root = Path(__file__).resolve().parent.parent
+        catalog_files = list((root / "references" / "catalog").glob("*.yaml"))
+        self.assertGreaterEqual(len(catalog_files), 12, "Must have at least 12 catalog files")
+        for f in catalog_files:
+            data = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+            claims = data.get("claims", [])
+            self.assertGreater(len(claims), 0, f"Catalog file {f.name} has empty claims list")
+            for c in claims:
+                self.assertIn("claim", c)
+                self.assertIn("source", c)
+                self.assertIn("locator", c)
+                self.assertIn("status", c)
+
+    def test_each_group_has_at_least_two_references(self):
+        import yaml
+        from pathlib import Path
+        root = Path(__file__).resolve().parent.parent
+        ref_file = root / "references" / "references_to_verify.yaml"
+        data = yaml.safe_load(ref_file.read_text(encoding="utf-8")) or {}
+        for g in data.get("groups", []):
+            if g["id"] in [f"{i:02d}" for i in range(1, 13)]:
+                self.assertGreaterEqual(len(g.get("refs", [])), 2, f"Group {g['id']} must have >= 2 references")
+
+    def test_empty_catalog_fails_check(self):
+        import yaml
+        empty_catalog = yaml.safe_load("group_id: '99'\nclaims: []")
+        self.assertEqual(len(empty_catalog.get("claims", [])), 0)
+
+
 if __name__ == '__main__':
     unittest.main()

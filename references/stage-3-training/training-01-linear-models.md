@@ -17,7 +17,7 @@ C (1e-4 to 1e3), penalty (l1/l2), solver (heuristic, no source)
 
 
 ## 3. Common Pitfalls
-- Overfitting: Increase regularization
+- Overfitting: Increase regularization (10.1111/j.1467-9868.2005.00503.x @ Sec 2)
 - Outliers: Use RobustScaler
 - Non-linear: Check partial dependence
 

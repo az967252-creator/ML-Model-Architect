@@ -1,3 +1,17 @@
-# Catalog for Group 08
 group_id: "08"
-claims: []
+name: "Probabilistic Models"
+claims:
+  - claim: "Optimality of Naive Bayes under zero-one loss"
+    value: "Zero-one classification optimal even when feature independence assumption is violated"
+    source: "10.1023/A:1007413511361"
+    locator: "Sec 4"
+    status: "verified"
+    verified_by: "az967252-creator"
+    verified_date: "2026-11-10"
+  - claim: "Gaussian Process exact posterior inference"
+    value: "Kernel Gram matrix inversion scales cubically O(N^3) with sample size"
+    source: "10.7551/mitpress/3206.001.0001"
+    locator: "Ch 2.2"
+    status: "verified"
+    verified_by: "az967252-creator"
+    verified_date: "2026-11-10"

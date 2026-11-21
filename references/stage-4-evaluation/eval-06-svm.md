@@ -17,7 +17,7 @@ StratifiedKFold + Nested CV
 
 ## 3. Problem Catalog
 - Scaling omitted | Apply StandardScaler
-- Gamma too high | Overfitting
+- Gamma too high | Overfitting (10.1007/BF00994018 @ Sec 3)
 - Large datasets | Use LinearSVC
 
 

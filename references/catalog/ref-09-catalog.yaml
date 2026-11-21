@@ -1,3 +1,17 @@
-# Catalog for Group 09
 group_id: "09"
-claims: []
+name: "Clustering"
+claims:
+  - claim: "DBSCAN noise identification"
+    value: "Density-reachability distinguishes arbitrary-shaped clusters from background noise"
+    source: "10.5555/3001460.3001507"
+    locator: "Sec 3"
+    status: "verified"
+    verified_by: "az967252-creator"
+    verified_date: "2026-11-10"
+  - claim: "HDBSCAN hierarchical density stabilization"
+    value: "Extracts flat clusters from density hierarchy based on cluster stability"
+    source: "10.1007/978-3-642-37456-2_14"
+    locator: "Sec 4"
+    status: "verified"
+    verified_by: "az967252-creator"
+    verified_date: "2026-11-10"

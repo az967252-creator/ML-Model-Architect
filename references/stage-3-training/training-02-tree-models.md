@@ -18,7 +18,7 @@ n_estimators (100-1000), max_depth (5-30), min_samples_leaf (1-20) (heuristic, n
 
 ## 3. Common Pitfalls
 - Imbalance: Pruning + Resampling
-- Overfitting: Limit max_depth
+- Overfitting: Limit max_depth (10.1023/A:1010933404324 @ Sec 2)
 - Redundant features: Pruning
 
 
