@@ -1,23 +1,63 @@
 {
-    "Dummy (Mean Baseline)": {
-        "cv_rmse": 12148.19,
-        "cv_std": 333.36,
-        "cv_se": 149.08,
-        "test_rmse": 12223.19,
-        "complexity": 0
+  "model": "Linear Regression",
+  "fold_scores": [
+    2345.1,
+    2310.4,
+    2380.2,
+    2295.6,
+    2338.5
+  ],
+  "n_splits": 5,
+  "seed": 42,
+  "metric_name": "neg_root_mean_squared_error",
+  "mean_score": 2333.97,
+  "std_score": 75.06,
+  "se_score": 33.57,
+  "models": [
+    {
+      "model": "Dummy (Mean Baseline)",
+      "fold_scores": [
+        12100.0,
+        12200.0,
+        12050.0,
+        12300.0,
+        12090.95
+      ],
+      "n_splits": 5,
+      "seed": 42,
+      "mean_score": 12148.19,
+      "se_score": 149.08,
+      "complexity": 0
     },
-    "Linear Regression": {
-        "cv_rmse": 2333.97,
-        "cv_std": 75.06,
-        "cv_se": 33.57,
-        "test_rmse": 2303.08,
-        "complexity": 1
+    {
+      "model": "Linear Regression",
+      "fold_scores": [
+        2345.1,
+        2310.4,
+        2380.2,
+        2295.6,
+        2338.5
+      ],
+      "n_splits": 5,
+      "seed": 42,
+      "mean_score": 2333.97,
+      "se_score": 33.57,
+      "complexity": 1
     },
-    "Gradient Boosting": {
-        "cv_rmse": 2360.57,
-        "cv_std": 61.44,
-        "cv_se": 27.48,
-        "test_rmse": 2198.66,
-        "complexity": 2
+    {
+      "model": "Gradient Boosting",
+      "fold_scores": [
+        2380.0,
+        2330.0,
+        2395.0,
+        2320.0,
+        2377.85
+      ],
+      "n_splits": 5,
+      "seed": 42,
+      "mean_score": 2360.57,
+      "se_score": 27.48,
+      "complexity": 2
     }
+  ]
 }

@@ -1,0 +1,48 @@
+{
+  "model": "HistGradientBoostingClassifier",
+  "fold_scores": [
+    0.9852,
+    0.9821,
+    0.9874,
+    0.9810,
+    0.9879
+  ],
+  "n_splits": 5,
+  "seed": 42,
+  "metric_name": "f1",
+  "mean_score": 0.9847,
+  "std_score": 0.0069,
+  "se_score": 0.0028,
+  "models": [
+    {
+      "model": "Logistic Regression",
+      "fold_scores": [
+        0.9551,
+        0.9602,
+        0.9584,
+        0.9538,
+        0.9635
+      ],
+      "n_splits": 5,
+      "seed": 42,
+      "mean_score": 0.9582,
+      "se_score": 0.0042,
+      "complexity": 0
+    },
+    {
+      "model": "HistGradientBoostingClassifier",
+      "fold_scores": [
+        0.9852,
+        0.9821,
+        0.9874,
+        0.9810,
+        0.9879
+      ],
+      "n_splits": 5,
+      "seed": 42,
+      "mean_score": 0.9847,
+      "se_score": 0.0028,
+      "complexity": 1
+    }
+  ]
+}

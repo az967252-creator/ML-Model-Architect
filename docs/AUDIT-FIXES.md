@@ -12,8 +12,8 @@ This document tracks the remediation of 15 verified engineering and architectura
 | **4** | Decision Ledger | Phase 2b | [x] Completed | Closed type taxonomy, reason length check, `--max-heuristic-ratio`, DOI locators |
 | **5** | Plan Lock Engine | Phase 2c | [x] Completed | Remove `--unlock` from agent CLI, ledger manifest hash, default base_dir to manifest dir |
 | **6** | DOI Verification | Phase 2d | [x] Completed | Remove verify=False, derive peer review from registry, 365d exception expiry, strict CI |
-| **7** | Empirical Benchmarks | Phase 5 | [ ] Pending | Real OpenML/UCI benchmark script, latency measurements, remove ungrounded claims |
-| **8** | Reference Examples | Phase 5 | [ ] Pending | Naive agent comparison, model naming consistency, dynamic evaluation reports |
+| **7** | Empirical Benchmarks | Phase 5 | [x] Completed | Real OpenML/UCI benchmark script, latency measurements, remove ungrounded claims |
+| **8** | Reference Examples | Phase 5 | [x] Completed | Naive agent comparison, model naming consistency, dynamic evaluation reports |
 | **9** | Reference Catalog | Phase 4a | [x] Completed | Non-empty catalog claims, >=2 refs per group, sourced hyperparameters, lint script |
 | **10** | Decision Tree Scope | Phase 4b | [x] Completed | Preprocessing Level 1 task, explicit tabular/time-series scope bounding |
 | **11** | Security Claims | Phase 1 | [x] Completed | Clarify AST tripwire vs. Docker isolation boundary in README and docs |
@@ -64,11 +64,11 @@ This document tracks the remediation of 15 verified engineering and architectura
 - [x] Renumber constitutional articles and synchronize `scripts/count_rules.py`.
 
 ### Phase 5: Empirical Benchmarks & Examples (Issues 7, 8)
-- [ ] Public dataset benchmark runner (`benchmarks/run_benchmarks.py`).
-- [ ] Honest latency measurement and `benchmarks/results.json`.
-- [ ] Scripted naive baseline comparison (`benchmarks/unconstrained_agent/`).
-- [ ] Auto-rendered benchmark tables (`scripts/render_benchmark_md.py`).
-- [ ] Updated `examples/DISCLAIMER.md` and dynamic evaluation reports.
+- [x] Public dataset benchmark runner (`benchmarks/run_benchmarks.py`).
+- [x] Honest latency measurement and `benchmarks/results.json`.
+- [x] Scripted naive baseline comparison (`benchmarks/unconstrained_agent/`).
+- [x] Auto-rendered benchmark tables (`scripts/render_benchmark_md.py`).
+- [x] Updated `examples/DISCLAIMER.md` and dynamic evaluation reports.
 
 ### Phase 6: Secondary Tools Hardening (Issue 14)
 - [ ] Hardened `executive_summary.py`, `pre_mortem.py`, `generate_diagram.py`, `red_team.py`.

@@ -60,6 +60,7 @@ class PipelineASTValidator(ast.NodeVisitor):
         self.train_test_split_lineno = None
         self.leakage_violations = []
         self.imported_pipeline_classes = set()
+        self._inside_column_transformer = False
 
     def visit_ImportFrom(self, node):
         if node.module and "sklearn" in node.module:
@@ -103,8 +104,16 @@ class PipelineASTValidator(ast.NodeVisitor):
             if self.train_test_split_lineno is None or node.lineno < self.train_test_split_lineno:
                 self.train_test_split_lineno = node.lineno
 
+        # Check ColumnTransformer boundary
+        if func_name in {"ColumnTransformer", "make_column_transformer"}:
+            old_inside = self._inside_column_transformer
+            self._inside_column_transformer = True
+            self.generic_visit(node)
+            self._inside_column_transformer = old_inside
+            return
+
         # Check direct instantiation not assigned to a simple target
-        if func_name in {"Pipeline", "make_pipeline"} or func_name in self.imported_pipeline_classes:
+        if (func_name in {"Pipeline", "make_pipeline"} or func_name in self.imported_pipeline_classes) and not self._inside_column_transformer:
             self.pipeline_instantiations_count += 1
 
         # Check cross_val_score / cross_validate usage
@@ -256,7 +265,7 @@ class PolicyEngine:
                 if validator.leakage_violations:
                     return False, f"Pipeline leakage violation: {validator.leakage_violations[0]}"
 
-                total_pipes = max(validator.pipeline_assignments_count, validator.pipeline_instantiations_count)
+                total_pipes = validator.pipeline_assignments_count if validator.pipeline_assignments_count > 0 else validator.pipeline_instantiations_count
                 if total_pipes == 0:
                     return False, f"No scikit-learn Pipeline construction detected in {m_pipe.group(1)}."
                 if total_pipes > 1:
@@ -353,11 +362,19 @@ class PolicyEngine:
 
                 if stats:
                     # Determine whether metric is error (lower is better) or score (higher is better)
+                    # Determine whether metric is error (lower is better) or score (higher is better)
+                    metrics_metric = (data.get("metric_name") or "").lower()
                     client_metric = (self.data.get("client_grounding", {}).get("business_metric") or "").lower()
-                    is_error = (
-                        any(kw in client_metric for kw in ["rmse", "mae", "mse", "loss", "error"])
-                        or any(kw in report_text.lower() for kw in ["rmse", "mae", "mse", "loss", "error"])
-                    )
+                    if any(kw in metrics_metric for kw in ["rmse", "mae", "mse", "loss"]):
+                        is_error = True
+                    elif any(kw in metrics_metric for kw in ["f1", "acc", "auc", "precision", "recall"]):
+                        is_error = False
+                    elif any(kw in report_text.lower() for kw in ["rmse", "mae", "mse", "loss"]):
+                        is_error = True
+                    elif any(kw in client_metric for kw in ["rmse", "mae", "mse", "loss"]):
+                        is_error = True
+                    else:
+                        is_error = False
                     if is_error:
                         best_name = min(stats, key=lambda k: stats[k]["mean"])
                         best_mean = stats[best_name]["mean"]

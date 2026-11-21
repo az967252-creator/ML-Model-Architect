@@ -15,7 +15,7 @@
 - Standard Error (SE) threshold for Linear Regression: 33.57.
 - Gradient Boosting CV RMSE (2360.57) does not outperform Linear Regression CV RMSE (2333.97).
 - Applying Hastie et al. (2009) 1-SE rule (10.1007/978-0-387-84858-7):
-  - **Selected Model**: **Linear Regression** (simpler, faster, robust generalization, lowest CV error).
+  - **Selected Model**: Linear Regression. (simpler, faster, robust generalization, lowest CV error).
 
 ## Leakage Checks
 | Check | Status |

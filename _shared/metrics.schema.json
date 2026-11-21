@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "ML Model Architect Metrics Schema",
   "type": "object",
-  "oneOf": [
+  "anyOf": [
     {
       "type": "object",
       "required": ["model", "fold_scores", "n_splits", "seed"],

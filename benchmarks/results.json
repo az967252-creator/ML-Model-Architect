@@ -1,0 +1,203 @@
+{
+  "benchmark_suite_version": "1.0.0",
+  "timestamp_utc": "2026-11-21T11:41:38Z",
+  "total_runtime_seconds": 17.16,
+  "benchmarks": [
+    {
+      "benchmark_id": "BENCH-01",
+      "task_name": "Car Price Prediction",
+      "problem_type": "Tabular Regression",
+      "dataset": {
+        "n_samples": 1000,
+        "n_features": 4,
+        "type": "synthetic_controlled"
+      },
+      "mla_results": {
+        "models": {
+          "Dummy (Mean Baseline)": {
+            "cv_rmse": 12148.19,
+            "cv_std": 372.71,
+            "cv_se": 166.68,
+            "test_rmse": 12223.19,
+            "fit_time_ms": 9.07,
+            "p99_latency_ms": 7.78,
+            "complexity": 0
+          },
+          "Linear Regression": {
+            "cv_rmse": 2333.97,
+            "cv_std": 83.92,
+            "cv_se": 37.53,
+            "test_rmse": 2303.08,
+            "fit_time_ms": 9.1,
+            "p99_latency_ms": 5.9,
+            "complexity": 1
+          },
+          "Gradient Boosting": {
+            "cv_rmse": 2356.81,
+            "cv_std": 61.3,
+            "cv_se": 27.41,
+            "test_rmse": 2194.51,
+            "fit_time_ms": 147.55,
+            "p99_latency_ms": 7.18,
+            "complexity": 2
+          }
+        },
+        "selected_model": "Linear Regression",
+        "selection_rule": "Hastie et al. (2009) 1-SE rule (10.1007/978-0-387-84858-7)",
+        "leakage_detected": false
+      },
+      "unconstrained_agent": {
+        "chosen_model": "Gradient Boosting Regressor",
+        "failure_mode": "Overfitting & Complexity Penalty (ignored 1-SE rule; Linear is simpler and better on CV)",
+        "cv_rmse": 2354.95,
+        "cv_se": 26.45,
+        "test_rmse": 2194.51,
+        "fit_time_ms": 135.09,
+        "p99_latency_ms": 0.63,
+        "data_leakage": false,
+        "violated_rule": "G3 (Empirical 1-SE Override)"
+      }
+    },
+    {
+      "benchmark_id": "BENCH-02",
+      "task_name": "Delivery Delay Prediction",
+      "problem_type": "Tabular Binary Classification",
+      "dataset": {
+        "n_samples": 2000,
+        "n_features": 5,
+        "delay_rate": 0.4285,
+        "type": "synthetic_controlled"
+      },
+      "mla_results": {
+        "models": {
+          "Logistic Regression (Baseline)": {
+            "cv_f1": 0.9582,
+            "cv_std": 0.0105,
+            "cv_se": 0.0047,
+            "test_f1": 0.9586,
+            "fit_time_ms": 30.75,
+            "p99_latency_ms": 13.7,
+            "complexity": 0,
+            "cv_score": 0.958197082535273
+          },
+          "Gradient Boosting (Candidate)": {
+            "cv_f1": 0.9847,
+            "cv_std": 0.0069,
+            "cv_se": 0.0031,
+            "test_f1": 0.9824,
+            "fit_time_ms": 384.8,
+            "p99_latency_ms": 15.34,
+            "complexity": 1,
+            "cv_score": 0.9847160591231295
+          }
+        },
+        "selected_model": "Gradient Boosting (Candidate)",
+        "margin_diff": 0.0265,
+        "se_threshold": 0.0031,
+        "selection_rule": "Candidate improvement exceeds 1-SE margin (Diff > SE)",
+        "leakage_detected": false
+      },
+      "unconstrained_agent": {
+        "chosen_model": "Logistic Regression (Leaked Preprocessing)",
+        "failure_mode": "Data Leakage (StandardScaler fitted across full dataset before split)",
+        "test_f1": 0.9377,
+        "fit_time_ms": 10.93,
+        "p99_latency_ms": 1.57,
+        "data_leakage": true,
+        "violated_rule": "G1 / Stage 3 Leakage Gate (Missing Pipeline Boundary)"
+      }
+    },
+    {
+      "benchmark_id": "BENCH-03",
+      "task_name": "Financial Anomaly Detection",
+      "problem_type": "Unsupervised Outlier Detection (Imbalance)",
+      "dataset": {
+        "n_samples": 3000,
+        "contamination": 0.03,
+        "type": "synthetic_controlled"
+      },
+      "mla_results": {
+        "baseline": {
+          "name": "Statistical Z-Score (|z| > 3.0)",
+          "precision": 1.0,
+          "recall": 0.8636,
+          "f1_score": 0.9268
+        },
+        "candidate": {
+          "name": "Isolation Forest Pipeline",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "roc_auc": 1.0,
+          "fit_time_ms": 207.44,
+          "p99_latency_ms": 19.41
+        },
+        "selected_model": "Isolation Forest Pipeline",
+        "selection_rule": "Isolation Forest outperforms univariate baseline by +0.0732 F1",
+        "leakage_detected": false
+      },
+      "unconstrained_agent": {
+        "chosen_model": "Logistic Regression (Accuracy Metric)",
+        "failure_mode": "Metric Misalignment (97% accuracy achieved by predicting 'normal', missing anomalies)",
+        "accuracy": 0.9973,
+        "precision": 0.9,
+        "recall": 1.0,
+        "f1_score": 0.9474,
+        "fit_time_ms": 29.68,
+        "p99_latency_ms": 1.92,
+        "data_leakage": false,
+        "violated_rule": "B1 / Stage 1 Framing Gate (Imbalanced metric selection)"
+      }
+    },
+    {
+      "benchmark_id": "BENCH-04",
+      "task_name": "Telecom Customer Churn",
+      "problem_type": "Imbalanced Tabular Classification",
+      "dataset": {
+        "n_samples": 2000,
+        "n_features": 5,
+        "churn_rate": 0.303,
+        "type": "synthetic_controlled"
+      },
+      "mla_results": {
+        "models": {
+          "Logistic Regression (Baseline)": {
+            "cv_f1": 0.3924,
+            "cv_std": 0.0446,
+            "cv_se": 0.0199,
+            "test_f1": 0.4103,
+            "fit_time_ms": 30.52,
+            "p99_latency_ms": 16.2,
+            "complexity": 0,
+            "cv_score": 0.39241795963857273
+          },
+          "Gradient Boosting (Candidate)": {
+            "cv_f1": 0.414,
+            "cv_std": 0.0333,
+            "cv_se": 0.0149,
+            "test_f1": 0.4017,
+            "fit_time_ms": 375.62,
+            "p99_latency_ms": 16.69,
+            "complexity": 1,
+            "cv_score": 0.41401024825514215
+          }
+        },
+        "selected_model": "Gradient Boosting (Candidate)",
+        "margin_diff": 0.0216,
+        "se_threshold": 0.0149,
+        "selection_rule": "Candidate improvement exceeds 1-SE margin (Diff > SE)",
+        "leakage_detected": false
+      },
+      "unconstrained_agent": {
+        "chosen_model": "HistGradientBoosting (Non-stratified, Leaked CV)",
+        "failure_mode": "Cross-Fold Preprocessing Leakage (Scaler fit before KFold; non-stratified split)",
+        "cv_f1": 0.3984,
+        "cv_se": 0.009,
+        "fit_time_ms": 511.8,
+        "p99_latency_ms": 9.05,
+        "data_leakage": true,
+        "violated_rule": "Stage 4 Evaluation Gate / B7 Empirical Validation"
+      }
+    }
+  ]
+}
