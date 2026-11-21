@@ -27,6 +27,46 @@ if not os.path.exists(SANDBOX_DIR):
     if os.path.exists(alt_sandbox):
         SANDBOX_DIR = alt_sandbox
 
+
+def _eval_numeric(node: ast.AST):
+    """Constant-folds simple arithmetic expressions (Constants, Pow, Mult, Add, Sub, FloorDiv, int/float calls)."""
+    if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+        return node.value
+    elif isinstance(node, ast.UnaryOp):
+        if isinstance(node.op, ast.USub):
+            v = _eval_numeric(node.operand)
+            return -v if v is not None else None
+        elif isinstance(node.op, ast.UAdd):
+            return _eval_numeric(node.operand)
+    elif isinstance(node, ast.BinOp):
+        l = _eval_numeric(node.left)
+        r = _eval_numeric(node.right)
+        if l is not None and r is not None:
+            try:
+                if isinstance(node.op, ast.Pow):
+                    if r > 100:
+                        return 10**100
+                    return l ** r
+                elif isinstance(node.op, ast.Mult):
+                    return l * r
+                elif isinstance(node.op, ast.Add):
+                    return l + r
+                elif isinstance(node.op, ast.Sub):
+                    return l - r
+                elif isinstance(node.op, ast.FloorDiv):
+                    return l // r if r != 0 else None
+            except (OverflowError, ZeroDivisionError):
+                return 10**100
+    elif isinstance(node, ast.Call):
+        if isinstance(node.func, ast.Name) and node.func.id in {"int", "float"} and node.args:
+            v = _eval_numeric(node.args[0])
+            if v is not None:
+                try:
+                    return int(v) if node.func.id == "int" else float(v)
+                except (OverflowError, ValueError):
+                    return 10**100
+    return None
+
 class SandboxVisitor(ast.NodeVisitor):
     def __init__(self, filename=None):
         self.filename = filename
@@ -207,22 +247,49 @@ class SandboxVisitor(ast.NodeVisitor):
                 elif arg.value > 10:
                     self.violations.append((node.lineno, f"time.sleep({arg.value}) exceeds 10s maximum allowed literal (DoS risk)"))
 
-        # Check range(), np.arange(), np.zeros(), np.ones() bounds
-        if func_name in {"range", "arange", "zeros", "ones"}:
+        # Check range(), np.arange(), np.zeros(), np.ones(), np.empty(), np.full() bounds
+        if func_name in {"range", "arange", "zeros", "ones", "empty", "full"}:
             is_checked = (
                 func_name == "range"
-                or (caller_name in {"np", "numpy"} and func_name in {"arange", "zeros", "ones"})
+                or caller_name in {"np", "numpy"}
+                or caller_name == ""
             )
             if is_checked:
-                for a in node.args:
-                    if isinstance(a, ast.Constant) and isinstance(a.value, (int, float)):
-                        limit = 10**7 if func_name in {"range", "arange"} else 10**8
-                        if a.value > limit:
-                            self.violations.append((node.lineno, f"{func_name}() literal argument {a.value} exceeds limit (CPU/memory DoS risk)"))
-                    elif isinstance(a, (ast.Tuple, ast.List)):
-                        for elt in a.elts:
-                            if isinstance(elt, ast.Constant) and isinstance(elt.value, (int, float)) and elt.value > 10**8:
-                                self.violations.append((node.lineno, f"{func_name}() shape argument {elt.value} exceeds 10^8 limit (CPU/memory DoS risk)"))
+                if func_name in {"range", "arange"}:
+                    for a in node.args:
+                        val = _eval_numeric(a)
+                        if val is not None and val > 10**7:
+                            self.violations.append((node.lineno, f"{func_name}() argument {val} exceeds limit (CPU/memory DoS risk)"))
+                else:
+                    # zeros, ones, empty, full
+                    shape_arg = node.args[0] if node.args else None
+                    if not shape_arg:
+                        for kw in node.keywords:
+                            if kw.arg == "shape":
+                                shape_arg = kw.value
+                                break
+                    if shape_arg is not None:
+                        val = _eval_numeric(shape_arg)
+                        if val is not None and val > 10**8:
+                            self.violations.append((node.lineno, f"{func_name}() literal argument {val} exceeds limit (CPU/memory DoS risk)"))
+                        elif isinstance(shape_arg, (ast.Tuple, ast.List)):
+                            total_volume = 1
+                            has_valid_dim = True
+                            dim_exceeded = False
+                            for elt in shape_arg.elts:
+                                dim_val = _eval_numeric(elt)
+                                if dim_val is not None:
+                                    if dim_val > 10**8:
+                                        dim_exceeded = True
+                                        self.violations.append((node.lineno, f"{func_name}() shape argument {dim_val} exceeds 10^8 limit (CPU/memory DoS risk)"))
+                                    try:
+                                        total_volume *= dim_val
+                                    except OverflowError:
+                                        total_volume = 10**100
+                                else:
+                                    has_valid_dim = False
+                            if not dim_exceeded and has_valid_dim and total_volume > 10**8:
+                                self.violations.append((node.lineno, f"{func_name}() total shape volume {total_volume} exceeds 10^8 limit (CPU/memory DoS risk)"))
 
         # Check joblib.load and skops.io.load non-literal paths
         if func_name == "load" and (caller_name in {"joblib", "skops", "io"} or any(t in caller_name for t in ["joblib", "skops"])):
@@ -234,13 +301,11 @@ class SandboxVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_BinOp(self, node):
-        # DoS check: list/array multiplication by literal > 10**8
+        # DoS check: list/array multiplication by factor > 10**8
         if isinstance(node.op, ast.Mult):
-            factor = None
-            if isinstance(node.right, ast.Constant) and isinstance(node.right.value, (int, float)):
-                factor = node.right.value
-            elif isinstance(node.left, ast.Constant) and isinstance(node.left.value, (int, float)):
-                factor = node.left.value
+            factor = _eval_numeric(node.right)
+            if factor is None:
+                factor = _eval_numeric(node.left)
             if factor is not None and factor > 10**8:
                 self.violations.append((node.lineno, f"Multiplication factor {factor} > 10^8 forbidden (memory exhaustion DoS risk)"))
         self.generic_visit(node)

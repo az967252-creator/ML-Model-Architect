@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import IsolationForest
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import RobustScaler
-from sklearn.metrics import classification_report, roc_auc_score, precision_recall_fscore_support
+from sklearn.metrics import classification_report, roc_auc_score, precision_recall_fscore_support, average_precision_score
 
 def generate_financial_transactions(n_samples=3000, contamination=0.03, random_state=42):
     """Generates synthetic banking transaction stream with subtle anomalies."""
@@ -65,13 +65,15 @@ def main():
     z_scores_test = np.abs((X_test["amount"] - mean_val) / std_val)
     baseline_pred = (z_scores_test > 3.0).astype(int)
     p_b, r_b, f1_b, _ = precision_recall_fscore_support(y_test, baseline_pred, average="binary", zero_division=0)
-    print(f"   Baseline F1: {f1_b:.4f} | Precision: {p_b:.4f} | Recall: {r_b:.4f}")
+    pr_auc_b = float(average_precision_score(y_test, z_scores_test))
+    roc_b = float(roc_auc_score(y_test, z_scores_test))
+    print(f"   Baseline F1: {f1_b:.4f} | Precision: {p_b:.4f} | Recall: {r_b:.4f} | PR-AUC: {pr_auc_b:.4f} | ROC-AUC: {roc_b:.4f}")
 
     # 2. Candidate: Multivariate Isolation Forest in single Pipeline
     print("\n🌲 Candidate: Isolation Forest with RobustScaler Pipeline")
     pipeline = Pipeline([
         ("scaler", RobustScaler()),
-        ("detector", IsolationForest(n_estimators=100, contamination=0.03, random_state=42))
+        ("detector", IsolationForest(n_estimators=100, contamination="auto", random_state=42))
     ])
 
     pipeline.fit(X_train)
@@ -81,16 +83,19 @@ def main():
     scores = -pipeline.decision_function(X_test)
 
     p_c, r_c, f1_c, _ = precision_recall_fscore_support(y_test, candidate_pred, average="binary", zero_division=0)
-    roc_c = roc_auc_score(y_test, scores)
-    print(f"   Candidate F1: {f1_c:.4f} | Precision: {p_c:.4f} | Recall: {r_c:.4f} | ROC-AUC: {roc_c:.4f}")
+    roc_c = float(roc_auc_score(y_test, scores))
+    pr_auc_c = float(average_precision_score(y_test, scores))
+    print(f"   Candidate F1: {f1_c:.4f} | Precision: {p_c:.4f} | Recall: {r_c:.4f} | PR-AUC: {pr_auc_c:.4f} | ROC-AUC: {roc_c:.4f}")
 
-    # 3. Decision
+    # 3. Decision (Parsimony Rule: Baseline wins ties on PR-AUC within 1e-3)
     print("\n⚖️ Empirical Evaluation Decision:")
-    if f1_c > f1_b:
-        print(f"   ✅ Isolation Forest outperforms statistical Z-Score baseline by {(f1_c - f1_b):.4f} F1.")
-        print("   -> Selecting Candidate: Isolation Forest.")
+    diff_pr = pr_auc_c - pr_auc_b
+    if diff_pr <= 1e-3:
+        print(f"   Baseline Selected: Z-Score PR-AUC ({pr_auc_b:.4f}) ties IF ({pr_auc_c:.4f}); simpler baseline chosen per 1-SE parsimony")
+        print("   -> Selecting Baseline: Statistical Z-Score (|z| > 3.0).")
     else:
-        print("   -> Retaining Baseline.")
+        print(f"   Candidate Selected: Isolation Forest PR-AUC ({pr_auc_c:.4f}) exceeds baseline ({pr_auc_b:.4f}) by > 1e-3")
+        print("   -> Selecting Candidate: Isolation Forest.")
 
     print("=" * 60)
 

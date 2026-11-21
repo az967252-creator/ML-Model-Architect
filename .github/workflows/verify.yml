@@ -59,6 +59,11 @@ jobs:
           for f in examples/*/PLAN.manifest.json; do
             [ -f "$f" ] && python scripts/lock_plan.py --verify-git "$f"
           done
+      - name: Verify Plan Status across Examples (Strict)
+        run: |
+          for f in examples/*/PLAN.manifest.json; do
+            [ -f "$f" ] && python scripts/cli.py status "$f" --strict
+          done
 
   verify-wheel:
     name: Verify Wheel Build & Clean Installation

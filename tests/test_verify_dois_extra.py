@@ -89,13 +89,17 @@ class TestRegistries(unittest.TestCase):
         ref = {"doi_or_url": "10.1234/x", "title": "Gradient Boosting Machines", "year": 2020}
         self.assertEqual(verify_dois.check(ref)[0], "FAIL_TITLE_MISMATCH")
 
+    @patch("requests.head")
     @patch("requests.get")
-    def test_url_reference_alive_and_dead(self, get):
+    def test_url_reference_alive_and_dead(self, get, head):
         ref = {"doi_or_url": "https://example.org/paper.pdf", "title": "T", "year": 2008}
         get.return_value = resp(200)
+        head.return_value = resp(200)
         self.assertEqual(verify_dois.check(ref)[0], "OK_URL")
         get.return_value = resp(404)
+        head.return_value = resp(404)
         self.assertEqual(verify_dois.check(ref)[0], "FAIL_URL_DEAD")
+        head.assert_called_with("https://example.org/paper.pdf", headers=verify_dois.HDR, timeout=15, allow_redirects=True)
 
     @patch("requests.get")
     def test_crossref_peer_review_check_detects_preprint(self, get):

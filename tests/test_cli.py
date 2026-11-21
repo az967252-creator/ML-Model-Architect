@@ -93,6 +93,17 @@ class TestCLI(unittest.TestCase):
             main(["status", ex_manifest])
         self.assertEqual(cm.exception.code, 0)
 
+        # Completed example passes in strict mode
+        with self.assertRaises(SystemExit) as cm:
+            main(["status", ex_manifest, "--strict"])
+        self.assertEqual(cm.exception.code, 0)
+
+        # Incomplete plan without created files fails with exit code 1 in strict mode
+        main(["plan", "lock", self.plan_path])
+        with self.assertRaises(SystemExit) as cm:
+            main(["status", self.plan_path, "--strict"])
+        self.assertEqual(cm.exception.code, 1)
+
     def test_cli_scan_clean_file(self):
         clean_file = Path(self.test_dir) / "clean_code.py"
         clean_file.write_text("import numpy as np\nx = np.array([1, 2, 3])\n", encoding="utf-8")

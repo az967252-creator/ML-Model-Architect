@@ -76,6 +76,13 @@ class TestBenchmarks(unittest.TestCase):
         self.assertIn("Hastie, T., et al. (2009)", all_citations)
         self.assertIn("Ruff, L., et al. (2021)", all_citations)
 
+    def test_formal_citation_traceability_row(self):
+        readme_text = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("Cited reference present in references_to_verify.yaml (existence checked by `mla verify-dois`)", readme_text)
+        for line in readme_text.splitlines():
+            if "Formal Citation Traceability" in line:
+                self.assertNotIn("100% Verified", line)
+
 
 if __name__ == "__main__":
     unittest.main()

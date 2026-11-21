@@ -275,6 +275,10 @@ def cmd_status(args):
         for l in s["logs"]:
             print(f"    {l}")
     all_done = status["current_active_step"] == "ALL_STEPS_COMPLETED"
+    any_failed = any(not s["passed"] for s in status["steps"])
+    if getattr(args, "strict", False) and (any_failed or not all_done):
+        print("❌ [STRICT FAILURE] Manifest has incomplete or failing steps/assertions.", file=sys.stderr)
+        sys.exit(1)
     sys.exit(0)
 
 
@@ -363,6 +367,7 @@ def main(argv=None):
     # status
     p_status = subparsers.add_parser("status", help="Display execution DAG step completion status.")
     p_status.add_argument("manifest", nargs="?", default="PLAN.manifest.json", help="Path to PLAN.manifest.json")
+    p_status.add_argument("--strict", action="store_true", help="Exit non-zero if any step pre/post assertion fails or is not completed")
     p_status.set_defaults(func=cmd_status)
 
     # lock

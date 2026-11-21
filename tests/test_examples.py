@@ -8,6 +8,7 @@ Verifies:
 """
 
 import json
+import sys
 import unittest
 from pathlib import Path
 import jsonschema
@@ -62,6 +63,15 @@ class TestExamplesPolicyCompliance(unittest.TestCase):
         self.assertIn("delivery-delay-prediction", text)
         self.assertIn("financial-anomaly-detection", text)
         self.assertIn("case-study-churn", text)
+
+    def test_financial_anomaly_parsimony_selection(self):
+        import subprocess
+        script_path = ROOT / "examples" / "financial-anomaly-detection" / "train.py"
+        res = subprocess.run([sys.executable, str(script_path)], capture_output=True, text=True, cwd=str(ROOT))
+        self.assertEqual(res.returncode, 0)
+        self.assertIn("Baseline Selected: Z-Score PR-AUC", res.stdout)
+        self.assertIn("simpler baseline chosen per 1-SE parsimony", res.stdout)
+        self.assertIn("Selecting Baseline: Statistical Z-Score", res.stdout)
 
 
 if __name__ == "__main__":

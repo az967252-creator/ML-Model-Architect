@@ -46,6 +46,12 @@ class TestScannerGaps(unittest.TestCase):
         "import numpy as np\nnp.zeros(200000000)",
         "import numpy as np\nnp.ones((1000, 200000000))",
         "while active:\n    do_something()",
+        # Constant folding and shape product DoS vectors
+        "for i in range(10**12):\n    pass",
+        "import numpy as np\nnp.arange(int(1e12))",
+        "import numpy as np\nnp.zeros((10**6, 10**6))",
+        "x = [0] * (10**12)",
+        "x = [0] * int(1e12)",
     ]
 
     MUST_PASS = [
@@ -92,6 +98,22 @@ class TestScannerGaps(unittest.TestCase):
             with self.assertRaises(SystemExit) as cm:
                 scan_sandbox.main([empty_dir])
             self.assertEqual(cm.exception.code, 1)
+
+    def test_constant_folding_and_shape_products(self):
+        codes_to_catch = [
+            "for i in range(10**12):\n    pass",
+            "import numpy as np\nnp.arange(int(1e12))",
+            "import numpy as np\nnp.zeros((10**6, 10**6))",
+            "import numpy as np\nnp.ones((10**6, 10**6))",
+            "import numpy as np\nnp.empty((10**6, 10**6))",
+            "import numpy as np\nnp.full((10**6, 10**6), 0)",
+            "x = [0] * (10**12)",
+            "x = [0] * int(1e12)",
+        ]
+        for c in codes_to_catch:
+            with self.subTest(code=c):
+                violations = scan_sandbox.scan_code(c, "test.py")
+                self.assertTrue(len(violations) > 0, f"Expected violation for: {c}")
 
 
 if __name__ == "__main__":
