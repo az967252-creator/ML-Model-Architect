@@ -7,4 +7,4 @@
 | 3 | 2 | technique | Which algorithm family? | A) Linear B) XGBoost | B | Data is tabular, non-linear, accuracy is prioritized. | 10.1145/2939672.2939785 @ Sec 3.1 | user | 2026-11-04 |
 | 4 | 3 | parameter | Max depth for XGBoost? | A) 3 B) 6 C) 10 | B | XGBoost paper recommends 6 for standard tabular. | 10.1145/2939672.2939785 @ Sec 4.1 | user (guided) | 2026-11-04 |
 
-<!-- MANIFEST_SHA256: 848e89f7248daaab2a9f65963c7677cb1e2d8118fd54f5db4388208dac65d576 -->
+<!-- MANIFEST_SHA256: a4811c4ad02dbaf948b255c884b3b96716476d01cff380148bc5207229229f70 -->

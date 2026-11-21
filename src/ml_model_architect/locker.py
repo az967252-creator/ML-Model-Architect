@@ -18,12 +18,12 @@ STEP_REQUIRED_FIELDS = ["step_id", "stage", "action_type", "pre_conditions", "po
 MANIFEST_HASH_PATTERN = re.compile(r"<!--\s*MANIFEST_SHA256:\s*([a-f0-9]{64})\s*-->", re.IGNORECASE)
 
 def compute_sha256(filepath: str) -> str:
-    """Computes SHA-256 hash of a file."""
-    hasher = hashlib.sha256()
+    """Computes SHA-256 hash of a file with normalized line endings for cross-platform determinism."""
     with open(filepath, "rb") as f:
-        while chunk := f.read(8192):
-            hasher.update(chunk)
-    return hasher.hexdigest()
+        content = f.read()
+    # Normalize CRLF to LF so hashes are invariant across Windows, macOS, and Linux
+    normalized = content.replace(b"\r\n", b"\n")
+    return hashlib.sha256(normalized).hexdigest()
 
 def validate_plan_schema(filepath: str) -> dict:
     """Validates the structure and fields of the plan manifest."""

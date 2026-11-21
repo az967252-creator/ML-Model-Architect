@@ -7,4 +7,4 @@
 | 3 | 2 | technique | Which algorithm family? | A) Isolation Forest B) Autoencoder | A | High speed required for real-time transactions. | 10.1109/ICDM.2008.17 @ Sec 3 | user | 2026-11-04 |
 | 4 | 3 | parameter | Contamination parameter? | A) 0.01 B) 0.05 C) 0.1 | A | We expect very few anomalies in baseline data (<1%). | 10.1109/ICDM.2008.17 @ Sec 4 | user (guided) | 2026-11-04 |
 
-<!-- MANIFEST_SHA256: a7d9188a2b2fa8e3ba952c41e2bd55711aa9b4f03982c66467188acf4118a70f -->
+<!-- MANIFEST_SHA256: 3168517ad8d4b2e39fed5723ba0fc671ec695935fd6abc97429f8e4425d2424c -->
