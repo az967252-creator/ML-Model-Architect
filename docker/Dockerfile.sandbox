@@ -1,11 +1,22 @@
-# Minimal hardened sandbox execution image
+# Minimal hardened sandbox execution image for ML Model Architect
 FROM python:3.11-slim
 
-# Install core scientific packages
+# Install core scientific and ML packages with exact pinned versions
+# Every spec is quoted to prevent shell redirection or version ambiguity
 RUN pip install --no-cache-dir \
-    numpy>=1.24.0 \
-    pandas>=2.0.0 \
-    scikit-learn>=1.3.0
+    "numpy==2.2.3" \
+    "pandas==2.2.3" \
+    "scikit-learn==1.6.1" \
+    "scipy==1.15.2" \
+    "joblib==1.4.2" \
+    "xgboost==2.1.4" \
+    "lightgbm==4.6.0" \
+    "catboost==1.2.7" \
+    "matplotlib==3.10.1" \
+    "seaborn==0.13.2" \
+    "skops==0.10.0" \
+    "optuna==4.2.1" \
+    "mlflow==2.20.3"
 
 # Create non-privileged sandbox user
 RUN useradd -m -u 1000 sandboxuser

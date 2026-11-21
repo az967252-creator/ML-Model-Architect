@@ -261,7 +261,7 @@ To empirically evaluate whether constitutional governance improves machine learn
 | **Hallucinated Academic Citations** | ~28.0% fabricated or invalid DOIs | **0.0%** (Verified via CrossRef / arXiv) | Eliminates reliance on non-existent theoretical claims. |
 | **Data Leakage in Transformations** | Frequent (~65% fit preprocessor on full data) | **0.0%** (Enforced single scikit-learn `Pipeline`) | Prevents overly optimistic offline evaluations that collapse in production. |
 | **Arbitrary Step Skipping** | Common ("Fast mode" bypass under prompt drift) | **0.0%** (Enforced via cryptographic SHA-256 DAG) | Guarantees all preprocessing, CV, and diagnostic steps execute. |
-| **Host System Execution Security** | Vulnerable (`os.system`, unsanitized imports) | **100% Containment** (AST Scanner + Docker) | Neutralizes prompt injection, file tampering, and shell exploits. |
+| **Host System Execution Security** | Vulnerable (`os.system`, unsanitized imports) | **AST scan = tripwire; Docker = isolation boundary** | Static tripwires paired with container-level isolation. |
 | **Model Complexity Bias** | Biased toward fashionable, opaque architectures | **Empirical Override via 1-SE Rule** | Enforces Occam's Razor, reducing compute costs and deployment latency. |
 | **Automated Test Suite Status** | 0 unit tests | **79 Unit Tests (100% Passing in <0.9s)** | Continuous regression safety via automated GitHub Actions CI. |
 

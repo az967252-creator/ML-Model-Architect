@@ -7,8 +7,8 @@ This document tracks the remediation of 15 verified engineering and architectura
 | Issue # | Component / Domain | Phase | Status | Target Description |
 |:---:|:---|:---:|:---:|:---|
 | **1** | Enforcement Engine | Phase 2a | [ ] Pending | Real AST policy assertions, single-pipeline check, metrics.json schema validation |
-| **2** | Sandbox Scanner | Phase 1 | [ ] Pending | Fail-closed scanner, comprehensive AST bypass defenses, allowlist-by-function |
-| **3** | Docker Sandbox | Phase 1 | [ ] Pending | Pinned dependencies, `_allowed.py` shared sync, runtime security flags, timeout |
+| **2** | Sandbox Scanner | Phase 1 | [x] Completed | Fail-closed scanner, comprehensive AST bypass defenses, allowlist-by-function |
+| **3** | Docker Sandbox | Phase 1 | [x] Completed | Pinned dependencies, `_allowed.py` shared sync, runtime security flags, timeout |
 | **4** | Decision Ledger | Phase 2b | [ ] Pending | Closed type taxonomy, reason length check, `--max-heuristic-ratio`, DOI locators |
 | **5** | Plan Lock Engine | Phase 2c | [ ] Pending | Remove `--unlock` from agent CLI, ledger manifest hash, default base_dir to manifest dir |
 | **6** | DOI Verification | Phase 2d | [ ] Pending | Remove verify=False, derive peer review from registry, 365d exception expiry, strict CI |
@@ -16,7 +16,7 @@ This document tracks the remediation of 15 verified engineering and architectura
 | **8** | Reference Examples | Phase 5 | [ ] Pending | Naive agent comparison, model naming consistency, dynamic evaluation reports |
 | **9** | Reference Catalog | Phase 4a | [ ] Pending | Non-empty catalog claims, >=2 refs per group, sourced hyperparameters, lint script |
 | **10** | Decision Tree Scope | Phase 4b | [ ] Pending | Preprocessing Level 1 task, explicit tabular/time-series scope bounding |
-| **11** | Security Claims | Phase 1 | [ ] Pending | Clarify AST tripwire vs. Docker isolation boundary in README and docs |
+| **11** | Security Claims | Phase 1 | [x] Completed | Clarify AST tripwire vs. Docker isolation boundary in README and docs |
 | **12** | Constitution Alignment | Phase 4c | [ ] Pending | A1 vs Skill 2 suggested options, B3/B8 Tier A/B sources, consistent rule numbering |
 | **13** | Test Suite & CI | Phase 3 | [ ] Pending | Behavioral scenario harness, modular 1-SE rule, pinned CI actions, Python 3.11-3.13 matrix |
 | **14** | Secondary Tooling | Phase 6 | [ ] Pending | Audit executive_summary, pre_mortem, generate_diagram, red_team, app.py, local_knowledge |
@@ -32,15 +32,15 @@ This document tracks the remediation of 15 verified engineering and architectura
 - [x] Audit tracking document initialized (`docs/AUDIT-FIXES.md`).
 
 ### Phase 1: Sandbox & Scanner (Issues 2, 3, 11)
-- [ ] Fail-closed scanner on missing/empty sandbox directory.
-- [ ] Argparse CLI support for scanning arbitrary files/directories.
-- [ ] AST bypass defenses: `eval`, `query`, `ctypeslib`, `fetch_*`, `matplotlib.use`, `read_clipboard`, star-imports, unbounded loops, non-literal paths, write boundary containment.
-- [ ] Function-level allowlist for I/O operations.
-- [ ] Bypass tests in `tests/test_scan_sandbox_extra.py`.
-- [ ] Dockerfile.sandbox pinned dependencies & shared `scripts/_allowed.py`.
-- [ ] Container security flags (`--pids-limit`, `--security-opt`, `--user`, timeout, read-only mount with separate `out/`).
-- [ ] Replace "100% Containment" claims in README/BENCHMARK with tripwire vs. isolation boundary distinction.
-- [ ] Optuna + MLflow pinned in Docker and project extras.
+- [x] Fail-closed scanner on missing/empty sandbox directory.
+- [x] Argparse CLI support for scanning arbitrary files/directories.
+- [x] AST bypass defenses: `eval`, `query`, `ctypeslib`, `fetch_*`, `matplotlib.use`, `read_clipboard`, star-imports, unbounded loops, non-literal paths, write boundary containment.
+- [x] Function-level allowlist for I/O operations.
+- [x] Bypass tests in `tests/test_scan_sandbox_extra.py`.
+- [x] Dockerfile.sandbox pinned dependencies & shared `scripts/_allowed.py`.
+- [x] Container security flags (`--pids-limit`, `--security-opt`, `--user`, timeout, read-only mount with separate `out/`).
+- [x] Replace "100% Containment" claims in README/BENCHMARK with tripwire vs. isolation boundary distinction.
+- [x] Optuna + MLflow pinned in Docker and project extras.
 
 ### Phase 2: Enforcement Engine (Issues 1, 4, 5, 6)
 - [ ] Phase 2a: Real AST policy assertions in `scripts/run_policy.py` & `_shared/metrics.schema.json`.

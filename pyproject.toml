@@ -30,6 +30,10 @@ mcp = [
 dev = [
     "pytest>=7.0.0",
 ]
+train = [
+    "optuna==4.2.1",
+    "mlflow==2.20.3",
+]
 
 [project.scripts]
 ml-architect = "scripts.cli:main"
