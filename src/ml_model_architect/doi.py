@@ -19,7 +19,7 @@ from urllib.parse import quote, urlparse
 import requests
 import yaml
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 HDR = {"User-Agent": "ML-Model-Architect-verifier/1.0 (mailto:az967252@users.noreply.github.com)"}
 norm = lambda s: re.sub(r"[^a-z0-9 ]", "", (s or "").lower())
 

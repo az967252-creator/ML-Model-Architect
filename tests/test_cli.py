@@ -77,6 +77,15 @@ class TestCLI(unittest.TestCase):
         self.assertTrue((proj_dir / "DECISIONS.md").exists())
         self.assertTrue((proj_dir / "PLAN.manifest.json").exists())
         self.assertTrue((proj_dir / "PLAN.lock").exists())
+        # R1 scaffolding verification:
+        self.assertTrue((proj_dir / "_constitution" / "CONSTITUTION.md").exists())
+        self.assertTrue((proj_dir / "skills" / "01-goals-and-requirements" / "SKILL.md").exists())
+        self.assertTrue((proj_dir / "references" / "references_to_verify.yaml").exists())
+        self.assertTrue((proj_dir / "sandbox" / "example_task.py").exists())
+        self.assertTrue((proj_dir / ".cursorrules").exists())
+        self.assertTrue((proj_dir / ".cursor" / "mcp.json").exists())
+        self.assertTrue((proj_dir / ".github" / "copilot-instructions.md").exists())
+        self.assertTrue((proj_dir / ".antigravity" / "rules.md").exists())
 
     def test_cli_status_command(self):
         ex_manifest = "examples/car-price-prediction/PLAN.manifest.json"

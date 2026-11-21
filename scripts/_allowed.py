@@ -1,43 +1,19 @@
-"""
-scripts/_allowed.py - Unified source of truth for allowed sandbox packages and imports.
-Kept in sync between scripts/scan_sandbox.py and docker/Dockerfile.sandbox.
-"""
+#!/usr/bin/env python3
+"""Thin compatibility shim delegating to ml_model_architect._allowed."""
 
-# Pinned package versions for Dockerfile.sandbox and virtual environments
-ALLOWED_PACKAGES = {
-    "numpy": "2.2.3",
-    "pandas": "2.2.3",
-    "scikit-learn": "1.6.1",
-    "scipy": "1.15.2",
-    "joblib": "1.4.2",
-    "xgboost": "2.1.4",
-    "lightgbm": "4.6.0",
-    "catboost": "1.2.7",
-    "matplotlib": "3.10.1",
-    "seaborn": "0.13.2",
-    "skops": "0.10.0",
-    "optuna": "4.2.1",
-    "mlflow": "2.20.3",
-}
+import sys
+from pathlib import Path
 
-# Module root names permitted for import in the sandbox
-ALLOWED_IMPORTS = {
-    "numpy",
-    "pandas",
-    "sklearn",
-    "scipy",
-    "joblib",
-    "xgboost",
-    "lightgbm",
-    "catboost",
-    "matplotlib",
-    "seaborn",
-    "skops",
-    "optuna",
-    "mlflow",
-    "json",
-    "math",
-    "statistics",
-    "time",
-    "datetime",
-}
+ROOT = Path(__file__).resolve().parent.parent
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+import ml_model_architect._allowed as _impl
+
+# Transparent proxying for direct imports and unittest.mock patching
+sys.modules[__name__] = _impl
+
+if __name__ == "__main__":
+    if hasattr(_impl, "main"):
+        sys.exit(_impl.main())

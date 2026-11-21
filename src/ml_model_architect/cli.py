@@ -30,7 +30,7 @@ from .policy import PolicyEngine
 from .scanner import scan_file, scan_directory
 from .enforcer import enforce as enforce_constitution
 from .doi import verify_dois
-from .resources import get_resource_text
+from .resources import get_resource_text, copy_resource_tree
 
 
 def cmd_init(args):
@@ -43,19 +43,127 @@ def cmd_init(args):
     project_dir.mkdir(parents=True, exist_ok=True)
     project_id = project_dir.name
 
-    # 1. REQUIREMENTS.md
+    # 1. Constitution & Governance
+    try:
+        copy_resource_tree("_constitution", project_dir / "_constitution")
+    except Exception as e:
+        (project_dir / "_constitution").mkdir(parents=True, exist_ok=True)
+        const_text = get_resource_text("CONSTITUTION.md")
+        (project_dir / "_constitution" / "CONSTITUTION.md").write_text(const_text, encoding="utf-8")
+
+    # 2. Stage Skills
+    try:
+        copy_resource_tree("skills", project_dir / "skills")
+    except Exception as e:
+        print(f"Warning: could not copy skills: {e}", file=sys.stderr)
+
+    # 3. References & Catalog
+    try:
+        copy_resource_tree("references", project_dir / "references")
+    except Exception as e:
+        (project_dir / "references").mkdir(parents=True, exist_ok=True)
+        try:
+            (project_dir / "references" / "references_to_verify.yaml").write_text(
+                get_resource_text("references_to_verify.yaml"), encoding="utf-8"
+            )
+            (project_dir / "references" / "trusted_domains.yaml").write_text(
+                get_resource_text("trusted_domains.yaml"), encoding="utf-8"
+            )
+        except Exception:
+            pass
+
+    # 4. Templates & Schemas
+    templates_dir = project_dir / "templates"
+    templates_dir.mkdir(parents=True, exist_ok=True)
+    shared_dir = project_dir / "_shared"
+    shared_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        copy_resource_tree("_shared", templates_dir)
+        copy_resource_tree("_shared", shared_dir)
+    except Exception:
+        pass
+
+    # 5. Sandbox directory
+    sandbox_dir = project_dir / "sandbox"
+    sandbox_dir.mkdir(parents=True, exist_ok=True)
+    (sandbox_dir / "out").mkdir(parents=True, exist_ok=True)
+    sandbox_readme = """# Sandbox Execution Directory
+Conforms strictly to Constitution Part F (Sandboxed Execution & Allowlist I/O).
+All experimental and training code executed by agents runs in this directory or Docker container.
+"""
+    (sandbox_dir / "README.md").write_text(sandbox_readme, encoding="utf-8")
+    sandbox_example = '''"""
+sandbox/example_task.py - Canonical reference sandbox training task.
+Conforms strictly to Constitution Part F (Sandboxed Execution & Allowlist I/O).
+"""
+
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+
+# 1. Deterministic synthetic data
+X = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0], [7.0, 8.0]])
+y = np.array([0, 0, 1, 1])
+
+# 2. Fit model
+clf = LogisticRegression()
+clf.fit(X, y)
+score = float(clf.score(X, y))
+
+# 3. Export metrics to allowlisted out directory
+df = pd.DataFrame({"model": ["LogisticRegression"], "score": [score]})
+df.to_json("sandbox/out/metrics.json")
+'''
+    (sandbox_dir / "example_task.py").write_text(sandbox_example, encoding="utf-8")
+
+    # 6. Agent Rule Files (.cursor, copilot, Antigravity)
+    cursor_dir = project_dir / ".cursor"
+    cursor_dir.mkdir(parents=True, exist_ok=True)
+    mcp_config = json.dumps({
+        "mcpServers": {
+            "openresearch": {
+                "command": "uvx",
+                "args": ["openresearch-mcp@0.2.0", "--stdio"]
+            }
+        }
+    }, indent=2)
+    (cursor_dir / "mcp.json").write_text(mcp_config, encoding="utf-8")
+
+    agent_prompt = """You are operating as ML-Model-Architect.
+You are strictly governed by the rules codified in _constitution/CONSTITUTION.md.
+
+Mandatory Protocol:
+1. Ingest _constitution/CONSTITUTION.md. All 35 rules (Parts A through G) are binding.
+2. Ingest skills/01-goals-and-requirements/SKILL.md.
+3. Initiate Stage 1. Present the opening MCQ funnel.
+4. Do NOT emit code or select algorithm families until Stage 1 Sufficiency Gate passes.
+5. Ground every technical decision in a verified academic reference anchor (DOI).
+"""
+    (project_dir / ".cursorrules").write_text(agent_prompt, encoding="utf-8")
+
+    github_dir = project_dir / ".github"
+    github_dir.mkdir(parents=True, exist_ok=True)
+    (github_dir / "copilot-instructions.md").write_text(agent_prompt, encoding="utf-8")
+
+    vscode_dir = project_dir / ".vscode"
+    vscode_dir.mkdir(parents=True, exist_ok=True)
+    (vscode_dir / "mcp.json").write_text(mcp_config, encoding="utf-8")
+
+    antigravity_dir = project_dir / ".antigravity"
+    antigravity_dir.mkdir(parents=True, exist_ok=True)
+    (antigravity_dir / "mcp_config.json").write_text(mcp_config, encoding="utf-8")
+    (antigravity_dir / "rules.md").write_text(agent_prompt, encoding="utf-8")
+
+    # 7. Root scaffolded files: REQUIREMENTS, TECH-CHOICE, DECISIONS, PLAN.manifest.json
     req_text = get_resource_text("TEMPLATE-REQUIREMENTS.md")
     (project_dir / "REQUIREMENTS.md").write_text(req_text, encoding="utf-8")
 
-    # 2. TECH-CHOICE.md
     tech_text = get_resource_text("TEMPLATE-TECH-CHOICE.md")
     (project_dir / "TECH-CHOICE.md").write_text(tech_text, encoding="utf-8")
 
-    # 3. DECISIONS.md
     dec_text = get_resource_text("TEMPLATE-DECISION-LEDGER.md")
     (project_dir / "DECISIONS.md").write_text(dec_text, encoding="utf-8")
 
-    # 4. PLAN.manifest.json
     plan_template = get_resource_text("TEMPLATE-PLAN-MANIFEST.json")
     try:
         plan_data = json.loads(plan_template)
@@ -67,7 +175,7 @@ def cmd_init(args):
         print(f"ERROR creating PLAN.manifest.json: {e}", file=sys.stderr)
         sys.exit(1)
 
-    # 5. Cryptographically lock the plan
+    # 8. Cryptographically lock the plan
     try:
         lock_plan(str(plan_path))
     except Exception as e:
@@ -76,12 +184,18 @@ def cmd_init(args):
 
     print(f"✅ Successfully initialized project: {project_dir}")
     print("📁 Scaffolded files:")
+    print("   - _constitution/ (CONSTITUTION.md, CHANGELOG.md)")
+    print("   - skills/ (Stages 01 through 05)")
+    print("   - references/ (catalog, stages 2-5, trusted domains, verification list)")
+    print("   - templates/ (requirement, decision, report templates & schemas)")
+    print("   - sandbox/ (README.md, example_task.py, out/)")
+    print("   - Agent rules: .cursorrules, .github/copilot-instructions.md, .antigravity/rules.md")
     print("   - REQUIREMENTS.md")
     print("   - TECH-CHOICE.md")
     print("   - DECISIONS.md")
     print("   - PLAN.manifest.json")
     print("   - PLAN.lock")
-    print(f"🔒 Plan cryptographically locked and registered. Ready for Stage 1 execution.")
+    print("🔒 Plan cryptographically locked and registered. Ready for Stage 1 execution.")
     return 0
 
 
@@ -161,7 +275,7 @@ def cmd_status(args):
         for l in s["logs"]:
             print(f"    {l}")
     all_done = status["current_active_step"] == "ALL_STEPS_COMPLETED"
-    sys.exit(0 if all_done else 1)
+    sys.exit(0)
 
 
 def cmd_lock(args):

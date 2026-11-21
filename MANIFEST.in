@@ -1,0 +1,4 @@
+include README.md
+include LICENSE
+recursive-include src/ml_model_architect/resources *
+global-exclude *.pyc __pycache__

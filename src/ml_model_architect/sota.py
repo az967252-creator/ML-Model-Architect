@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import yaml
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 
 ARXIV_API = "https://export.arxiv.org/api/query"
 HDR = {"User-Agent": "ML-Model-Architect-SOTA/1.0 (mailto:az967252@users.noreply.github.com)"}

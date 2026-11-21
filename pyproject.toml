@@ -51,7 +51,13 @@ mla = "ml_model_architect.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-ml_model_architect = ["resources/*"]
+"*" = ["*.*"]
+ml_model_architect = [
+    "resources/*",
+    "resources/**/*",
+    "resources/**/**/*",
+    "resources/**/**/**/*",
+]
 
 [tool.setuptools.exclude-package-data]
-ml_model_architect = ["*.pyc", "__pycache__/*", "resources/__pycache__/*"]
+"*" = ["*.pyc", "__pycache__", "__pycache__/*", "**/__pycache__/*"]

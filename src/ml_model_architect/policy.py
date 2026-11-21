@@ -17,29 +17,9 @@ try:
 except ImportError:
     jsonschema = None
 
-# Try importing lock_plan helpers
-try:
-    from scripts.lock_plan import verify_plan, validate_plan_schema
-except ImportError:
-    from lock_plan import verify_plan, validate_plan_schema
-
-try:
-    from scripts.scan_sandbox import Scanner
-except ImportError:
-    try:
-        from scan_sandbox import Scanner
-    except ImportError:
-        Scanner = None
-
-try:
-    from scripts.enforce_constitution import enforce as enforce_ledger, parse_tables, REQUIRED_HEADERS
-except ImportError:
-    try:
-        from enforce_constitution import enforce as enforce_ledger, parse_tables, REQUIRED_HEADERS
-    except ImportError:
-        enforce_ledger = None
-        parse_tables = None
-        REQUIRED_HEADERS = ("stage", "type", "question", "reference")
+from .locker import verify_plan, validate_plan_schema
+from .scanner import SandboxVisitor, Scanner, scan_file, scan_directory
+from .enforcer import enforce as enforce_ledger, parse_tables, REQUIRED_HEADERS
 
 
 KNOWN_TRANSFORMERS = {

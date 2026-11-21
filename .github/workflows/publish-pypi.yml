@@ -28,6 +28,15 @@ jobs:
         run: python -m build
       - name: Verify package metadata
         run: python -m twine check dist/*
+      - name: Verify package in clean virtual environment
+        run: |
+          python -m venv /tmp/clean_env
+          /tmp/clean_env/bin/pip install dist/*.whl
+          (cd /tmp && /tmp/clean_env/bin/mla --version)
+          (cd /tmp && /tmp/clean_env/bin/mla init test_scaffold)
+          (cd /tmp && /tmp/clean_env/bin/mla scan test_scaffold/sandbox/example_task.py)
+          (cd /tmp && /tmp/clean_env/bin/mla enforce test_scaffold/DECISIONS.md)
+          (cd /tmp && /tmp/clean_env/bin/mla status test_scaffold/PLAN.manifest.json)
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc  # release/v1.12.4
         with:

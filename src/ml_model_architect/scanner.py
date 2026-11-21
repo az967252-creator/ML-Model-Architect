@@ -12,18 +12,7 @@ import os
 import re
 import sys
 
-# Attempt import of allowed packages from shared module
-try:
-    from scripts._allowed import ALLOWED_IMPORTS
-except ImportError:
-    try:
-        from _allowed import ALLOWED_IMPORTS
-    except ImportError:
-        ALLOWED_IMPORTS = {
-            "numpy", "pandas", "sklearn", "scipy", "joblib", "xgboost",
-            "lightgbm", "catboost", "matplotlib", "seaborn", "skops",
-            "optuna", "mlflow", "json", "math", "statistics", "time", "datetime"
-        }
+from ._allowed import ALLOWED_IMPORTS
 
 SANDBOX_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sandbox"))
 
@@ -267,6 +256,9 @@ def main(argv=None):
         sys.exit(1)
     print("\n✅ SCAN PASSED. (Tripwire only. Use Docker for true isolation).")
     sys.exit(0)
+
+# Alias for backwards compatibility
+Scanner = SandboxVisitor
 
 if __name__ == "__main__":
     main()
