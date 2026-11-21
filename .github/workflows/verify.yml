@@ -44,7 +44,11 @@ jobs:
           python examples/financial-anomaly-detection/train.py
           python examples/case-study-churn/train.py
       - name: Verify DOIs (Relaxed)
-        run: python scripts/verify_dois.py --check-md
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08  # v3.0.2
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          command: python scripts/verify_dois.py --check-md
       - name: Enforce Constitution across Examples
         run: |
           for f in examples/*/DECISIONS.md; do

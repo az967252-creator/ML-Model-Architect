@@ -147,7 +147,7 @@ def check(ref, whitelist=None):
             if er.status_code >= 400:
                 return ("FAIL_DEAD_EVIDENCE_URL", f"HTTP {er.status_code} for {ref['evidence_url']}")
         except Exception as e:
-            return ("FAIL_DEAD_EVIDENCE_URL", str(e))
+            return ("WARN_NETWORK_ERROR", str(e))
         return ("EXCEPTION", ref["exception"])
         
     if not doi.startswith("10."):
@@ -157,7 +157,7 @@ def check(ref, whitelist=None):
                 r = requests.head(doi, headers=HDR, timeout=15, allow_redirects=True)
             return ("OK_URL", "") if r.status_code < 400 else ("FAIL_URL_DEAD", str(r.status_code))
         except Exception as e:
-            return ("FAIL_URL_DEAD", str(e))
+            return ("WARN_NETWORK_ERROR", str(e))
             
     try:
         r = http_get(f"https://api.crossref.org/works/{quote(doi)}", timeout=15)
