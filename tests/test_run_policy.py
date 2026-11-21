@@ -3,6 +3,7 @@ import os
 import json
 import tempfile
 import shutil
+from pathlib import Path
 from scripts.lock_plan import (
     lock_plan,
     verify_plan,
@@ -297,6 +298,139 @@ class TestPolicyEngine(unittest.TestCase):
 
         ok, logs = engine.check_step("STEP_01")
         self.assertTrue(ok)
+
+    def test_leakage_inline_transformer_call(self):
+        engine = PolicyEngine(self.plan_path, base_dir=self.test_dir)
+        fpath = os.path.join(self.test_dir, "leak_inline.py")
+        code = (
+            "from sklearn.preprocessing import StandardScaler\n"
+            "from sklearn.pipeline import Pipeline\n"
+            "from sklearn.linear_model import LogisticRegression\n"
+            "from sklearn.model_selection import train_test_split\n"
+            "X_scaled = StandardScaler().fit_transform(X)\n"
+            "X_tr, X_te, y_tr, y_te = train_test_split(X_scaled, y)\n"
+            "pipe = Pipeline([('clf', LogisticRegression())])\n"
+            "pipe.fit(X_tr, y_tr)\n"
+        )
+        Path(fpath).write_text(code, encoding="utf-8")
+        passed, msg = engine.evaluate_assertion("is_single_sklearn_pipeline('leak_inline.py')")
+        self.assertFalse(passed)
+        self.assertIn("inline transformer call", msg)
+
+    def test_leakage_import_alias(self):
+        engine = PolicyEngine(self.plan_path, base_dir=self.test_dir)
+        fpath = os.path.join(self.test_dir, "leak_alias.py")
+        code = (
+            "from sklearn.preprocessing import RobustScaler as RS\n"
+            "from sklearn.pipeline import Pipeline\n"
+            "from sklearn.linear_model import LogisticRegression\n"
+            "from sklearn.model_selection import train_test_split\n"
+            "rs = RS()\n"
+            "rs.fit(X)\n"
+            "X_tr, X_te, y_tr, y_te = train_test_split(X, y)\n"
+            "pipe = Pipeline([('clf', LogisticRegression())])\n"
+            "pipe.fit(X_tr, y_tr)\n"
+        )
+        Path(fpath).write_text(code, encoding="utf-8")
+        passed, msg = engine.evaluate_assertion("is_single_sklearn_pipeline('leak_alias.py')")
+        self.assertFalse(passed)
+        self.assertIn("rs.fit()", msg)
+
+    def test_leakage_fit_then_transform(self):
+        engine = PolicyEngine(self.plan_path, base_dir=self.test_dir)
+        fpath = os.path.join(self.test_dir, "leak_fit_trans.py")
+        code = (
+            "from sklearn.preprocessing import StandardScaler\n"
+            "from sklearn.pipeline import Pipeline\n"
+            "from sklearn.linear_model import LogisticRegression\n"
+            "from sklearn.model_selection import train_test_split\n"
+            "scaler = StandardScaler()\n"
+            "scaler.fit(X)\n"
+            "X_trans = scaler.transform(X)\n"
+            "X_tr, X_te, y_tr, y_te = train_test_split(X_trans, y)\n"
+            "pipe = Pipeline([('clf', LogisticRegression())])\n"
+            "pipe.fit(X_tr, y_tr)\n"
+        )
+        Path(fpath).write_text(code, encoding="utf-8")
+        passed, msg = engine.evaluate_assertion("is_single_sklearn_pipeline('leak_fit_trans.py')")
+        self.assertFalse(passed)
+        self.assertIn("scaler.fit()", msg)
+
+    def test_leakage_select_k_best(self):
+        engine = PolicyEngine(self.plan_path, base_dir=self.test_dir)
+        fpath = os.path.join(self.test_dir, "leak_selectkbest.py")
+        code = (
+            "from sklearn.feature_selection import SelectKBest\n"
+            "from sklearn.pipeline import Pipeline\n"
+            "from sklearn.linear_model import LogisticRegression\n"
+            "from sklearn.model_selection import train_test_split\n"
+            "sel = SelectKBest(k=5)\n"
+            "X_sel = sel.fit_transform(X, y)\n"
+            "X_tr, X_te, y_tr, y_te = train_test_split(X_sel, y)\n"
+            "pipe = Pipeline([('clf', LogisticRegression())])\n"
+            "pipe.fit(X_tr, y_tr)\n"
+        )
+        Path(fpath).write_text(code, encoding="utf-8")
+        passed, msg = engine.evaluate_assertion("is_single_sklearn_pipeline('leak_selectkbest.py')")
+        self.assertFalse(passed)
+        self.assertIn("sel.fit_transform()", msg)
+
+    def test_leakage_pandas_fillna_mean(self):
+        engine = PolicyEngine(self.plan_path, base_dir=self.test_dir)
+        fpath = os.path.join(self.test_dir, "leak_fillna.py")
+        code = (
+            "import pandas as pd\n"
+            "from sklearn.pipeline import Pipeline\n"
+            "from sklearn.linear_model import LogisticRegression\n"
+            "from sklearn.model_selection import train_test_split\n"
+            "df['num'] = df['num'].fillna(df['num'].mean())\n"
+            "X_tr, X_te, y_tr, y_te = train_test_split(df.drop('y', axis=1), df['y'])\n"
+            "pipe = Pipeline([('clf', LogisticRegression())])\n"
+            "pipe.fit(X_tr, y_tr)\n"
+        )
+        Path(fpath).write_text(code, encoding="utf-8")
+        passed, msg = engine.evaluate_assertion("is_single_sklearn_pipeline('leak_fillna.py')")
+        self.assertFalse(passed)
+        self.assertIn("fillna(mean/median)", msg)
+
+    def test_leakage_pandas_target_encoding(self):
+        engine = PolicyEngine(self.plan_path, base_dir=self.test_dir)
+        fpath = os.path.join(self.test_dir, "leak_target_enc.py")
+        code = (
+            "import pandas as pd\n"
+            "from sklearn.pipeline import Pipeline\n"
+            "from sklearn.linear_model import LogisticRegression\n"
+            "from sklearn.model_selection import train_test_split\n"
+            "df['cat_enc'] = df.groupby('cat')['target'].transform('mean')\n"
+            "X_tr, X_te, y_tr, y_te = train_test_split(df.drop('target', axis=1), df['target'])\n"
+            "pipe = Pipeline([('clf', LogisticRegression())])\n"
+            "pipe.fit(X_tr, y_tr)\n"
+        )
+        Path(fpath).write_text(code, encoding="utf-8")
+        passed, msg = engine.evaluate_assertion("is_single_sklearn_pipeline('leak_target_enc.py')")
+        self.assertFalse(passed)
+        self.assertIn("groupby-transform target encoding", msg)
+
+    def test_leakage_helper_function(self):
+        engine = PolicyEngine(self.plan_path, base_dir=self.test_dir)
+        fpath = os.path.join(self.test_dir, "leak_helper.py")
+        code = (
+            "from sklearn.preprocessing import StandardScaler\n"
+            "from sklearn.pipeline import Pipeline\n"
+            "from sklearn.linear_model import LogisticRegression\n"
+            "from sklearn.model_selection import train_test_split\n"
+            "def preprocess_data(data):\n"
+            "    s = StandardScaler()\n"
+            "    return s.fit_transform(data)\n"
+            "X_prep = preprocess_data(X)\n"
+            "X_tr, X_te, y_tr, y_te = train_test_split(X_prep, y)\n"
+            "pipe = Pipeline([('clf', LogisticRegression())])\n"
+            "pipe.fit(X_tr, y_tr)\n"
+        )
+        Path(fpath).write_text(code, encoding="utf-8")
+        passed, msg = engine.evaluate_assertion("is_single_sklearn_pipeline('leak_helper.py')")
+        self.assertFalse(passed)
+        self.assertIn("s.fit_transform()", msg)
 
 
 if __name__ == "__main__":

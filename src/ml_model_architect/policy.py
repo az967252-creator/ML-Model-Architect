@@ -23,12 +23,46 @@ from .enforcer import enforce as enforce_ledger, parse_tables, REQUIRED_HEADERS
 
 
 KNOWN_TRANSFORMERS = {
+    # Preprocessing
     "StandardScaler", "MinMaxScaler", "RobustScaler", "MaxAbsScaler",
-    "OneHotEncoder", "OrdinalEncoder", "TargetEncoder",
-    "SimpleImputer", "KNNImputer", "IterativeImputer",
-    "PolynomialFeatures", "PCA", "SelectKBest", "SelectPercentile",
-    "RFE", "ColumnTransformer"
+    "Normalizer", "Binarizer", "QuantileTransformer", "PowerTransformer",
+    "OneHotEncoder", "OrdinalEncoder", "TargetEncoder", "PolynomialFeatures",
+    "SplineTransformer", "FunctionTransformer", "KBinsDiscretizer",
+    # Impute
+    "SimpleImputer", "KNNImputer", "IterativeImputer", "MissingIndicator",
+    # Feature Selection
+    "SelectKBest", "SelectPercentile", "SelectFpr", "SelectFdr", "SelectFwe",
+    "GenericUnivariateSelect", "RFE", "RFECV", "SelectFromModel",
+    "SequentialFeatureSelector", "VarianceThreshold",
+    # Decomposition
+    "PCA", "IncrementalPCA", "KernelPCA", "MiniBatchSparsePCA", "SparsePCA",
+    "TruncatedSVD", "FastICA", "FactorAnalysis", "NMF",
+    # Composition
+    "ColumnTransformer"
 }
+
+SPLIT_IDENTIFIERS = {
+    "train_test_split", "cross_val_score", "cross_validate",
+    "KFold", "StratifiedKFold", "GroupKFold", "TimeSeriesSplit",
+    "ShuffleSplit", "StratifiedShuffleSplit", "PredefinedSplit"
+}
+
+
+def _has_stat_call(node: ast.AST) -> bool:
+    """Returns True if the AST subtree contains a statistic computation (.mean, .median, .std, etc.)."""
+    for sub in ast.walk(node):
+        if isinstance(sub, ast.Call) and isinstance(sub.func, ast.Attribute):
+            if sub.func.attr in {"mean", "median", "std", "var", "mode", "min", "max"}:
+                return True
+    return False
+
+
+def _is_groupby_receiver(node: ast.AST) -> bool:
+    """Returns True if the AST subtree is a groupby(...) receiver."""
+    for sub in ast.walk(node):
+        if isinstance(sub, ast.Call) and isinstance(sub.func, ast.Attribute) and sub.func.attr == "groupby":
+            return True
+    return False
 
 
 class PipelineASTValidator(ast.NodeVisitor):
@@ -40,17 +74,75 @@ class PipelineASTValidator(ast.NodeVisitor):
         self.train_test_split_lineno = None
         self.leakage_violations = []
         self.imported_pipeline_classes = set()
+        self.imported_transformers = {}  # alias -> class_name
+        self.transformer_vars = set()  # names of variables holding transformer instances
+        self.fitted_before_split_vars = set()
+        self.local_functions = {}  # name -> FunctionDef
+        self.visiting_functions = set()
         self._inside_column_transformer = False
+        self.current_call_context_lineno = None
 
-    def visit_ImportFrom(self, node):
-        if node.module and "sklearn" in node.module:
-            for alias in node.names:
-                name = alias.name
-                if name in {"Pipeline", "make_pipeline"}:
-                    self.imported_pipeline_classes.add(alias.asname or name)
-        self.generic_visit(node)
+    def _collect_pass1(self, tree: ast.AST):
+        """Pass 1: Discover imports, local functions, and split line numbers across the AST."""
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom):
+                mod = node.module or ""
+                if "sklearn" in mod:
+                    for alias in node.names:
+                        name = alias.name
+                        local_name = alias.asname or name
+                        if name in {"Pipeline", "make_pipeline"}:
+                            self.imported_pipeline_classes.add(local_name)
+                        if name in KNOWN_TRANSFORMERS or any(
+                            sub in mod for sub in ["preprocessing", "impute", "feature_selection", "decomposition"]
+                        ):
+                            self.imported_transformers[local_name] = name
+            elif isinstance(node, ast.Import):
+                for alias in node.names:
+                    name = alias.name
+                    local_name = alias.asname or name
+                    if any(sub in name for sub in ["preprocessing", "impute", "feature_selection", "decomposition"]):
+                        self.imported_transformers[local_name] = name
+            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                self.local_functions[node.name] = node
+            elif isinstance(node, ast.Call):
+                func = node.func
+                func_name = None
+                if isinstance(func, ast.Name):
+                    func_name = func.id
+                elif isinstance(func, ast.Attribute):
+                    func_name = func.attr
+                if func_name in SPLIT_IDENTIFIERS:
+                    if self.train_test_split_lineno is None or node.lineno < self.train_test_split_lineno:
+                        self.train_test_split_lineno = node.lineno
+
+    def is_transformer_class(self, name: str) -> bool:
+        if name in KNOWN_TRANSFORMERS or name in self.imported_transformers:
+            return True
+        if any(tok in name.lower() for tok in ["scaler", "imputer", "encoder", "transformer", "pca", "selectkbest"]):
+            return True
+        return False
+
+    def is_transformer_call(self, call_node: ast.Call) -> bool:
+        func = call_node.func
+        if isinstance(func, ast.Name):
+            return self.is_transformer_class(func.id)
+        elif isinstance(func, ast.Attribute):
+            if self.is_transformer_class(func.attr):
+                return True
+            if isinstance(func.value, ast.Name) and func.value.id in self.imported_transformers:
+                return True
+        return False
+
+    def visit(self, node):
+        if not hasattr(self, "_pass1_done"):
+            self._pass1_done = True
+            self._collect_pass1(node)
+        super().visit(node)
 
     def visit_Assign(self, node):
+        effective_lineno = self.current_call_context_lineno or node.lineno
+
         # Check if right-hand side is Pipeline(...) or make_pipeline(...)
         is_pipe_call = False
         if isinstance(node.value, ast.Call):
@@ -69,20 +161,107 @@ class PipelineASTValidator(ast.NodeVisitor):
                 if isinstance(target, ast.Name):
                     self.pipeline_names.add(target.id)
 
+        # Check if right-hand side is a transformer instance
+        is_trans_inst = False
+        if isinstance(node.value, ast.Call):
+            if self.is_transformer_call(node.value):
+                is_trans_inst = True
+
+        if is_trans_inst:
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    self.transformer_vars.add(target.id)
+
+        # Check variable aliasing (e.g., s2 = s1)
+        if isinstance(node.value, ast.Name) and node.value.id in self.transformer_vars:
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    self.transformer_vars.add(target.id)
+
+        # Check pre-split pandas manual scaling via .mean() or .std()
+        if (self.train_test_split_lineno is None or effective_lineno < self.train_test_split_lineno) and not self._inside_column_transformer:
+            if isinstance(node.value, ast.BinOp):
+                if _has_stat_call(node.value.right) or _has_stat_call(node.value.left):
+                    self.leakage_violations.append(
+                        f"Data leakage detected: pandas pre-split manual mean/std scaling leakage at line {effective_lineno}."
+                    )
+
         self.generic_visit(node)
 
+    def _check_helper_leakage(self, func_name: str, call_lineno: int):
+        """Inspects helper function body strictly for pre-split data leakage patterns."""
+        if func_name in self.visiting_functions or func_name not in self.local_functions:
+            return
+        self.visiting_functions.add(func_name)
+        try:
+            func_node = self.local_functions[func_name]
+            # Track local transformer variable assignments within helper
+            local_trans_vars = set()
+            for node in ast.walk(func_node):
+                if isinstance(node, ast.Assign) and isinstance(node.value, ast.Call):
+                    if self.is_transformer_call(node.value):
+                        for target in node.targets:
+                            if isinstance(target, ast.Name):
+                                local_trans_vars.add(target.id)
+
+            for node in ast.walk(func_node):
+                if isinstance(node, ast.Call):
+                    fn = node.func
+                    fn_name = fn.id if isinstance(fn, ast.Name) else (fn.attr if isinstance(fn, ast.Attribute) else None)
+                    c_name = fn.value.id if isinstance(fn, ast.Attribute) and isinstance(fn.value, ast.Name) else ""
+                    is_inline = isinstance(fn, ast.Attribute) and isinstance(fn.value, ast.Call) and self.is_transformer_call(fn.value)
+
+                    # Nested helper call
+                    if fn_name in self.local_functions:
+                        self._check_helper_leakage(fn_name, call_lineno)
+
+                    if fn_name in {"fit", "fit_transform"}:
+                        if is_inline:
+                            self.leakage_violations.append(
+                                f"Data leakage detected in helper function '{func_name}()' (called at line {call_lineno}): inline transformer call '.{fn_name}()' before train_test_split."
+                            )
+                        elif (
+                            c_name in local_trans_vars
+                            or self.is_transformer_class(c_name)
+                            or any(t in c_name.lower() for t in ["scaler", "encoder", "imputer", "transformer", "pca", "selectkbest"])
+                        ):
+                            self.leakage_violations.append(
+                                f"Data leakage detected in helper function '{func_name}()' (called at line {call_lineno}): '{c_name}.{fn_name}()' called before train_test_split."
+                            )
+                    elif fn_name == "fillna" and any(_has_stat_call(arg) for arg in node.args):
+                        self.leakage_violations.append(
+                            f"Data leakage detected in helper function '{func_name}()' (called at line {call_lineno}): pandas fillna(mean/median) called before train_test_split."
+                        )
+                    elif fn_name == "transform" and isinstance(fn, ast.Attribute) and _is_groupby_receiver(fn.value):
+                        self.leakage_violations.append(
+                            f"Data leakage detected in helper function '{func_name}()' (called at line {call_lineno}): groupby.transform target encoding called before train_test_split."
+                        )
+        finally:
+            self.visiting_functions.remove(func_name)
+
     def visit_Call(self, node):
+        effective_lineno = self.current_call_context_lineno or node.lineno
         func = node.func
         func_name = None
+        caller_name = ""
+        is_inline_transformer = False
+
         if isinstance(func, ast.Name):
             func_name = func.id
         elif isinstance(func, ast.Attribute):
             func_name = func.attr
+            if isinstance(func.value, ast.Name):
+                caller_name = func.value.id
+            elif isinstance(func.value, ast.Call):
+                if self.is_transformer_call(func.value):
+                    is_inline_transformer = True
 
-        # Record train_test_split line
-        if func_name == "train_test_split":
-            if self.train_test_split_lineno is None or node.lineno < self.train_test_split_lineno:
-                self.train_test_split_lineno = node.lineno
+        # Pre-split check flag
+        is_pre_split = (self.train_test_split_lineno is None or effective_lineno < self.train_test_split_lineno) and not self._inside_column_transformer
+
+        # Follow calls into locally defined helper functions for data leakage check
+        if func_name in self.local_functions and is_pre_split:
+            self._check_helper_leakage(func_name, effective_lineno)
 
         # Check ColumnTransformer boundary
         if func_name in {"ColumnTransformer", "make_column_transformer"}:
@@ -92,7 +271,7 @@ class PipelineASTValidator(ast.NodeVisitor):
             self._inside_column_transformer = old_inside
             return
 
-        # Check direct instantiation not assigned to a simple target
+        # Direct pipeline instantiation not assigned
         if (func_name in {"Pipeline", "make_pipeline"} or func_name in self.imported_pipeline_classes) and not self._inside_column_transformer:
             self.pipeline_instantiations_count += 1
 
@@ -104,31 +283,62 @@ class PipelineASTValidator(ast.NodeVisitor):
                 elif isinstance(arg, ast.Call):
                     subfunc = arg.func
                     sub_name = subfunc.id if isinstance(subfunc, ast.Name) else (subfunc.attr if isinstance(subfunc, ast.Attribute) else None)
-                    if sub_name in {"Pipeline", "make_pipeline"}:
+                    if sub_name in {"Pipeline", "make_pipeline"} or sub_name in self.imported_pipeline_classes:
                         self.pipeline_used_in_fit_or_cv = True
 
-        # Check .fit(...) or .fit_transform(...)
-        if func_name in {"fit", "fit_transform"}:
-            if isinstance(func, ast.Attribute):
-                caller = func.value
-                caller_name = caller.id if isinstance(caller, ast.Name) else ""
-                if caller_name in self.pipeline_names or "pipe" in caller_name.lower():
-                    self.pipeline_used_in_fit_or_cv = True
+        # Check Pipeline usage in fit
+        if func_name in {"fit", "fit_transform"} and (caller_name in self.pipeline_names or "pipe" in caller_name.lower()):
+            self.pipeline_used_in_fit_or_cv = True
 
-                # Check data leakage: transformer fitted before train_test_split
-                caller_is_transformer = (
-                    caller_name in KNOWN_TRANSFORMERS
-                    or any(t in caller_name for t in ["scaler", "encoder", "imputer", "transformer"])
+        # Pre-split check flag
+        is_pre_split = (self.train_test_split_lineno is None or effective_lineno < self.train_test_split_lineno) and not self._inside_column_transformer
+
+        # Check 1: Transformer fit / fit_transform before split
+        if func_name in {"fit", "fit_transform"}:
+            caller_is_transformer = (
+                caller_name in self.transformer_vars
+                or caller_name in KNOWN_TRANSFORMERS
+                or caller_name in self.imported_transformers
+                or any(t in caller_name.lower() for t in ["scaler", "encoder", "imputer", "transformer", "pca", "selectkbest"])
+            )
+            if is_inline_transformer:
+                if is_pre_split:
+                    self.leakage_violations.append(
+                        f"Data leakage detected: inline transformer call '.{func_name}()' at line {effective_lineno} before train_test_split."
+                    )
+            elif caller_is_transformer and (caller_name not in self.pipeline_names and "pipe" not in caller_name.lower()):
+                if is_pre_split:
+                    self.leakage_violations.append(
+                        f"Data leakage detected: '{caller_name}.{func_name}()' called at line {effective_lineno} before train_test_split."
+                    )
+                    self.fitted_before_split_vars.add(caller_name)
+
+        # Check 2: .transform() on transformer fitted before split or calling transform before split
+        if func_name == "transform":
+            caller_is_transformer = (
+                caller_name in self.transformer_vars
+                or caller_name in KNOWN_TRANSFORMERS
+                or caller_name in self.imported_transformers
+                or caller_name in self.fitted_before_split_vars
+            )
+            if caller_is_transformer and is_pre_split and (caller_name not in self.pipeline_names and "pipe" not in caller_name.lower()):
+                self.leakage_violations.append(
+                    f"Data leakage detected: '{caller_name}.transform()' called at line {effective_lineno} on pre-split data before train_test_split."
                 )
-                if caller_is_transformer:
-                    if self.train_test_split_lineno is not None and node.lineno < self.train_test_split_lineno:
-                        self.leakage_violations.append(
-                            f"Data leakage detected: '{caller_name}.{func_name}()' called at line {node.lineno} before train_test_split at line {self.train_test_split_lineno}."
-                        )
-                    elif self.train_test_split_lineno is None:
-                        self.leakage_violations.append(
-                            f"Data leakage detected: '{caller_name}.{func_name}()' called at line {node.lineno} without preceding train_test_split."
-                        )
+
+        # Check 3: Pandas fillna(mean/median/std/mode)
+        if func_name == "fillna" and is_pre_split:
+            if any(_has_stat_call(arg) for arg in node.args):
+                self.leakage_violations.append(
+                    f"Data leakage detected: pandas pre-split fillna(mean/median) statistic leakage at line {effective_lineno}."
+                )
+
+        # Check 4: Pandas groupby().transform(...) target encoding
+        if func_name == "transform" and is_pre_split:
+            if isinstance(func, ast.Attribute) and _is_groupby_receiver(func.value):
+                self.leakage_violations.append(
+                    f"Data leakage detected: pandas pre-split groupby-transform target encoding leakage at line {effective_lineno}."
+                )
 
         self.generic_visit(node)
 

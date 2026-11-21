@@ -144,7 +144,7 @@ This benchmark provides concrete, reproducible experimental evidence measuring t
 
 | Metric Dimension | Naive Scripted Baseline | ML Model Architect (Constitutional) |
 |:---|:---:|:---:|
-| **Data Leakage Vulnerability** | ❌ Leaks scalers/imputers before split | ✅ **Zero Leakage (Pipeline AST verification)** |
+| **Data Leakage Vulnerability** | ❌ Leaks scalers/imputers before split | ✅ **Static leakage heuristics (Dataflow AST verification)** |
 | **Model Selection Discipline** | ❌ Choses complex models arbitrarily | ✅ **Hastie 1-SE Rule verified empirically** |
 | **Imbalanced Class Handling** | ❌ Optimizes deceptive Accuracy | ✅ **Precision-Recall / PR-AUC grounding** |
 | **Reproducibility & Auditability** | ❌ Ad-hoc scripts, no locks | ✅ **Cryptographic DAG lock & Decision Ledger** |
