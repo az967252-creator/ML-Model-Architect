@@ -9,6 +9,8 @@ references/pdf/
 .kilo/
 *.patch
 *.lock
+!examples/**/PLAN.lock
+!examples/**/*.lock
 dist/
 build/
 *.egg-info/

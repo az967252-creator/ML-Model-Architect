@@ -8,16 +8,15 @@ Usage: python scripts/verify_dois.py [--strict] [--check-md]
   --strict    warnings (network problems) also fail the run
   --check-md  also fail if a DOI is cited in references/stage-*/*.md but missing from the YAML
 """
+import datetime
 import difflib
 import re
 import sys
 import time
 from pathlib import Path
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 import requests
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -26,8 +25,48 @@ norm = lambda s: re.sub(r"[^a-z0-9 ]", "", (s or "").lower())
 
 ALLOWED_SOURCE_TYPES = {"journal", "conference", "book"}
 PEER_REVIEW_REQUIRED = {"journal", "conference"}   # books may be foundational, un-reviewed texts
+PEER_REVIEWED_CROSSREF_TYPES = {"journal-article", "proceedings-article", "book-chapter"}
 RETRY_DELAYS = (2, 5)                              # seconds to wait between attempts (3 attempts)
 DOI_RE = re.compile(r"10\.\d{4,9}/[^\s)|,;<>]+")
+
+
+def load_whitelist(path=None):
+    """Return a list of (host, path_prefix) rules from trusted_domains.yaml."""
+    if path:
+        path = Path(path)
+    else:
+        path = ROOT / "references" / "trusted_domains.yaml"
+        if not path.exists():
+            path = ROOT / "trusted_domains.yaml"
+    if not path.exists():
+        return []
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    rules = []
+    for entry in data.get("domains", []):
+        entry = re.sub(r"^https?://", "", str(entry).strip().lower())
+        host, _, rest = entry.partition("/")
+        host = host.removeprefix("www.")
+        prefix = "/" + rest.strip("/") if rest.strip("/") else ""
+        if host:
+            rules.append((host, prefix))
+    return rules
+
+
+def is_trusted_url(url, rules):
+    """True if the URL's real hostname (and path, when the rule has one) is whitelisted."""
+    try:
+        parsed = urlparse(url)
+    except ValueError:
+        return False
+    host = (parsed.hostname or "").lower().removeprefix("www.")
+    if parsed.scheme not in ("http", "https") or not host:
+        return False
+    path = parsed.path or "/"
+    for rule_host, prefix in rules:
+        if host == rule_host or host.endswith("." + rule_host):
+            if not prefix or path == prefix or path.startswith(prefix + "/"):
+                return True
+    return False
 
 
 def http_get(url, **kwargs):
@@ -37,7 +76,7 @@ def http_get(url, **kwargs):
     for attempt in range(len(RETRY_DELAYS) + 1):
         response, error = None, None
         try:
-            response = requests.get(url, **kwargs, verify=False)
+            response = requests.get(url, **kwargs)
             if response.status_code != 429 and response.status_code < 500:
                 return response
         except requests.exceptions.RequestException as e:
@@ -70,7 +109,8 @@ def md_dois_not_in_yaml(data, root=ROOT):
                 missing.setdefault(doi, []).append(f.name)
     return missing
 
-def check(ref):
+
+def check(ref, whitelist=None):
     doi, title, year = ref["doi_or_url"], ref.get("title", "").strip(), ref.get("year", 0)
     
     if not title:
@@ -79,6 +119,21 @@ def check(ref):
     if "exception" in ref and ref["exception"]:
         if not ref.get("verified_by") or not ref.get("verified_date") or not ref.get("evidence_url"):
             return ("FAIL_INCOMPLETE_EXCEPTION", "Exception lacks verified_by, verified_date, or evidence_url")
+        
+        # Expiry check (<= 365 days)
+        try:
+            v_date = datetime.date.fromisoformat(str(ref["verified_date"]))
+            days_old = (datetime.date.today() - v_date).days
+            if days_old > 365:
+                return ("FAIL_EXCEPTION_EXPIRED", f"Exception verified on {ref['verified_date']} has expired ({days_old} days > 365 days)")
+        except Exception as e:
+            return ("FAIL_INCOMPLETE_EXCEPTION", f"Invalid verified_date: {e}")
+
+        # Evidence URL domain whitelist check
+        rules = load_whitelist() if whitelist is None else whitelist
+        if not is_trusted_url(ref["evidence_url"], rules):
+            return ("FAIL_UNTRUSTED_EVIDENCE_URL", f"Evidence URL {ref['evidence_url']} is not on a trusted domain")
+
         try:
             er = http_get(ref["evidence_url"], timeout=10, allow_redirects=True)
             if er.status_code >= 400:
@@ -91,8 +146,8 @@ def check(ref):
         try:
             r = http_get(doi, timeout=15, allow_redirects=True)
             if r.status_code >= 400:
-                r = requests.head(doi, headers=HDR, timeout=15, allow_redirects=True, verify=False)
-            return ("OK_URL", "") if r.status_code < 400 else ("FAIL_URL_DEAD", r.status_code)
+                r = requests.head(doi, headers=HDR, timeout=15, allow_redirects=True)
+            return ("OK_URL", "") if r.status_code < 400 else ("FAIL_URL_DEAD", str(r.status_code))
         except Exception as e:
             return ("FAIL_URL_DEAD", str(e))
             
@@ -107,15 +162,21 @@ def check(ref):
             elif d.status_code == 404:
                 return ("FAIL_NOT_FOUND", "Not in Crossref or DataCite")
             else:
-                return ("WARN_HTTP_ERROR", d.status_code)
+                return ("WARN_HTTP_ERROR", str(d.status_code))
         elif r.status_code != 200:
-            return ("WARN_HTTP_ERROR", r.status_code)
+            return ("WARN_HTTP_ERROR", str(r.status_code))
         else:
             m = r.json()["message"]
             t1 = (m.get("title") or [""])[0]
             t2 = (m.get("subtitle") or [""])[0]
             t = f"{t1} {t2}".strip()
             y = ((m.get("issued") or {}).get("date-parts") or [[None]])[0][0]
+
+            # Cross-check peer review status against Crossref type
+            cr_type = (m.get("type") or "").lower()
+            claimed_pr = ref.get("claimed_peer_reviewed")
+            if claimed_pr is True and cr_type and cr_type not in PEER_REVIEWED_CROSSREF_TYPES:
+                return ("FAIL_NOT_PEER_REVIEWED", f"Crossref reports type {cr_type!r}, which is not peer-reviewed")
             
         a, b = norm(t), norm(title)
         sim = max(
@@ -132,9 +193,11 @@ def check(ref):
     except Exception as e:
         return ("WARN_ERROR", str(e))
 
+
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
-    strict, check_md = "--strict" in argv, "--check-md" in argv
+    strict = "--strict" in argv
+    check_md = "--check-md" in argv
     ref_file = ROOT / "references" / "references_to_verify.yaml"
     if not ref_file.exists():
         ref_file = ROOT / "references_to_verify.yaml"

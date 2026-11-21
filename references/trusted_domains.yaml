@@ -3,10 +3,14 @@
 # RULE: Must be official engineering/research publications, NOT community forums.
 
 domains:
-  # Open-Access Repositories
+  # Open-Access Repositories & Conference Proceedings
   - arxiv.org
   - jmlr.org
   - openaccess.thecvf.com
+  - papers.nips.cc
+  - proceedings.mlr.press
+  - aclanthology.org
+  - openreview.net
   
   # Official Research & Engineering Blogs (Tier-1)
   - ai.googleblog.com

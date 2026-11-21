@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """Validate a DECISIONS.md ledger against the constitution (rules B1/B4).
 
-Checks, for every row whose Type is technical (technique, parameter, ...):
-  * the Reference is a DOI, a trusted URL, or an allowed token
-    (`heuristic`, `reference-gap`, ...);
-  * with --online, every DOI really exists (Crossref, then DataCite).
+Checks, for every row in the decision ledger:
+  * Type must belong to the closed taxonomy:
+    (framing, technique, parameter, threshold, deployment, metric, evaluation, data, other)
+  * 'other' and 'framing' require a detailed reason of at least 20 characters
+  * For technical decisions:
+    - Reference must be a DOI (with locator), a trusted URL, or an allowed token (heuristic, reference-gap, ...)
+    - DOIs MUST include a specific locator (e.g. '@ Sec 3.1', '(page 5)', '[Table 2]')
+    - Heuristic ratio must not exceed --max-heuristic-ratio (default 0.4)
+    - With --online, every DOI really exists (Crossref, then DataCite).
 
 Exit codes: 0 = OK, 1 = violations, 2 = online verification incomplete
 (network error) -- unless --allow-offline is given.
@@ -19,6 +24,17 @@ from urllib.parse import quote, urlparse
 import yaml
 
 ALLOWED_TOKENS = {"heuristic", "reference-gap", "n/a (business context)"}
+CLOSED_TYPES = {
+    "framing",
+    "technique",
+    "parameter",
+    "threshold",
+    "deployment",
+    "metric",
+    "evaluation",
+    "data",
+    "other",
+}
 CHECKED_TYPES = {"technique", "parameter", "threshold", "deployment", "metric", "evaluation"}
 REQUIRED_HEADERS = ("stage", "type", "question", "reference")
 
@@ -27,6 +43,7 @@ URL_RE = re.compile(r"https?://[^\s|;,()<>]+")
 ARXIV_RE = re.compile(r"arxiv:\s*(\d{4}\.\d{4,5})", re.IGNORECASE)
 SEPARATOR_RE = re.compile(r"^\|[\s:\-|]+\|$")
 DOI_HOSTS = {"doi.org", "dx.doi.org"}
+LOCATOR_RE = re.compile(r"(@|sec|section|page|p\.|pp\.|table|fig|figure|ch\.|chapter)\s*[0-9a-zA-Z\.\-_]+", re.IGNORECASE)
 
 
 # --------------------------------------------------------------------------
@@ -123,7 +140,7 @@ def parse_tables(text):
     return tables
 
 
-def evaluate_reference(ref, rules):
+def evaluate_reference(ref, rules, locator_text=""):
     """Return (problems, dois_to_check) for one Reference cell."""
     ref = ref.strip()
     if not ref:
@@ -139,13 +156,21 @@ def evaluate_reference(ref, rules):
     problems = [f"untrusted URL {u}" for u in urls if not is_trusted_url(u, rules)]
     if not dois and not urls:
         problems.append(f"'{ref}' is neither a DOI, a trusted URL, nor an allowed token")
+
+    # Structural check for DOI locator
+    if dois:
+        has_locator = bool(LOCATOR_RE.search(ref) or (locator_text and LOCATOR_RE.search(locator_text)) or "@" in ref)
+        if not has_locator:
+            for d in dois:
+                problems.append(f"DOI '{d}' missing specific locator (section/page/table, e.g. '@ Sec 3.1')")
+
     return problems, dois
 
 
 # --------------------------------------------------------------------------
 # Main logic
 # --------------------------------------------------------------------------
-def enforce(filepath, online=False, allow_offline=False, doi_checker=check_doi, whitelist=None):
+def enforce(filepath, online=False, allow_offline=False, max_heuristic_ratio=0.4, doi_checker=check_doi, whitelist=None):
     """Check one ledger file. Returns the exit code (0, 1 or 2)."""
     path = Path(filepath)
     if not path.exists():
@@ -160,22 +185,54 @@ def enforce(filepath, online=False, allow_offline=False, doi_checker=check_doi, 
         return 1
 
     violations, unverified, checked, verified = 0, 0, 0, 0
+    heuristic_count = 0
+
     for header, rows in ledgers:
         h = [x.lower() for x in header]
-        type_i, q_i, ref_i = h.index("type"), h.index("question"), h.index("reference")
+        type_i = h.index("type")
+        q_i = h.index("question")
+        ref_i = h.index("reference")
+        reason_i = h.index("reason") if "reason" in h else None
+        locator_i = h.index("locator") if "locator" in h else None
+
         for line, cells in rows:
             if len(cells) != len(h):
                 print(f"❌ VIOLATION: malformed row ({len(cells)} cells, expected {len(h)}): {line[:50]}...")
                 violations += 1
                 continue
-            if cells[type_i].lower() not in CHECKED_TYPES:
+
+            raw_type = cells[type_i].strip().lower()
+            question = cells[q_i].strip()
+            reason = cells[reason_i].strip() if reason_i is not None and reason_i < len(cells) else ""
+            locator_text = cells[locator_i].strip() if locator_i is not None and locator_i < len(cells) else ""
+            ref = cells[ref_i].strip()
+
+            # Rule 1: Closed set of decision types
+            if raw_type not in CLOSED_TYPES:
+                print(f"❌ VIOLATION: decision '{question}' has unknown type '{raw_type}'. Must be one of {sorted(CLOSED_TYPES)}.")
+                violations += 1
                 continue
+
+            # Rule 2: 'other' and 'framing' require reason >= 20 characters
+            if raw_type in {"other", "framing"}:
+                if len(reason) < 20:
+                    print(f"❌ VIOLATION: decision '{question}' (type '{raw_type}') requires a reason of >= 20 characters (got {len(reason)}).")
+                    violations += 1
+
+            if raw_type not in CHECKED_TYPES:
+                continue
+
             checked += 1
-            question = cells[q_i]
-            problems, dois = evaluate_reference(cells[ref_i], rules)
+
+            # Track heuristics count
+            if ref.lower() in {"heuristic", "reference-gap"}:
+                heuristic_count += 1
+
+            problems, dois = evaluate_reference(ref, rules, locator_text=locator_text)
             for p in problems:
                 print(f"❌ VIOLATION: decision '{question}': {p}")
                 violations += 1
+
             if online:
                 for doi in dois:
                     status = doi_checker(doi)
@@ -187,6 +244,14 @@ def enforce(filepath, online=False, allow_offline=False, doi_checker=check_doi, 
                     elif status == "NETWORK_ERROR":
                         print(f"⚠️ could not verify {doi} (network error)")
                         unverified += 1
+
+    # Check heuristic ratio
+    if checked > 0:
+        ratio = heuristic_count / checked
+        print(f"ℹ️ Heuristic references: {heuristic_count}/{checked} ({ratio:.1%}, max allowed: {max_heuristic_ratio:.1%})")
+        if ratio > max_heuristic_ratio:
+            print(f"❌ VIOLATION: heuristic ratio {ratio:.1%} exceeds maximum allowed threshold of {max_heuristic_ratio:.1%}.")
+            violations += 1
 
     if violations:
         print(f"\n❌ Found {violations} violation(s) in {checked} technical decision(s).")
@@ -204,11 +269,12 @@ def main(argv=None):
     parser.add_argument("files", nargs="*", default=["examples/delivery-delay-prediction/DECISIONS.md"])
     parser.add_argument("--online", action="store_true", help="also verify every DOI on Crossref/DataCite")
     parser.add_argument("--allow-offline", action="store_true", help="network errors are warnings, not failures")
+    parser.add_argument("--max-heuristic-ratio", type=float, default=0.4, help="maximum ratio of heuristic/reference-gap decisions (default 0.4)")
     args = parser.parse_args(argv)
     worst = 0
     for f in args.files:
         print(f"== {f}")
-        worst = max(worst, enforce(f, online=args.online, allow_offline=args.allow_offline))
+        worst = max(worst, enforce(f, online=args.online, allow_offline=args.allow_offline, max_heuristic_ratio=args.max_heuristic_ratio))
     return worst
 
 

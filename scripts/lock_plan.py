@@ -6,12 +6,16 @@ Enforces Constitution Part G: Deterministic Execution & Immutable Plan Policy.
 
 import sys
 import os
+import re
 import json
 import hashlib
 import stat
+from datetime import datetime, timezone
 
 REQUIRED_FIELDS = ["plan_version", "project_id", "client_grounding", "execution_dag"]
 STEP_REQUIRED_FIELDS = ["step_id", "stage", "action_type", "pre_conditions", "post_assertions"]
+
+MANIFEST_HASH_PATTERN = re.compile(r"<!--\s*MANIFEST_SHA256:\s*([a-f0-9]{64})\s*-->", re.IGNORECASE)
 
 def compute_sha256(filepath: str) -> str:
     """Computes SHA-256 hash of a file."""
@@ -70,13 +74,58 @@ def make_writable(filepath: str):
     except Exception as e:
         print(f"Warning: Could not set writable attribute on {filepath}: {e}", file=sys.stderr)
 
+def get_lock_path(filepath: str) -> str:
+    """Derives lock file path from manifest file path."""
+    if filepath.endswith(".manifest.json"):
+        lock_path = filepath.replace(".manifest.json", ".lock")
+    else:
+        lock_path = f"{filepath}.lock"
+    return lock_path
+
+def sync_hash_to_ledger(filepath: str, file_hash: str):
+    """Stores manifest hash inside DECISIONS.md if present in the same directory."""
+    manifest_dir = os.path.dirname(os.path.abspath(filepath))
+    ledger_path = os.path.join(manifest_dir, "DECISIONS.md")
+    if not os.path.exists(ledger_path):
+        return
+
+    try:
+        make_writable(ledger_path)
+        with open(ledger_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        hash_line = f"<!-- MANIFEST_SHA256: {file_hash} -->"
+        if MANIFEST_HASH_PATTERN.search(content):
+            new_content = MANIFEST_HASH_PATTERN.sub(hash_line, content)
+        else:
+            new_content = content.rstrip() + f"\n\n{hash_line}\n"
+
+        with open(ledger_path, "w", encoding="utf-8") as f:
+            f.write(new_content)
+    except Exception as e:
+        print(f"Warning: Could not record manifest hash in ledger {ledger_path}: {e}", file=sys.stderr)
+
+def log_unlock_to_ledger(filepath: str):
+    """Logs an unlock event to DECISIONS.md."""
+    manifest_dir = os.path.dirname(os.path.abspath(filepath))
+    ledger_path = os.path.join(manifest_dir, "DECISIONS.md")
+    if not os.path.exists(ledger_path):
+        return
+
+    try:
+        make_writable(ledger_path)
+        ts = datetime.now(timezone.utc).isoformat()
+        unlock_entry = f"\n<!-- PLAN_UNLOCKED: timestamp={ts}, manifest={os.path.basename(filepath)} -->\n"
+        with open(ledger_path, "a", encoding="utf-8") as f:
+            f.write(unlock_entry)
+    except Exception as e:
+        print(f"Warning: Could not log unlock to ledger {ledger_path}: {e}", file=sys.stderr)
+
 def lock_plan(filepath: str) -> str:
-    """Validates schema, computes hash, writes .lock file, and sets read-only."""
+    """Validates schema, computes hash, writes .lock file, updates ledger, and sets read-only."""
     validate_plan_schema(filepath)
     file_hash = compute_sha256(filepath)
-    lock_path = f"{filepath}.lock" if not filepath.endswith(".manifest.json") else filepath.replace(".manifest.json", ".lock")
-    if lock_path == filepath:
-        lock_path = f"{filepath}.lock"
+    lock_path = get_lock_path(filepath)
 
     # Make writable temporarily if it was previously locked
     if os.path.exists(lock_path):
@@ -84,6 +133,8 @@ def lock_plan(filepath: str) -> str:
 
     with open(lock_path, "w", encoding="utf-8") as f:
         f.write(file_hash + "\n")
+
+    sync_hash_to_ledger(filepath, file_hash)
 
     make_read_only(lock_path)
     make_read_only(filepath)
@@ -95,10 +146,8 @@ def lock_plan(filepath: str) -> str:
     return file_hash
 
 def verify_plan(filepath: str) -> bool:
-    """Verifies that the plan file matches its cryptographic lock."""
-    lock_path = f"{filepath}.lock" if not filepath.endswith(".manifest.json") else filepath.replace(".manifest.json", ".lock")
-    if lock_path == filepath:
-        lock_path = f"{filepath}.lock"
+    """Verifies that the plan file matches its cryptographic lock and ledger record."""
+    lock_path = get_lock_path(filepath)
 
     if not os.path.exists(filepath):
         print(f"❌ [TAMPER/ERROR] Manifest file does not exist: {filepath}", file=sys.stderr)
@@ -117,8 +166,35 @@ def verify_plan(filepath: str) -> bool:
         print(f"   Actual:   {actual_hash}", file=sys.stderr)
         return False
 
+    # Check ledger manifest hash if DECISIONS.md exists
+    manifest_dir = os.path.dirname(os.path.abspath(filepath))
+    ledger_path = os.path.join(manifest_dir, "DECISIONS.md")
+    if os.path.exists(ledger_path):
+        with open(ledger_path, "r", encoding="utf-8") as f:
+            ledger_text = f.read()
+        m = MANIFEST_HASH_PATTERN.search(ledger_text)
+        if m:
+            ledger_hash = m.group(1).strip()
+            if ledger_hash != actual_hash:
+                print(f"🚨 [FATAL TAMPER DETECTED] DECISIONS.md contains manifest hash {ledger_hash}, which does not match actual {actual_hash}!", file=sys.stderr)
+                return False
+
     print(f"✅ [INTEGRITY OK] Plan matches cryptographic lock ({actual_hash[:12]}...).")
     return True
+
+def unlock_plan(filepath: str):
+    """Unlocks a plan manifest if authorized via MLA_ALLOW_UNLOCK=1."""
+    if os.environ.get("MLA_ALLOW_UNLOCK") != "1":
+        print("❌ [ACCESS DENIED] Unlocking plans is restricted. Set MLA_ALLOW_UNLOCK=1 to authorize.", file=sys.stderr)
+        sys.exit(1)
+
+    make_writable(filepath)
+    lock_path = get_lock_path(filepath)
+    if os.path.exists(lock_path):
+        make_writable(lock_path)
+
+    log_unlock_to_ledger(filepath)
+    print(f"🔓 [UNLOCKED] {filepath} is now writable.")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -139,11 +215,7 @@ if __name__ == "__main__":
             ok = verify_plan(target_path)
             sys.exit(0 if ok else 1)
         elif flag == "--unlock":
-            make_writable(target_path)
-            lock_path = target_path.replace(".manifest.json", ".lock")
-            if os.path.exists(lock_path):
-                make_writable(lock_path)
-            print(f"🔓 [UNLOCKED] {target_path} is now writable.")
+            unlock_plan(target_path)
             sys.exit(0)
         else:
             lock_plan(target_path)

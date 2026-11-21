@@ -9,13 +9,18 @@ import os
 import re
 import ast
 import json
-from typing import List, Tuple
+import math
+from typing import List, Tuple, Dict, Any
+
+try:
+    import jsonschema
+except ImportError:
+    jsonschema = None
 
 # Try importing lock_plan helpers
 try:
     from scripts.lock_plan import verify_plan, validate_plan_schema
 except ImportError:
-    # When running directly from scripts directory
     from lock_plan import verify_plan, validate_plan_schema
 
 try:
@@ -26,11 +31,127 @@ except ImportError:
     except ImportError:
         Scanner = None
 
+try:
+    from scripts.enforce_constitution import enforce as enforce_ledger, parse_tables, REQUIRED_HEADERS
+except ImportError:
+    try:
+        from enforce_constitution import enforce as enforce_ledger, parse_tables, REQUIRED_HEADERS
+    except ImportError:
+        enforce_ledger = None
+        parse_tables = None
+        REQUIRED_HEADERS = ("stage", "type", "question", "reference")
+
+
+KNOWN_TRANSFORMERS = {
+    "StandardScaler", "MinMaxScaler", "RobustScaler", "MaxAbsScaler",
+    "OneHotEncoder", "OrdinalEncoder", "TargetEncoder",
+    "SimpleImputer", "KNNImputer", "IterativeImputer",
+    "PolynomialFeatures", "PCA", "SelectKBest", "SelectPercentile",
+    "RFE", "ColumnTransformer"
+}
+
+
+class PipelineASTValidator(ast.NodeVisitor):
+    def __init__(self):
+        self.pipeline_names = set()
+        self.pipeline_assignments_count = 0
+        self.pipeline_instantiations_count = 0
+        self.pipeline_used_in_fit_or_cv = False
+        self.train_test_split_lineno = None
+        self.leakage_violations = []
+        self.imported_pipeline_classes = set()
+
+    def visit_ImportFrom(self, node):
+        if node.module and "sklearn" in node.module:
+            for alias in node.names:
+                name = alias.name
+                if name in {"Pipeline", "make_pipeline"}:
+                    self.imported_pipeline_classes.add(alias.asname or name)
+        self.generic_visit(node)
+
+    def visit_Assign(self, node):
+        # Check if right-hand side is Pipeline(...) or make_pipeline(...)
+        is_pipe_call = False
+        if isinstance(node.value, ast.Call):
+            func = node.value.func
+            func_name = None
+            if isinstance(func, ast.Name):
+                func_name = func.id
+            elif isinstance(func, ast.Attribute):
+                func_name = func.attr
+            if func_name in {"Pipeline", "make_pipeline"} or func_name in self.imported_pipeline_classes:
+                is_pipe_call = True
+
+        if is_pipe_call:
+            self.pipeline_assignments_count += 1
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    self.pipeline_names.add(target.id)
+
+        self.generic_visit(node)
+
+    def visit_Call(self, node):
+        func = node.func
+        func_name = None
+        if isinstance(func, ast.Name):
+            func_name = func.id
+        elif isinstance(func, ast.Attribute):
+            func_name = func.attr
+
+        # Record train_test_split line
+        if func_name == "train_test_split":
+            if self.train_test_split_lineno is None or node.lineno < self.train_test_split_lineno:
+                self.train_test_split_lineno = node.lineno
+
+        # Check direct instantiation not assigned to a simple target
+        if func_name in {"Pipeline", "make_pipeline"} or func_name in self.imported_pipeline_classes:
+            self.pipeline_instantiations_count += 1
+
+        # Check cross_val_score / cross_validate usage
+        if func_name in {"cross_val_score", "cross_validate"}:
+            for arg in node.args:
+                if isinstance(arg, ast.Name) and (arg.id in self.pipeline_names or "pipe" in arg.id.lower()):
+                    self.pipeline_used_in_fit_or_cv = True
+                elif isinstance(arg, ast.Call):
+                    subfunc = arg.func
+                    sub_name = subfunc.id if isinstance(subfunc, ast.Name) else (subfunc.attr if isinstance(subfunc, ast.Attribute) else None)
+                    if sub_name in {"Pipeline", "make_pipeline"}:
+                        self.pipeline_used_in_fit_or_cv = True
+
+        # Check .fit(...) or .fit_transform(...)
+        if func_name in {"fit", "fit_transform"}:
+            if isinstance(func, ast.Attribute):
+                caller = func.value
+                caller_name = caller.id if isinstance(caller, ast.Name) else ""
+                if caller_name in self.pipeline_names or "pipe" in caller_name.lower():
+                    self.pipeline_used_in_fit_or_cv = True
+
+                # Check data leakage: transformer fitted before train_test_split
+                caller_is_transformer = (
+                    caller_name in KNOWN_TRANSFORMERS
+                    or any(t in caller_name for t in ["scaler", "encoder", "imputer", "transformer"])
+                )
+                if caller_is_transformer:
+                    if self.train_test_split_lineno is not None and node.lineno < self.train_test_split_lineno:
+                        self.leakage_violations.append(
+                            f"Data leakage detected: '{caller_name}.{func_name}()' called at line {node.lineno} before train_test_split at line {self.train_test_split_lineno}."
+                        )
+                    elif self.train_test_split_lineno is None:
+                        self.leakage_violations.append(
+                            f"Data leakage detected: '{caller_name}.{func_name}()' called at line {node.lineno} without preceding train_test_split."
+                        )
+
+        self.generic_visit(node)
+
+
 class PolicyEngine:
-    def __init__(self, plan_path: str, base_dir: str = "."):
-        self.plan_path = plan_path
-        self.base_dir = os.path.abspath(base_dir)
-        self.data = validate_plan_schema(plan_path)
+    def __init__(self, plan_path: str, base_dir: str = None):
+        self.plan_path = os.path.abspath(plan_path)
+        if base_dir is None:
+            self.base_dir = os.path.dirname(self.plan_path)
+        else:
+            self.base_dir = os.path.abspath(base_dir)
+        self.data = validate_plan_schema(self.plan_path)
 
     def verify_integrity(self) -> bool:
         """Verifies that plan is not tampered with."""
@@ -42,20 +163,56 @@ class PolicyEngine:
             return rel_path
         return os.path.normpath(os.path.join(self.base_dir, rel_path))
 
+    def _locate_metrics_file(self) -> str:
+        """Searches candidate locations for metrics.json."""
+        candidates = [
+            self.resolve_path(os.path.join("sandbox", "out", "metrics.json")),
+            self.resolve_path(os.path.join("out", "metrics.json")),
+            self.resolve_path("metrics.json")
+        ]
+        for c in candidates:
+            if os.path.exists(c):
+                return c
+        return None
+
+    def _load_and_validate_metrics(self) -> Tuple[bool, Any, str]:
+        """Loads and validates metrics.json against schema."""
+        metrics_file = self._locate_metrics_file()
+        if not metrics_file:
+            return False, None, "metrics.json not found in sandbox/out/, out/, or project directory."
+
+        try:
+            with open(metrics_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception as e:
+            return False, None, f"Could not parse {metrics_file}: {e}"
+
+        # Schema validation
+        schema_path = os.path.normpath(
+            os.path.join(os.path.dirname(__file__), "..", "_shared", "metrics.schema.json")
+        )
+        if not os.path.exists(schema_path):
+            schema_path = self.resolve_path(os.path.join("_shared", "metrics.schema.json"))
+
+        if jsonschema and os.path.exists(schema_path):
+            try:
+                with open(schema_path, "r", encoding="utf-8") as sf:
+                    schema = json.load(sf)
+                jsonschema.validate(instance=data, schema=schema)
+            except jsonschema.ValidationError as ve:
+                return False, None, f"metrics.json fails schema validation: {ve.message}"
+            except Exception as se:
+                return False, None, f"Error validating metrics.json schema: {se}"
+
+        return True, data, ""
+
     def evaluate_assertion(self, assertion_str: str) -> Tuple[bool, str]:
         """
         Parses and evaluates deterministic programmatic assertions.
-        Supported assertions:
-        - file_exists('path')
-        - ast_scanner_passed('path')
-        - is_single_sklearn_pipeline('path')
-        - cv_folds_logged(N)
-        - assert_1se_rule_applied()
-        - decision_logged_in_ledger('path')
         """
         assertion_str = assertion_str.strip()
 
-        # file_exists('path')
+        # 1. file_exists('path')
         m_file = re.match(r"^file_exists\(['\"](.*?)['\"]\)$", assertion_str)
         if m_file:
             path = self.resolve_path(m_file.group(1))
@@ -63,7 +220,7 @@ class PolicyEngine:
                 return True, f"File exists: {m_file.group(1)}"
             return False, f"File does NOT exist: {m_file.group(1)} (resolved: {path})"
 
-        # ast_scanner_passed('path')
+        # 2. ast_scanner_passed('path')
         m_ast = re.match(r"^ast_scanner_passed\(['\"](.*?)['\"]\)$", assertion_str)
         if m_ast:
             path = self.resolve_path(m_ast.group(1))
@@ -83,7 +240,7 @@ class PolicyEngine:
             except Exception as e:
                 return False, f"AST Scanner parsing error in {m_ast.group(1)}: {e}"
 
-        # is_single_sklearn_pipeline('path')
+        # 3. is_single_sklearn_pipeline('path')
         m_pipe = re.match(r"^is_single_sklearn_pipeline\(['\"](.*?)['\"]\)$", assertion_str)
         if m_pipe:
             path = self.resolve_path(m_pipe.group(1))
@@ -93,64 +250,165 @@ class PolicyEngine:
                 with open(path, "r", encoding="utf-8") as f:
                     content = f.read()
                 tree = ast.parse(content, filename=path)
-                has_pipeline_import = False
-                has_pipeline_call = False
-                for node in ast.walk(tree):
-                    if isinstance(node, ast.ImportFrom):
-                        if node.module and "pipeline" in node.module:
-                            for alias in node.names:
-                                if alias.name in ["Pipeline", "make_pipeline"]:
-                                    has_pipeline_import = True
-                    elif isinstance(node, ast.Call):
-                        if isinstance(node.func, ast.Name) and node.func.id in ["Pipeline", "make_pipeline"]:
-                            has_pipeline_call = True
-                        elif isinstance(node.func, ast.Attribute) and node.func.attr in ["Pipeline", "make_pipeline"]:
-                            has_pipeline_call = True
+                validator = PipelineASTValidator()
+                validator.visit(tree)
 
-                if has_pipeline_import or has_pipeline_call or "Pipeline(" in content or "make_pipeline(" in content:
-                    return True, f"Verified scikit-learn Pipeline construction in {m_pipe.group(1)}"
-                return False, f"No scikit-learn Pipeline usage detected in {m_pipe.group(1)}"
+                if validator.leakage_violations:
+                    return False, f"Pipeline leakage violation: {validator.leakage_violations[0]}"
+
+                total_pipes = max(validator.pipeline_assignments_count, validator.pipeline_instantiations_count)
+                if total_pipes == 0:
+                    return False, f"No scikit-learn Pipeline construction detected in {m_pipe.group(1)}."
+                if total_pipes > 1:
+                    return False, f"Multiple pipelines ({total_pipes}) found in {m_pipe.group(1)}; policy requires exactly ONE single scikit-learn pipeline."
+                if not validator.pipeline_used_in_fit_or_cv:
+                    return False, f"Pipeline defined in {m_pipe.group(1)} is never fitted or evaluated in cross-validation."
+
+                return True, f"Verified single scikit-learn Pipeline construction and usage with no data leakage in {m_pipe.group(1)}."
             except Exception as e:
                 return False, f"Error inspecting pipeline AST in {m_pipe.group(1)}: {e}"
 
-        # cv_folds_logged(N)
+        # 4. cv_folds_logged(N)
         m_cv = re.match(r"^cv_folds_logged\((\d+)\)$", assertion_str)
         if m_cv:
-            expected_folds = m_cv.group(1)
-            # Scan files in sandbox or project for cv=N or n_splits=N
-            found = False
-            for root, _, files in os.walk(self.resolve_path("sandbox")):
-                for f in files:
-                    if f.endswith(".py"):
-                        with open(os.path.join(root, f), "r", encoding="utf-8", errors="ignore") as pyf:
-                            code = pyf.read()
-                            if f"cv={expected_folds}" in code or f"n_splits={expected_folds}" in code:
-                                found = True
-                                break
-            if found:
-                return True, f"Cross-validation with {expected_folds} folds confirmed."
-            return False, f"Cross-validation with {expected_folds} folds not detected in sandbox code."
+            expected_folds = int(m_cv.group(1))
+            ok, data, err = self._load_and_validate_metrics()
+            if not ok:
+                return False, err
 
-        # assert_1se_rule_applied()
+            # Extract fold_scores
+            fold_scores = []
+            if isinstance(data, dict):
+                if "fold_scores" in data and isinstance(data["fold_scores"], list):
+                    fold_scores = data["fold_scores"]
+                elif "models" in data and isinstance(data["models"], list) and len(data["models"]) > 0:
+                    fold_scores = data["models"][0].get("fold_scores", [])
+                elif "candidates" in data and isinstance(data["candidates"], dict) and len(data["candidates"]) > 0:
+                    first_cand = next(iter(data["candidates"].values()))
+                    if isinstance(first_cand, dict):
+                        fold_scores = first_cand.get("fold_scores", [])
+
+            if not fold_scores:
+                return False, "metrics.json does not contain a valid 'fold_scores' array."
+
+            if len(fold_scores) != expected_folds:
+                return False, f"Cross-validation fold count mismatch: expected {expected_folds} folds, found {len(fold_scores)} folds in metrics.json."
+
+            return True, f"Cross-validation with {expected_folds} folds verified from metrics.json."
+
+        # 5. assert_1se_rule_applied()
         if assertion_str == "assert_1se_rule_applied()":
-            # Check EVALUATION-REPORT.md or DECISIONS.md or sandbox
-            for candidate in ["EVALUATION-REPORT.md", "DECISIONS.md"]:
-                cand_path = self.resolve_path(candidate)
-                if os.path.exists(cand_path):
-                    with open(cand_path, "r", encoding="utf-8", errors="ignore") as f:
-                        txt = f.read()
-                        if "1-SE" in txt or "one standard error" in txt.lower():
-                            return True, f"1-SE rule verified in {candidate}"
-            return False, "1-SE rule application not found in EVALUATION-REPORT.md or DECISIONS.md"
+            ok, data, err = self._load_and_validate_metrics()
+            if not ok:
+                return False, f"1-SE verification failed: {err}"
 
-        # decision_logged_in_ledger('path')
+            # Locate evaluation report
+            eval_report_path = self.resolve_path(os.path.join("sandbox", "out", "EVALUATION-REPORT.md"))
+            if not os.path.exists(eval_report_path):
+                eval_report_path = self.resolve_path("EVALUATION-REPORT.md")
+            if not os.path.exists(eval_report_path):
+                return False, "1-SE rule verification failed: EVALUATION-REPORT.md not found."
+
+            with open(eval_report_path, "r", encoding="utf-8") as f:
+                report_text = f.read()
+
+            # Parse selected model from EVALUATION-REPORT.md
+            sel_match = re.search(r"Selected Model.*?:?\s*\**([a-zA-Z0-9_\- ]+?)\**(?:\n|\.|\$)", report_text, re.IGNORECASE)
+            if not sel_match:
+                sel_match = re.search(r"Selected Model[:\s]+([^\n\.,]+)", report_text, re.IGNORECASE)
+            if not sel_match:
+                return False, "1-SE rule verification failed: 'Selected Model' not found in EVALUATION-REPORT.md."
+
+            selected_model_in_report = sel_match.group(1).strip().strip("*").strip()
+
+            # Case A: metrics.json has candidates dictionary or models list
+            candidates = {}
+            if isinstance(data, dict):
+                if "candidates" in data and isinstance(data["candidates"], dict):
+                    candidates = data["candidates"]
+                elif "models" in data and isinstance(data["models"], list):
+                    for idx, m in enumerate(data["models"]):
+                        name = m.get("model") or m.get("name") or f"Model_{idx}"
+                        candidates[name] = m
+
+            if candidates:
+                # Calculate mean and SE for each candidate
+                stats = {}
+                for name, cand in candidates.items():
+                    scores = cand.get("fold_scores", [])
+                    if not scores:
+                        continue
+                    n = len(scores)
+                    mean_val = sum(scores) / n
+                    if n > 1:
+                        variance = sum((x - mean_val) ** 2 for x in scores) / (n - 1)
+                        se = math.sqrt(variance) / math.sqrt(n)
+                    else:
+                        se = 0.0
+                    stats[name] = {
+                        "mean": mean_val,
+                        "se": se,
+                        "complexity": cand.get("complexity", 1)
+                    }
+
+                if stats:
+                    # Determine whether metric is error (lower is better) or score (higher is better)
+                    client_metric = (self.data.get("client_grounding", {}).get("business_metric") or "").lower()
+                    is_error = (
+                        any(kw in client_metric for kw in ["rmse", "mae", "mse", "loss", "error"])
+                        or any(kw in report_text.lower() for kw in ["rmse", "mae", "mse", "loss", "error"])
+                    )
+                    if is_error:
+                        best_name = min(stats, key=lambda k: stats[k]["mean"])
+                        best_mean = stats[best_name]["mean"]
+                        best_se = stats[best_name]["se"]
+                        eligible = [k for k, v in stats.items() if v["mean"] <= best_mean + best_se]
+                    else:
+                        best_name = max(stats, key=lambda k: stats[k]["mean"])
+                        best_mean = stats[best_name]["mean"]
+                        best_se = stats[best_name]["se"]
+                        eligible = [k for k, v in stats.items() if v["mean"] >= best_mean - best_se]
+
+                    expected_1se_model = min(eligible, key=lambda k: stats[k]["complexity"])
+                    if expected_1se_model.lower() not in selected_model_in_report.lower() and selected_model_in_report.lower() not in expected_1se_model.lower():
+                        return False, f"1-SE rule violation: calculated 1-SE model is '{expected_1se_model}', but EVALUATION-REPORT.md selected '{selected_model_in_report}'."
+                    return True, f"1-SE rule verified: '{selected_model_in_report}' correctly selected within 1-SE window of best model '{best_name}'."
+
+            # Case B: Single model logged in metrics.json
+            fold_scores = data.get("fold_scores", [])
+            if fold_scores:
+                n = len(fold_scores)
+                mean_val = sum(fold_scores) / n
+                variance = sum((x - mean_val) ** 2 for x in fold_scores) / (n - 1) if n > 1 else 0
+                se = math.sqrt(variance) / math.sqrt(n) if n > 1 else 0
+                model_name = data.get("model", "Model")
+                if model_name.lower() in selected_model_in_report.lower() or selected_model_in_report.lower() in model_name.lower():
+                    return True, f"1-SE rule verified: single model '{model_name}' logged with SE={se:.4f}."
+                return False, f"1-SE rule mismatch: metrics.json model '{model_name}' does not match selected model '{selected_model_in_report}'."
+
+            return False, "1-SE rule could not be verified from metrics data."
+
+        # 6. decision_logged_in_ledger('path')
         m_dec = re.match(r"^decision_logged_in_ledger\(['\"](.*?)['\"]\)$", assertion_str)
         if m_dec:
             path = self.resolve_path(m_dec.group(1))
             if not os.path.exists(path):
                 return False, f"Ledger file missing: {m_dec.group(1)}"
+            if enforce_ledger is not None:
+                ret = enforce_ledger(path, online=False, allow_offline=True)
+                if ret != 0:
+                    return False, f"Constitution enforcement failed for ledger {m_dec.group(1)} (exit code {ret})."
+
             with open(path, "r", encoding="utf-8", errors="ignore") as f:
                 content = f.read()
+
+            if parse_tables:
+                tables = parse_tables(content)
+                ledgers = [t for t in tables if all(h in [x.lower() for x in t[0]] for h in REQUIRED_HEADERS)]
+                if not ledgers or len(ledgers[0][1]) == 0:
+                    return False, f"Decision ledger {m_dec.group(1)} has no recorded decision rows."
+                return True, f"Decision ledger {m_dec.group(1)} passed constitutional check with {len(ledgers[0][1])} logged decisions."
+
             rows = [line for line in content.splitlines() if line.strip().startswith("|") and "---" not in line and "Stage" not in line]
             if len(rows) > 0:
                 return True, f"Decision ledger contains {len(rows)} decision entries."
@@ -172,14 +430,14 @@ class PolicyEngine:
         # Pre-conditions
         for prec in step.get("pre_conditions", []):
             passed, msg = self.evaluate_assertion(prec)
-            logs.append(f"  [PRE-CONDITION] {'✅' if passed else '❌'} {msg}")
+            logs.append(f"  [PRE-CONDITION] {'PASS' if passed else 'FAIL'}: {msg}")
             if not passed:
                 all_passed = False
 
         if check_post:
             for postc in step.get("post_assertions", []):
                 passed, msg = self.evaluate_assertion(postc)
-                logs.append(f"  [POST-ASSERTION] {'✅' if passed else '❌'} {msg}")
+                logs.append(f"  [POST-ASSERTION] {'PASS' if passed else 'FAIL'}: {msg}")
                 if not passed:
                     all_passed = False
 
@@ -207,6 +465,7 @@ class PolicyEngine:
             "current_active_step": current_active_step or "ALL_STEPS_COMPLETED",
             "steps": status_report
         }
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
@@ -244,22 +503,17 @@ if __name__ == "__main__":
             if not engine.verify_integrity():
                 sys.exit(2)
             status = engine.get_status()
-            print(f"==================================================")
+            print("==================================================")
             print(f" Project: {status['project_id']}")
             print(f" Active Step: {status['current_active_step']}")
-            print(f"==================================================")
+            print("==================================================")
             for s in status["steps"]:
-                mark = "✅" if s["passed"] else "⏳"
-                print(f"{mark} Stage {s['stage']}: {s['step_id']}")
-                for l in s["logs"]:
-                    print(f"    {l}")
-            all_done = status["current_active_step"] == "ALL_STEPS_COMPLETED"
-            sys.exit(0 if all_done else 1)
+                mark = "[PASS]" if s["passed"] else "[PENDING]"
+                print(f"{mark} {s['step_id']} (Stage {s['stage']})")
+                for lg in s["logs"]:
+                    print(f"   {lg}")
+            sys.exit(0)
 
-        else:
-            print(f"Unknown command: {cmd}")
-            sys.exit(1)
-
-    except Exception as e:
-        print(f"❌ Policy Engine Error: {e}", file=sys.stderr)
+    except Exception as err:
+        print(f"Fatal error in run_policy: {err}", file=sys.stderr)
         sys.exit(1)

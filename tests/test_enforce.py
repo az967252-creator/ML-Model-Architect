@@ -14,12 +14,13 @@ RULES = [("arxiv.org", ""), ("uber.com", "/blog/engineering")]
 def ledger(*rows):
     body = ""
     for i, (typ, ref) in enumerate(rows, 1):
-        body += f"| {i} | 3 | {typ} | q{i} | a | b | r | {ref} | user | d |\n"
+        body += f"| {i} | 3 | {typ} | q{i} | a | b | Valid technical reasoning that exceeds twenty characters | {ref} | user | d |\n"
     return HEADER + body
 
 
 def run(text, **kw):
     kw.setdefault("whitelist", RULES)
+    kw.setdefault("max_heuristic_ratio", 1.0)
     with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False, encoding="utf-8") as f:
         f.write(text)
     try:
@@ -30,7 +31,10 @@ def run(text, **kw):
 
 class TestReferences(unittest.TestCase):
     def test_valid_doi_format(self):
-        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785"))), 0)
+        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785 @ Sec 3.1"))), 0)
+
+    def test_missing_locator_rejected(self):
+        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785"))), 1)
 
     def test_allowed_tokens(self):
         for tok in ("heuristic", "reference-gap", "N/A (Business context)"):
@@ -50,17 +54,41 @@ class TestReferences(unittest.TestCase):
             self.assertEqual(run(ledger((typ, "none"))), 1, typ)
 
     def test_non_technical_type_not_checked(self):
-        self.assertEqual(run(ledger(("scope", "none"))), 0)
+        self.assertEqual(run(ledger(("data", "none"))), 0)
+
+    def test_unknown_type_misc_rejected(self):
+        self.assertEqual(run(ledger(("misc", "none"))), 1)
+
+    def test_framing_short_reason_rejected(self):
+        short_reason = "| 1 | 1 | framing | q1 | a | b | short | N/A (Business context) | user | d |\n"
+        self.assertEqual(run(HEADER + short_reason), 1)
+
+    def test_heuristic_ratio_exceeded(self):
+        # 1 heuristic out of 2 technical = 50% > 40%
+        text = ledger(
+            ("parameter", "heuristic"),
+            ("technique", "10.1145/2939672.2939785 @ Sec 3.1")
+        )
+        self.assertEqual(run(text, max_heuristic_ratio=0.4), 1)
+
+    def test_heuristic_ratio_within_limit(self):
+        # 1 heuristic out of 3 technical = 33.3% <= 40%
+        text = ledger(
+            ("parameter", "heuristic"),
+            ("technique", "10.1145/2939672.2939785 @ Sec 3.1"),
+            ("parameter", "10.1145/2939672.2939785 @ Sec 4.1")
+        )
+        self.assertEqual(run(text, max_heuristic_ratio=0.4), 0)
 
     def test_arxiv_doi_not_truncated(self):
         seen = []
-        run(ledger(("parameter", "10.48550/arXiv.2610.18935")), online=True,
+        run(ledger(("parameter", "10.48550/arXiv.2610.18935 @ Sec 1")), online=True,
             doi_checker=lambda d: seen.append(d) or "OK")
         self.assertEqual(seen, ["10.48550/arXiv.2610.18935"])
 
     def test_arxiv_id_converted_to_doi(self):
         seen = []
-        run(ledger(("parameter", "arXiv:2611.02251")), online=True,
+        run(ledger(("parameter", "arXiv:2611.02251 @ Sec 1")), online=True,
             doi_checker=lambda d: seen.append(d) or "OK")
         self.assertEqual(seen, ["10.48550/arXiv.2611.02251"])
 
@@ -86,25 +114,25 @@ class TestUrls(unittest.TestCase):
 
 class TestOnline(unittest.TestCase):
     def test_fake_doi_fails(self):
-        self.assertEqual(run(ledger(("parameter", "10.1234/fake")), online=True,
+        self.assertEqual(run(ledger(("parameter", "10.1234/fake @ Sec 1")), online=True,
                              doi_checker=lambda d: "FAKE"), 1)
 
     def test_network_error_is_incomplete_not_ok(self):
-        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785")), online=True,
+        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785 @ Sec 3.1")), online=True,
                              doi_checker=lambda d: "NETWORK_ERROR"), 2)
 
     def test_allow_offline(self):
-        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785")), online=True,
+        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785 @ Sec 3.1")), online=True,
                              allow_offline=True, doi_checker=lambda d: "NETWORK_ERROR"), 0)
 
     def test_ok_doi_online(self):
-        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785")), online=True,
+        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785 @ Sec 3.1")), online=True,
                              doi_checker=lambda d: "OK"), 0)
 
     def test_offline_mode_makes_no_network_call(self):
         def boom(_):
             raise AssertionError("network used")
-        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785")), doi_checker=boom), 0)
+        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785 @ Sec 3.1")), doi_checker=boom), 0)
 
 
 class TestParsing(unittest.TestCase):

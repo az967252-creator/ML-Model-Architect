@@ -97,6 +97,47 @@ class TestRegistries(unittest.TestCase):
         get.return_value = resp(404)
         self.assertEqual(verify_dois.check(ref)[0], "FAIL_URL_DEAD")
 
+    @patch("requests.get")
+    def test_crossref_peer_review_check_detects_preprint(self, get):
+        cr_mock = MagicMock(status_code=200)
+        cr_mock.json.return_value = {
+            "message": {
+                "title": ["Paper Title"],
+                "issued": {"date-parts": [[2023]]},
+                "type": "posted-content"  # Preprint, not peer-reviewed!
+            }
+        }
+        get.return_value = cr_mock
+        ref = {
+            "doi_or_url": "10.1234/fake",
+            "title": "Paper Title",
+            "year": 2023,
+            "claimed_peer_reviewed": True
+        }
+        self.assertEqual(verify_dois.check(ref)[0], "FAIL_NOT_PEER_REVIEWED")
+
+    def test_exception_expired_over_365_days(self):
+        ref = {
+            "doi_or_url": "10.1234/fake",
+            "title": "Paper Title",
+            "exception": "legacy",
+            "verified_by": "test",
+            "verified_date": "2020-01-01",  # Expired
+            "evidence_url": "https://arxiv.org/abs/1234.5678"
+        }
+        self.assertEqual(verify_dois.check(ref)[0], "FAIL_EXCEPTION_EXPIRED")
+
+    def test_exception_untrusted_evidence_url(self):
+        ref = {
+            "doi_or_url": "10.1234/fake",
+            "title": "Paper Title",
+            "exception": "legacy",
+            "verified_by": "test",
+            "verified_date": "2026-11-01",
+            "evidence_url": "https://evil.example.com/paper"  # Untrusted
+        }
+        self.assertEqual(verify_dois.check(ref)[0], "FAIL_UNTRUSTED_EVIDENCE_URL")
+
 
 class TestPolicy(unittest.TestCase):
     def test_journal_and_conference_need_peer_review(self):

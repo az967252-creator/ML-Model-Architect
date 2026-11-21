@@ -6,12 +6,12 @@ This document tracks the remediation of 15 verified engineering and architectura
 
 | Issue # | Component / Domain | Phase | Status | Target Description |
 |:---:|:---|:---:|:---:|:---|
-| **1** | Enforcement Engine | Phase 2a | [ ] Pending | Real AST policy assertions, single-pipeline check, metrics.json schema validation |
+| **1** | Enforcement Engine | Phase 2a | [x] Completed | Real AST policy assertions, single-pipeline check, metrics.json schema validation |
 | **2** | Sandbox Scanner | Phase 1 | [x] Completed | Fail-closed scanner, comprehensive AST bypass defenses, allowlist-by-function |
 | **3** | Docker Sandbox | Phase 1 | [x] Completed | Pinned dependencies, `_allowed.py` shared sync, runtime security flags, timeout |
-| **4** | Decision Ledger | Phase 2b | [ ] Pending | Closed type taxonomy, reason length check, `--max-heuristic-ratio`, DOI locators |
-| **5** | Plan Lock Engine | Phase 2c | [ ] Pending | Remove `--unlock` from agent CLI, ledger manifest hash, default base_dir to manifest dir |
-| **6** | DOI Verification | Phase 2d | [ ] Pending | Remove verify=False, derive peer review from registry, 365d exception expiry, strict CI |
+| **4** | Decision Ledger | Phase 2b | [x] Completed | Closed type taxonomy, reason length check, `--max-heuristic-ratio`, DOI locators |
+| **5** | Plan Lock Engine | Phase 2c | [x] Completed | Remove `--unlock` from agent CLI, ledger manifest hash, default base_dir to manifest dir |
+| **6** | DOI Verification | Phase 2d | [x] Completed | Remove verify=False, derive peer review from registry, 365d exception expiry, strict CI |
 | **7** | Empirical Benchmarks | Phase 5 | [ ] Pending | Real OpenML/UCI benchmark script, latency measurements, remove ungrounded claims |
 | **8** | Reference Examples | Phase 5 | [ ] Pending | Naive agent comparison, model naming consistency, dynamic evaluation reports |
 | **9** | Reference Catalog | Phase 4a | [ ] Pending | Non-empty catalog claims, >=2 refs per group, sourced hyperparameters, lint script |
@@ -43,10 +43,10 @@ This document tracks the remediation of 15 verified engineering and architectura
 - [x] Optuna + MLflow pinned in Docker and project extras.
 
 ### Phase 2: Enforcement Engine (Issues 1, 4, 5, 6)
-- [ ] Phase 2a: Real AST policy assertions in `scripts/run_policy.py` & `_shared/metrics.schema.json`.
-- [ ] Phase 2b: Closed ledger taxonomy, reason length, heuristic ratio, and locators in `scripts/enforce_constitution.py`.
-- [ ] Phase 2c: Cryptographic plan locking hardening in `scripts/lock_plan.py`.
-- [ ] Phase 2d: DOI verification rigor in `scripts/verify_dois.py`.
+- [x] Phase 2a: Real AST policy assertions in `scripts/run_policy.py` & `_shared/metrics.schema.json`.
+- [x] Phase 2b: Closed ledger taxonomy, reason length, heuristic ratio, and locators in `scripts/enforce_constitution.py`.
+- [x] Phase 2c: Cryptographic plan locking hardening in `scripts/lock_plan.py`.
+- [x] Phase 2d: DOI verification rigor in `scripts/verify_dois.py`.
 
 ### Phase 3: Tests & CI Modernization (Issue 13, CI part of 12)
 - [ ] Behavioral evaluation harness (`tests/behavioral/run_scenarios.py`).
