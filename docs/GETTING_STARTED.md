@@ -5,18 +5,20 @@ This guide will get you from zero to your first strictly grounded, reference-dri
 ---
 
 ## Prerequisites
-- Python 3.10+
+- Python 3.11+
 - An AI IDE or coding agent (Cursor, Windsurf, Claude Code, Antigravity, VS Code, etc.)
 - `uv` or `uvx` installed (for MCP literature retrieval)
 
 ---
 
-## Step 1: Install the Framework CLI
+## Step 1: Install the Framework CLI & Initialize Project
 
 ### Option A: Install via PyPI (Recommended)
 
 ```bash
 pip install ml-model-architect
+mla init my_ml_project
+cd my_ml_project
 ```
 
 ### Option B: Install from Source (Developer Mode)
@@ -27,6 +29,8 @@ cd ML-Model-Architect
 
 # Install package in editable mode
 pip install -e .
+mla init my_ml_project
+cd my_ml_project
 ```
 
 ### Verify CLI Installation:

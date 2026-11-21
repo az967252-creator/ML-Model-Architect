@@ -9,7 +9,7 @@
 [![PyPI Version](https://img.shields.io/pypi/v/ml-model-architect.svg?style=flat-square&color=blue)](https://pypi.org/project/ml-model-architect/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/Python-3.11%2B-blue.svg?style=flat-square)](https://www.python.org/downloads/)
-[![Test Suite](https://img.shields.io/badge/Tests-79%20Passing-brightgreen.svg?style=flat-square)](tests/)
+[![Test Suite](https://img.shields.io/badge/Tests-137%20Passing-brightgreen.svg?style=flat-square)](tests/)
 [![Build Status](https://img.shields.io/badge/CI-GitHub%20Actions-blue.svg?style=flat-square)](.github/workflows/verify.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=flat-square)](.github/CONTRIBUTING.md)
 [![Architecture: MCP Ready](https://img.shields.io/badge/MCP-Ready-purple.svg?style=flat-square)](https://modelcontextprotocol.io)
@@ -665,45 +665,52 @@ The framework is governed by 35 rules partitioned into seven constitutional part
 The repository contains an automated test harness covering static syntax, cryptographic hashing, policy assertion logic, and agent behavioral resilience:
 
 ```text
-Ran 79 tests across 11 test modules in 0.88s
+Ran 137 tests across 15 test modules in 3.62s (32 subtests passed)
 Status: ALL TESTS PASSED (100% Pass Rate)
 ```
 
 Key test modules include:
-* `tests/test_agent_behavior.py`: Validates agent resistance to prompt injection, unauthorized skipping of CV steps, and reference hallucination.
-* `tests/test_run_policy.py`: Validates all six deterministic policy assertions (`file_exists`, `ast_scanner_passed`, `is_single_sklearn_pipeline`, `cv_folds_logged`, `assert_1se_rule_applied`, `decision_logged_in_ledger`).
-* `tests/test_lock_plan.py`: Validates cryptographic SHA-256 plan locking, tamper detection, and read-only file attribute toggling.
-* `tests/test_scan_sandbox.py`: Validates AST static analysis tripwires against dangerous imports and system calls.
-* `tests/test_enforce.py`: Validates decision ledger table syntax, allowed token vocabularies, and DOI validation logic.
-* `tests/test_verify_dois_extra.py`: Validates fallback paths and CrossRef resolution handling.
+* `tests/test_run_policy.py`: Validates deterministic DAG policy assertions (`file_exists`, `ast_scanner_passed`, `is_single_sklearn_pipeline`, `cv_folds_logged`, `assert_1se_rule_applied`, `decision_logged_in_ledger`).
+* `tests/test_scan_sandbox_extra.py` & `tests/test_scan_sandbox.py`: Validates AST static tripwires against 32 distinct evasion patterns and dangerous system calls.
+* `tests/test_benchmarks.py`: Validates benchmark execution reproducibility and auto-rendered documentation matching.
+* `tests/test_examples.py`: Validates that all 4 reference projects pass every stage gate and DAG assertion.
+* `tests/test_tools.py`: Validates executive summary, pre-mortem risk, Mermaid diagram, and red-team tooling.
+* `tests/test_cli.py`: Validates the unified `mla` CLI command suite (`init`, `scan`, `status`, `verify`).
+* `tests/test_enforce.py`: Validates decision ledger table syntax, closed taxonomy vocabularies, and DOI locator integrity.
+* `tests/test_verify_dois_extra.py` & `tests/test_verify.py`: Validates CrossRef/DataCite resolution, non-empty catalog claims, and peer-review checks.
+* `tests/test_1se_rule.py`: Validates the Hastie et al. (2009) One Standard Error parsimony selection rule.
+* `tests/test_lock_plan.py`: Validates SHA-256 cryptographic locking, ledger cross-hashing, and tamper detection.
 
 ---
 
 ## Known Limitations and Threat Model
 
-* **Static AST Limitations:** The AST scanner (`scripts/scan_sandbox.py`) is a static linting tripwire. Highly obfuscated dynamic code (e.g., dynamically assembled string evaluations) can theoretically bypass static AST checks. For untrusted public code execution, the Docker sandbox (`docker/Dockerfile.sandbox`) must be deployed.
+* **Static AST Limitations:** The AST scanner (`scripts/scan_sandbox.py` / `src/ml_model_architect/scanner.py`) is a static linting tripwire. Highly obfuscated dynamic code (e.g., dynamically assembled string evaluations) can theoretically bypass static AST checks. For untrusted public code execution, the Docker sandbox (`docker/Dockerfile.sandbox` via `scripts/run_docker_sandbox.py`) must be deployed as the isolation boundary.
 * **Network Disconnection Mode:** When operating in offline or air-gapped secure environments, the live DOI network verification flag must be set to `--allow-offline` to prevent network timeout exceptions.
-* **Controlled Benchmark Scope:** Datasets provided in `examples/` demonstrate architectural selection, pipeline isolation, and 1-SE rule mechanics under controlled empirical conditions.
+* **Controlled Benchmark Scope:** Datasets provided in `examples/` and `benchmarks/` are controlled synthetic benchmarks generated with known mathematical ground truth to isolate algorithmic decision-making under reproducible conditions.
 
 ---
 
-## Requirements
+## Requirements & Quickstart
 
-* **Runtime Environment:** Python 3.10 or higher.
-* **CLI Packaging:** `uv` or `pip`.
+* **Runtime Environment:** Python 3.11 or higher.
+* **CLI Packaging:** `pip` or `uv`.
 * **Container Isolation (Optional):** Docker 20.10+ for hardened sandbox execution.
 * **MCP Infrastructure:** `uvx` for running `openresearch-mcp@0.2.0`.
 
-To install dependencies:
+To install and initialize a new project:
 ```bash
-pip install -r requirements.txt
+pip install ml-model-architect
+mla init my_ml_project
+cd my_ml_project
+mla status PLAN.manifest.json
 ```
 
 ---
 
 ## Contributing
 
-We welcome contributions from the machine learning engineering and AI safety communities. Please review [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) and [.github/CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md) prior to submitting pull requests. All submissions must pass the complete 79-test verification suite and static AST inspection.
+We welcome contributions from the machine learning engineering and AI safety communities. Please review [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) and [.github/CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md) prior to submitting pull requests. All submissions must pass the complete 137-test verification suite and static AST inspection.
 
 ---
 

@@ -2,6 +2,46 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-rc.2] - 2026-11-21
+
+### Added
+- **Packaging & `src/` Layout**:
+  - Restructured architecture into standard `src/ml_model_architect/` package layout.
+  - Added unified `mla` CLI with `init`, `scan`, `verify`, `status`, `lock`, `enforce`, and `verify-dois` subcommands.
+  - Added `mla init <project_name>` scaffolding command with automatic cryptographic plan locking.
+  - Integrated `importlib.resources` for bundled constitutions, templates, schemas, and catalog references.
+- **Empirical Benchmarks & Unconstrained Agent Baselines**:
+  - Added `benchmarks/run_benchmarks.py` evaluating 4 end-to-end tasks with latency tracking via `time.perf_counter()`.
+  - Added `benchmarks/unconstrained_agent/` demonstrating real failure modes (data leakage, 1-SE violations, imbalanced metric collapse).
+  - Added `scripts/render_benchmark_md.py` auto-generating `BENCHMARK.md` verified by test suites.
+- **Reference Catalog Expansion & Two-Tier Source Governance**:
+  - Populated all 12 reference catalogs (`ref-01` to `ref-12`) with verified claims, source DOIs, locators, and statuses.
+  - Guaranteed $\ge 2$ verified references per catalog group.
+  - Added `scripts/lint_references.py` enforcing anchor citations or `(heuristic)` tags on all hyperparameters.
+  - Formalized Tier A (primary academic peer-reviewed) vs. Tier B (trusted industry engineering for operational patterns).
+- **Secondary Tools Hardening**:
+  - Grounded `scripts/executive_summary.py` on real project artifacts and metrics.
+  - Hardened `scripts/pre_mortem.py` with multi-scenario failure mode analysis and constitutional mitigations.
+  - Validated Mermaid syntax generator in `scripts/generate_diagram.py`.
+  - Added fail-closed `--deep` LLM evaluation mode in `scripts/red_team.py`.
+  - Renamed `scripts/verify_references.py` to `scripts/pdf_to_markdown.py`.
+- **Expanded Test Coverage**:
+  - Expanded test suite from 79 to 137 tests (plus 32 subtests) across 15 test modules.
+
+### Security & Compliance
+- **AST Scanner Tripwire & Sandbox Containment**:
+  - Fail-closed execution on missing or empty sandbox directories.
+  - Blocked dynamic eval (`pd.eval`, `DataFrame.eval`, `DataFrame.query`), `ctypeslib`, `fetch_*`, `read_clipboard`, star-imports, unbounded loops, non-literal paths, and out-of-bounds writes.
+  - Docker container hardened with `--pids-limit 100`, `--security-opt no-new-privileges`, `--user 1000`, 600s wall-clock timeout, and separate writable output mount.
+  - Clarified AST scan as a tripwire and Docker as the isolation boundary in documentation.
+- **Policy Engine & Ledger Enforcement**:
+  - AST verification for single scikit-learn Pipeline construction and pre-split data leakage detection.
+  - Strict schema validation for `metrics.json`.
+  - Closed decision taxonomy with minimum character length checks and `--max-heuristic-ratio` thresholds.
+  - Removed agent `--unlock` CLI option without explicit `MLA_ALLOW_UNLOCK=1` guard.
+- **DOI Verification**:
+  - Removed `verify=False` and warning suppression; derived peer review from Crossref/DataCite metadata registries.
+
 ## [1.0.0-rc.1] - 2026-11-20
 
 ### Added

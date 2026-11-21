@@ -84,9 +84,9 @@ groups:
     doi_or_url: 10.1038/s41586-024-08328-6
     source_type: journal
     claimed_peer_reviewed: true
-  - citation: 'Borisov, V., et al. (2022). Deep Neural Networks and Tabular Data: A Survey. IEEE TNNLS.'
+  - citation: 'Borisov, V., et al. (2024). Deep Neural Networks and Tabular Data: A Survey. IEEE TNNLS.'
     title: 'Deep Neural Networks and Tabular Data: A Survey'
-    year: 2022
+    year: 2024
     doi_or_url: 10.1109/TNNLS.2022.3229161
     source_type: journal
     claimed_peer_reviewed: true
@@ -101,7 +101,7 @@ groups:
     source_type: journal
     claimed_peer_reviewed: true
   - citation: 'Chang, C.-C., & Lin, C.-J. (2011). LIBSVM: A library for support vector machines. ACM TIST.'
-    title: "LIBSVM"
+    title: "LIBSVM: A library for support vector machines"
     year: 2011
     doi_or_url: 10.1145/1961189.1961199
     source_type: journal

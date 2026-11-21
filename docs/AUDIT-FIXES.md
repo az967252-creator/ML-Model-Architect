@@ -85,6 +85,6 @@ This document tracks the remediation of 15 verified engineering and architectura
 - [x] Backward-compatibility CLI and script shims.
 
 ### Phase 8: Documentation Sync & Verification
-- [ ] Synchronize README, GETTING_STARTED, CHANGELOG (`v1.0.0-rc.2`).
-- [ ] Full test suite, benchmark suite, and bypass verification execution.
-- [ ] Final remediation verification matrix.
+- [x] Synchronize README, GETTING_STARTED, CHANGELOG (`v1.0.0-rc.2`).
+- [x] Full test suite, benchmark suite, and bypass verification execution.
+- [x] Final remediation verification matrix.

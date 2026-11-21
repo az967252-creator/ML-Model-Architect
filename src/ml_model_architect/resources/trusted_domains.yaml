@@ -7,6 +7,7 @@
 domains:
   # Open-Access Repositories & Conference Proceedings
   - arxiv.org
+  - aaai.org
   - jmlr.org
   - openaccess.thecvf.com
   - papers.nips.cc
