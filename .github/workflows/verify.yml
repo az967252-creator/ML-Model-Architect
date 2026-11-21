@@ -50,6 +50,11 @@ jobs:
           for f in examples/*/DECISIONS.md; do
             [ -f "$f" ] && python scripts/enforce_constitution.py "$f" --allow-offline
           done
+      - name: Verify Plan Locks against Git HEAD
+        run: |
+          for f in examples/*/PLAN.manifest.json; do
+            [ -f "$f" ] && python scripts/lock_plan.py --verify-git "$f"
+          done
 
   verify-wheel:
     name: Verify Wheel Build & Clean Installation

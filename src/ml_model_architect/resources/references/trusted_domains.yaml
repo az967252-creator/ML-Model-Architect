@@ -6,30 +6,53 @@
 
 domains:
   # Open-Access Repositories & Conference Proceedings
-  - arxiv.org
-  - aaai.org
-  - jmlr.org
-  - openaccess.thecvf.com
-  - papers.nips.cc
-  - proceedings.mlr.press
-  - aclanthology.org
-  - openreview.net
-  
+  - domain: arxiv.org
+    tier: B
+  - domain: aaai.org
+    tier: B
+  - domain: jmlr.org
+    tier: B
+  - domain: openaccess.thecvf.com
+    tier: B
+  - domain: papers.nips.cc
+    tier: B
+  - domain: proceedings.mlr.press
+    tier: B
+  - domain: aclanthology.org
+    tier: B
+  - domain: openreview.net
+    tier: B
+
   # Official Research & Engineering Blogs (Tier-1)
-  - ai.googleblog.com
-  - research.google
-  - deepmind.google
-  - netflixtechblog.com
-  - engineering.fb.com
-  - ai.meta.com
-  - uber.com/blog/engineering
-  - aws.amazon.com/blogs/machine-learning
-  - microsoft.com/en-us/research
-  - openai.com/research
-  - anthropic.com/research
-  - machinelearning.apple.com
-  - developer.nvidia.com/blog
-  
+  - domain: ai.googleblog.com
+    tier: B
+  - domain: research.google
+    tier: B
+  - domain: deepmind.google
+    tier: B
+  - domain: netflixtechblog.com
+    tier: B
+  - domain: engineering.fb.com
+    tier: B
+  - domain: ai.meta.com
+    tier: B
+  - domain: uber.com/blog/engineering
+    tier: B
+  - domain: aws.amazon.com/blogs/machine-learning
+    tier: B
+  - domain: microsoft.com/en-us/research
+    tier: B
+  - domain: openai.com/research
+    tier: B
+  - domain: anthropic.com/research
+    tier: B
+  - domain: machinelearning.apple.com
+    tier: B
+  - domain: developer.nvidia.com/blog
+    tier: B
+
   # Top-Tier University Labs
-  - sail.stanford.edu
-  - ocw.mit.edu
+  - domain: sail.stanford.edu
+    tier: B
+  - domain: ocw.mit.edu
+    tier: B

@@ -43,50 +43,78 @@ URL_RE = re.compile(r"https?://[^\s|;,()<>]+")
 ARXIV_RE = re.compile(r"arxiv:\s*(\d{4}\.\d{4,5})", re.IGNORECASE)
 SEPARATOR_RE = re.compile(r"^\|[\s:\-|]+\|$")
 DOI_HOSTS = {"doi.org", "dx.doi.org"}
-LOCATOR_RE = re.compile(r"(@|sec|section|page|p\.|pp\.|table|fig|figure|ch\.|chapter)\s*[0-9a-zA-Z\.\-_]+", re.IGNORECASE)
+LOCATOR_RE = re.compile(r"(?:Sec|Section|p\.|page|Table|Fig|Figure|Eq|Theorem)\b", re.IGNORECASE)
+
+TECHNICAL_NAME_KEYWORDS = {
+    # Models & Algorithms
+    "xgboost", "lightgbm", "catboost", "randomforest", "random forest",
+    "gradientboosting", "gradient boosting", "logisticregression",
+    "logistic regression", "linearregression", "linear regression",
+    "svm", "svr", "svc", "isolationforest", "isolation forest",
+    "kmeans", "knn", "pca", "mlp", "neural_network", "neural network",
+    "decision tree", "naive bayes", "elasticnet", "lasso", "ridge",
+    "transformer", "bert", "resnet",
+    # Hyperparameters & Metrics
+    "learning_rate", "max_depth", "n_estimators", "regularization",
+    "f1", "f1_score", "auc", "pr-auc", "roc-auc", "rmse", "mae",
+    "precision", "recall", "accuracy", "cross_entropy"
+}
 
 
 # --------------------------------------------------------------------------
 # Trusted-URL whitelist
 # --------------------------------------------------------------------------
 def load_whitelist(path=None):
-    """Return a list of (host, path_prefix) rules from trusted_domains.yaml."""
+    """Return a list of (host, path_prefix, tier) rules from trusted_domains.yaml."""
     if path:
         path = Path(path)
     else:
-        root = Path(__file__).resolve().parent.parent
+        root = Path(__file__).resolve().parent.parent.parent
         path = root / "references" / "trusted_domains.yaml"
         if not path.exists():
-            path = root / "trusted_domains.yaml"
+            path = Path(__file__).resolve().parent / "resources" / "references" / "trusted_domains.yaml"
+        if not path.exists():
+            path = Path("references/trusted_domains.yaml")
     if not path.exists():
         return []
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     rules = []
     for entry in data.get("domains", []):
-        entry = re.sub(r"^https?://", "", str(entry).strip().lower())
-        host, _, rest = entry.partition("/")
+        if isinstance(entry, dict):
+            raw_entry = entry.get("domain", entry.get("url", ""))
+            tier = str(entry.get("tier", "B")).upper()
+        else:
+            raw_entry = str(entry)
+            tier = "B"
+        raw_entry = re.sub(r"^https?://", "", raw_entry.strip().lower())
+        host, _, rest = raw_entry.partition("/")
         host = host.removeprefix("www.")
         prefix = "/" + rest.strip("/") if rest.strip("/") else ""
         if host:
-            rules.append((host, prefix))
+            rules.append((host, prefix, tier))
     return rules
 
 
-def is_trusted_url(url, rules):
-    """True if the URL's real hostname (and path, when the rule has one) is whitelisted."""
+def is_trusted_url(url, rules, row_type=None):
+    """True if the URL's real hostname matches whitelist and satisfies tier restrictions."""
     try:
         parsed = urlparse(url)
     except ValueError:
-        return False
+        return False, "invalid URL format"
     host = (parsed.hostname or "").lower().removeprefix("www.")
     if parsed.scheme not in ("http", "https") or not host:
-        return False
+        return False, "invalid URL scheme or host"
     path = parsed.path or "/"
-    for rule_host, prefix in rules:
+    for rule in rules:
+        rule_host = rule[0]
+        prefix = rule[1]
+        tier = rule[2] if len(rule) > 2 else "A"
         if host == rule_host or host.endswith("." + rule_host):
             if not prefix or path == prefix or path.startswith(prefix + "/"):
-                return True
-    return False
+                if tier == "B" and row_type in {"technique", "parameter", "metric"}:
+                    return False, f"Tier B source '{rule_host}' is rejected for technical '{row_type}' decision (peer-reviewed Tier A DOI required per Rule B8)"
+                return True, "OK"
+    return False, "untrusted URL domain"
 
 
 # --------------------------------------------------------------------------
@@ -140,7 +168,7 @@ def parse_tables(text):
     return tables
 
 
-def evaluate_reference(ref, rules, locator_text=""):
+def evaluate_reference(ref, rules, locator_text="", row_type=None):
     """Return (problems, dois_to_check) for one Reference cell."""
     ref = ref.strip()
     if not ref:
@@ -153,16 +181,21 @@ def evaluate_reference(ref, rules, locator_text=""):
     urls = [u.rstrip(".") for u in URL_RE.findall(ref)
             if (urlparse(u).hostname or "").lower() not in DOI_HOSTS]
 
-    problems = [f"untrusted URL {u}" for u in urls if not is_trusted_url(u, rules)]
+    problems = []
+    for u in urls:
+        ok, msg = is_trusted_url(u, rules, row_type=row_type)
+        if not ok:
+            problems.append(f"untrusted URL {u} ({msg})")
+
     if not dois and not urls:
         problems.append(f"'{ref}' is neither a DOI, a trusted URL, nor an allowed token")
 
-    # Structural check for DOI locator
+    # Structural check for DOI locator: requires explicit regex match, not arbitrary '@'
     if dois:
-        has_locator = bool(LOCATOR_RE.search(ref) or (locator_text and LOCATOR_RE.search(locator_text)) or "@" in ref)
+        has_locator = bool(LOCATOR_RE.search(ref) or (locator_text and LOCATOR_RE.search(locator_text)))
         if not has_locator:
             for d in dois:
-                problems.append(f"DOI '{d}' missing specific locator (section/page/table, e.g. '@ Sec 3.1')")
+                problems.append(f"DOI '{d}' missing specific locator (Sec/Section/p./page/Table/Fig/Eq/Theorem, e.g. '@ Sec 3.1')")
 
     return problems, dois
 
@@ -194,6 +227,7 @@ def enforce(filepath, online=False, allow_offline=False, max_heuristic_ratio=0.4
         ref_i = h.index("reference")
         reason_i = h.index("reason") if "reason" in h else None
         locator_i = h.index("locator") if "locator" in h else None
+        chosen_i = h.index("chosen") if "chosen" in h else None
 
         for line, cells in rows:
             if len(cells) != len(h):
@@ -205,6 +239,7 @@ def enforce(filepath, online=False, allow_offline=False, max_heuristic_ratio=0.4
             question = cells[q_i].strip()
             reason = cells[reason_i].strip() if reason_i is not None and reason_i < len(cells) else ""
             locator_text = cells[locator_i].strip() if locator_i is not None and locator_i < len(cells) else ""
+            chosen_text = cells[chosen_i].strip() if chosen_i is not None and chosen_i < len(cells) else ""
             ref = cells[ref_i].strip()
 
             # Rule 1: Closed set of decision types
@@ -219,7 +254,14 @@ def enforce(filepath, online=False, allow_offline=False, max_heuristic_ratio=0.4
                     print(f"❌ VIOLATION: decision '{question}' (type '{raw_type}') requires a reason of >= 20 characters (got {len(reason)}).")
                     violations += 1
 
-            if raw_type not in CHECKED_TYPES:
+            # Check if non-technical row disguised as data/framing/other mentions technical model/parameter/metric
+            is_technical = raw_type in CHECKED_TYPES
+            if not is_technical and raw_type in {"data", "framing", "other"}:
+                combined = f"{chosen_text.lower()} {question.lower()}"
+                if any(re.search(rf"\b{re.escape(kw)}\b", combined) for kw in TECHNICAL_NAME_KEYWORDS):
+                    is_technical = True
+
+            if not is_technical:
                 continue
 
             checked += 1
@@ -228,7 +270,8 @@ def enforce(filepath, online=False, allow_offline=False, max_heuristic_ratio=0.4
             if ref.lower() in {"heuristic", "reference-gap"}:
                 heuristic_count += 1
 
-            problems, dois = evaluate_reference(ref, rules, locator_text=locator_text)
+            effective_type = raw_type if raw_type in CHECKED_TYPES else "technique"
+            problems, dois = evaluate_reference(ref, rules, locator_text=locator_text, row_type=effective_type)
             for p in problems:
                 print(f"❌ VIOLATION: decision '{question}': {p}")
                 violations += 1

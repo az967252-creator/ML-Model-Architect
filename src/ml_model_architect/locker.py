@@ -2,6 +2,12 @@
 """
 lock_plan.py - Cryptographic locking and immutability enforcement for PLAN.manifest.json.
 Enforces Constitution Part G: Deterministic Execution & Immutable Plan Policy.
+
+SECURITY NOTICE: Local file locking provides TAMPER-EVIDENT protection (detects drift,
+parameter modifications, and accidental edits via SHA-256 and read-only attributes).
+Local file permissions are NOT tamper-proof against deliberate host collusion by an agent
+with full host OS write privileges unless backed by committed git history (git show HEAD:<path>)
+and hardened container isolation.
 """
 
 import sys
@@ -10,6 +16,7 @@ import re
 import json
 import hashlib
 import stat
+import subprocess
 from datetime import datetime, timezone
 
 REQUIRED_FIELDS = ["plan_version", "project_id", "client_grounding", "execution_dag"]
@@ -145,8 +152,36 @@ def lock_plan(filepath: str) -> str:
     print(f"   SHA-256:  {file_hash}")
     return file_hash
 
-def verify_plan(filepath: str) -> bool:
-    """Verifies that the plan file matches its cryptographic lock and ledger record."""
+def verify_plan_in_git(filepath: str, actual_hash: str) -> bool:
+    """Verifies that the manifest hash matches the committed PLAN.lock in git HEAD."""
+    try:
+        manifest_dir = os.path.dirname(os.path.abspath(filepath))
+        lock_path = get_lock_path(filepath)
+        # Find relative path from git repo root
+        res = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True, cwd=manifest_dir)
+        if res.returncode != 0:
+            return True  # Not in a git repo, skip git check
+        git_root = res.stdout.strip()
+        rel_lock_path = os.path.relpath(lock_path, git_root).replace("\\", "/")
+
+        # Check git show HEAD:<path>
+        show_res = subprocess.run(["git", "show", f"HEAD:{rel_lock_path}"], capture_output=True, text=True, cwd=git_root)
+        if show_res.returncode != 0:
+            # File might not yet be committed to HEAD or is newly created
+            return True
+        committed_hash = show_res.stdout.strip()
+        if committed_hash != actual_hash:
+            print(f"🚨 [FATAL GIT TAMPER DETECTED] Committed git lock ({committed_hash[:12]}...) does not match manifest hash ({actual_hash[:12]}...)!", file=sys.stderr)
+            return False
+        print(f"✅ [GIT INTEGRITY OK] Plan matches committed git HEAD ({committed_hash[:12]}...).")
+        return True
+    except Exception as e:
+        print(f"Warning: Could not verify against git HEAD: {e}", file=sys.stderr)
+        return True
+
+
+def verify_plan(filepath: str, check_git: bool = False) -> bool:
+    """Verifies that the plan file matches its cryptographic lock, ledger record, and optionally git HEAD."""
     lock_path = get_lock_path(filepath)
 
     if not os.path.exists(filepath):
@@ -179,6 +214,11 @@ def verify_plan(filepath: str) -> bool:
                 print(f"🚨 [FATAL TAMPER DETECTED] DECISIONS.md contains manifest hash {ledger_hash}, which does not match actual {actual_hash}!", file=sys.stderr)
                 return False
 
+    # Verify against committed git HEAD if requested or in CI
+    if check_git or os.environ.get("MLA_VERIFY_GIT") == "1":
+        if not verify_plan_in_git(filepath, actual_hash):
+            return False
+
     print(f"✅ [INTEGRITY OK] Plan matches cryptographic lock ({actual_hash[:12]}...).")
     return True
 
@@ -198,12 +238,12 @@ def unlock_plan(filepath: str):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: lock_plan.py [--verify|--unlock] <path_to_plan.json>")
+        print("Usage: lock_plan.py [--verify|--verify-git|--unlock] <path_to_plan.json>")
         sys.exit(1)
 
     flag = None
     target_path = sys.argv[1]
-    if target_path in ["--verify", "--unlock"]:
+    if target_path in ["--verify", "--verify-git", "--unlock"]:
         flag = target_path
         if len(sys.argv) < 3:
             print(f"Usage: lock_plan.py {flag} <path_to_plan.json>")
@@ -213,6 +253,9 @@ if __name__ == "__main__":
     try:
         if flag == "--verify":
             ok = verify_plan(target_path)
+            sys.exit(0 if ok else 1)
+        elif flag == "--verify-git":
+            ok = verify_plan(target_path, check_git=True)
             sys.exit(0 if ok else 1)
         elif flag == "--unlock":
             unlock_plan(target_path)

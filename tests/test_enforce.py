@@ -36,6 +36,33 @@ class TestReferences(unittest.TestCase):
     def test_missing_locator_rejected(self):
         self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785"))), 1)
 
+    def test_locator_arbitrary_at_rejected(self):
+        # '@ arbitrary_text' without Sec/Section/p./page/Table/Fig/Eq/Theorem must be rejected
+        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785 @ mynotes"))), 1)
+        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785 @ random"))), 1)
+        # Proper locator formats must pass
+        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785 @ Sec 3.1"))), 0)
+        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785 @ Table 2"))), 0)
+        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785 @ Eq 4"))), 0)
+        self.assertEqual(run(ledger(("parameter", "10.1145/2939672.2939785 @ Theorem 1"))), 0)
+
+    def test_data_framing_with_model_or_hyperparam_treated_as_technical(self):
+        # A row marked as 'data' or 'framing' choosing XGBoost without reference fails
+        disguised = HEADER + "| 1 | 1 | data | Which input features? | A) raw B) processed | XGBoost | Valid technical reasoning exceeding twenty characters | none | user | d |\n"
+        self.assertEqual(run(disguised), 1)
+
+        # Disguised with hyperparameter name
+        disguised_param = HEADER + "| 1 | 1 | framing | Feature scale? | A) minmax B) standard | learning_rate | Valid technical reasoning exceeding twenty characters | none | user | d |\n"
+        self.assertEqual(run(disguised_param), 1)
+
+        # Disguised with metric name
+        disguised_metric = HEADER + "| 1 | 1 | other | Business metric? | A) acc B) f1 | F1-Score | Valid technical reasoning exceeding twenty characters | none | user | d |\n"
+        self.assertEqual(run(disguised_metric), 1)
+
+        # Truly non-technical data row without model names passes
+        clean_data = HEADER + "| 1 | 1 | data | Customer region column? | A) US B) EU | US | Valid business reasoning exceeding twenty characters | none | user | d |\n"
+        self.assertEqual(run(clean_data), 0)
+
     def test_allowed_tokens(self):
         for tok in ("heuristic", "reference-gap", "N/A (Business context)"):
             self.assertEqual(run(ledger(("parameter", tok))), 0, tok)
@@ -110,6 +137,17 @@ class TestUrls(unittest.TestCase):
 
     def test_random_blog_rejected(self):
         self.assertEqual(run(ledger(("parameter", "https://myblog.example/post"))), 1)
+
+    def test_tier_b_rejected_for_technique_allowed_for_deployment(self):
+        tier_b_rules = [("arxiv.org", "", "B"), ("uber.com", "/blog/engineering", "B")]
+        # Technique row referencing Tier B -> REJECTED
+        self.assertEqual(run(ledger(("technique", "https://arxiv.org/abs/2611.02251")), whitelist=tier_b_rules), 1)
+        # Parameter row referencing Tier B -> REJECTED
+        self.assertEqual(run(ledger(("parameter", "https://arxiv.org/abs/2611.02251")), whitelist=tier_b_rules), 1)
+        # Deployment row referencing Tier B -> ALLOWED
+        self.assertEqual(run(ledger(("deployment", "https://uber.com/blog/engineering/canary")), whitelist=tier_b_rules), 0)
+        # Threshold row referencing Tier B -> ALLOWED
+        self.assertEqual(run(ledger(("threshold", "https://uber.com/blog/engineering/drift")), whitelist=tier_b_rules), 0)
 
 
 class TestOnline(unittest.TestCase):

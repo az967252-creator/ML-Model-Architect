@@ -54,6 +54,11 @@ class TestLockPlan(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(self.test_dir, "PLAN.lock")))
         self.assertTrue(verify_plan(self.plan_path))
 
+    def test_verify_plan_git_committed(self):
+        # Committed example manifests match git HEAD lock
+        ex_manifest = os.path.join("examples", "car-price-prediction", "PLAN.manifest.json")
+        self.assertTrue(verify_plan(ex_manifest, check_git=True))
+
     def test_tamper_manifest_detection(self):
         lock_plan(self.plan_path)
         # Attempt to tamper with the plan manifest
