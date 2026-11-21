@@ -20,7 +20,7 @@ jobs:
       - name: Run SOTA Fetcher
         run: python scripts/fetch_sota.py
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@5e369df9ba7aa798f95f47d6077fb588694f5c50  # v6.0.0
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c  # v6.1.0
         with:
           commit-message: "chore: monthly SOTA reference update"
           title: "Automated SOTA Reference Update"
