@@ -37,6 +37,13 @@ jobs:
           (cd /tmp && /tmp/clean_env/bin/mla scan test_scaffold/sandbox/example_task.py)
           (cd /tmp && /tmp/clean_env/bin/mla enforce test_scaffold/DECISIONS.md --allow-empty)
           (cd /tmp && /tmp/clean_env/bin/mla status test_scaffold/PLAN.manifest.json)
+          /tmp/clean_env/bin/mla status --help | grep -i strict
+          printf "for i in range(10**12):\n    pass\n" > /tmp/bad.py
+          if /tmp/clean_env/bin/mla scan /tmp/bad.py; then
+            echo "ERROR: mla scan failed to catch range(10**12)"
+            exit 1
+          fi
+          echo "Smoke check passed: range(10**12) correctly blocked"
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc  # release/v1.12.4
         with:

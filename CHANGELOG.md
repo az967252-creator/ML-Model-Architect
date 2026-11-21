@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2026-11-21
+
+### Fixed & Hardened (Round 4)
+- **Scanner Constant Folding & Large Allocations**: Added AST constant folding for arithmetic operations (`10**12`, `int(1e12)`, `2**40`, `1_000*10**9`) and product volume checking for multi-dimensional array shapes (`zeros((10**6, 10**6))`).
+- **CLI Strict Status**: Added `--strict` flag to `mla status` that exits non-zero if any PRE/POST assertion fails or not all steps are completed.
+- **Offline Network Isolation**: Patched `requests.head` in tests to ensure DOI test suite runs 100% network-free.
+- **Financial Anomaly Parsimony**: Aligned model selection to Hastie 1-SE parsimony rule (Z-Score baseline wins ties on PR-AUC within 1e-3 margin), matching README and BENCHMARK documentation.
+- **Static Analysis Shim Exports**: Added explicit symbol re-exports to all legacy `scripts/*.py` shims and canonical package imports in `tests/test_cli.py`.
+- **Packaging Smoke Tests**: Added fail-closed CI verification on wheels to block AST allocation violations (`range(10**12)`) and ensure `--strict` flag availability.
+
 ## [1.0.0] - 2026-11-21
 
 Official Production General Availability (GA) Release. Incorporates complete hardening, single source-of-truth packaging in `src/`, unified `mla` CLI, benchmark parsimony rules, verified DOI traceability, AST tripwire boundaries, Docker container isolation, and 100% CI pass rate.

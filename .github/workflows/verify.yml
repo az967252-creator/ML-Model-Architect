@@ -89,6 +89,13 @@ jobs:
           (cd /tmp && /tmp/clean_env/bin/mla scan tmp_proj/sandbox/example_task.py)
           (cd /tmp && /tmp/clean_env/bin/mla enforce tmp_proj/DECISIONS.md --allow-empty)
           (cd /tmp && /tmp/clean_env/bin/mla status tmp_proj/PLAN.manifest.json)
+          /tmp/clean_env/bin/mla status --help | grep -i strict
+          printf "for i in range(10**12):\n    pass\n" > /tmp/bad.py
+          if /tmp/clean_env/bin/mla scan /tmp/bad.py; then
+            echo "ERROR: mla scan failed to catch range(10**12)"
+            exit 1
+          fi
+          echo "Smoke check passed: range(10**12) correctly blocked"
 
   docker-smoke:
     runs-on: ubuntu-latest

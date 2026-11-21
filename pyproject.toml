@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ml-model-architect"
-version = "1.0.0"
+version = "1.0.1"
 description = "A strict, reference-driven framework that turns AI agents into disciplined, expert ML engineers."
 readme = "README.md"
 authors = [
