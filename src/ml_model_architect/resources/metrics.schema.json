@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ML Model Architect Metrics Schema",
+  "type": "object",
+  "anyOf": [
+    {
+      "type": "object",
+      "required": ["model", "fold_scores", "n_splits", "seed"],
+      "properties": {
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fold_scores": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 1
+        },
+        "n_splits": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "seed": {
+          "type": "integer"
+        },
+        "metric_name": {
+          "type": "string"
+        },
+        "mean_score": {
+          "type": "number"
+        },
+        "std_score": {
+          "type": "number"
+        },
+        "se_score": {
+          "type": "number"
+        },
+        "candidates": {
+          "type": "object"
+        },
+        "models": {
+          "type": "array"
+        }
+      },
+      "additionalProperties": true
+    },
+    {
+      "type": "object",
+      "required": ["models"],
+      "properties": {
+        "models": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["model", "fold_scores", "n_splits", "seed"],
+            "properties": {
+              "model": {
+                "type": "string",
+                "minLength": 1
+              },
+              "fold_scores": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 1
+              },
+              "n_splits": {
+                "type": "integer",
+                "minimum": 2
+              },
+              "seed": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": true
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": true
+    }
+  ]
+}

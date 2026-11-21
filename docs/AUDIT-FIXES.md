@@ -20,7 +20,7 @@ This document tracks the remediation of 15 verified engineering and architectura
 | **12** | Constitution Alignment | Phase 4c | [x] Completed | A1 vs Skill 2 suggested options, B3/B8 Tier A/B sources, consistent rule numbering |
 | **13** | Test Suite & CI | Phase 3 | [x] Completed | Behavioral scenario harness, modular 1-SE rule, pinned CI actions, Python 3.11-3.13 matrix |
 | **14** | Secondary Tooling | Phase 6 | [x] Completed | Audit executive_summary, pre_mortem, generate_diagram, red_team, app.py, local_knowledge |
-| **15** | Package Restructuring | Phase 7 | [ ] Pending | `src/ml_model_architect/`, importlib.resources, `mla init`, wheel smoke test |
+| **15** | Package Restructuring | Phase 7 | [x] Completed | `src/ml_model_architect/`, importlib.resources, `mla init`, wheel smoke test |
 
 ---
 
@@ -78,10 +78,11 @@ This document tracks the remediation of 15 verified engineering and architectura
 - [x] Comprehensive test coverage in `tests/test_tools.py`.
 
 ### Phase 7: Packaging & Developer Experience (Issue 15)
-- [ ] Restructure into `src/ml_model_architect/` package layout.
-- [ ] Resource resolution via `importlib.resources`.
-- [ ] `mla init <project>` scaffolding command.
-- [ ] Wheel distribution build, validation, and smoke tests.
+- [x] Restructure into `src/ml_model_architect/` package layout.
+- [x] Resource resolution via `importlib.resources`.
+- [x] `mla init <project>` scaffolding command.
+- [x] Wheel distribution build, validation, and smoke tests.
+- [x] Backward-compatibility CLI and script shims.
 
 ### Phase 8: Documentation Sync & Verification
 - [ ] Synchronize README, GETTING_STARTED, CHANGELOG (`v1.0.0-rc.2`).

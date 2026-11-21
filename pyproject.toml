@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ml-model-architect"
-version = "1.0.0rc1"
+version = "1.0.0rc2"
 description = "A strict, reference-driven framework that turns AI agents into disciplined, expert ML engineers."
 readme = "README.md"
 authors = [
@@ -39,11 +39,19 @@ test = [
 ]
 dev = [
     "pytest>=7.4.0",
+    "build",
+    "twine",
 ]
 
 [project.scripts]
-ml-architect = "scripts.cli:main"
-mla = "scripts.cli:main"
+ml-architect = "ml_model_architect.cli:main"
+mla = "ml_model_architect.cli:main"
 
-[tool.setuptools]
-packages = ["scripts"]
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+ml_model_architect = ["resources/*"]
+
+[tool.setuptools.exclude-package-data]
+ml_model_architect = ["*.pyc", "__pycache__/*", "resources/__pycache__/*"]

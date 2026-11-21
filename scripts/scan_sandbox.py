@@ -217,6 +217,17 @@ def scan_file(filepath):
     except Exception as e:
         return [(0, f"Failed to read file {filepath}: {e}")]
 
+def scan_directory(directory):
+    """Scan all python files in a directory and return {filepath: violations}."""
+    dir_path = Path(directory)
+    if not dir_path.exists() or not dir_path.is_dir():
+        raise FileNotFoundError(f"Directory not found: {directory}")
+    results = {}
+    py_files = sorted(dir_path.glob("**/*.py"))
+    for py_file in py_files:
+        results[str(py_file)] = scan_file(str(py_file))
+    return results
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="AST Sandbox Code Security Scanner")
     parser.add_argument("paths", nargs="*", default=None, help="File(s) or directory(ies) to scan (defaults to sandbox/)")

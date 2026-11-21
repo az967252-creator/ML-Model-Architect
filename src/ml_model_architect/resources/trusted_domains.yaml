@@ -1,0 +1,34 @@
+# Trusted Whitelist for Paywall Fallbacks (Constitution Rule B8)
+# Tier B sources: Official engineering and research publications.
+# SCOPE CONSTRAINT: Permitted exclusively for operational, deployment, and infrastructure
+# patterns (e.g. Canary, Blue-Green, Shadow deployments, drift monitoring).
+# STRICTLY PROHIBITED for algorithmic, loss formulation, or core mathematical claims (Tier A required).
+
+domains:
+  # Open-Access Repositories & Conference Proceedings
+  - arxiv.org
+  - jmlr.org
+  - openaccess.thecvf.com
+  - papers.nips.cc
+  - proceedings.mlr.press
+  - aclanthology.org
+  - openreview.net
+  
+  # Official Research & Engineering Blogs (Tier-1)
+  - ai.googleblog.com
+  - research.google
+  - deepmind.google
+  - netflixtechblog.com
+  - engineering.fb.com
+  - ai.meta.com
+  - uber.com/blog/engineering
+  - aws.amazon.com/blogs/machine-learning
+  - microsoft.com/en-us/research
+  - openai.com/research
+  - anthropic.com/research
+  - machinelearning.apple.com
+  - developer.nvidia.com/blog
+  
+  # Top-Tier University Labs
+  - sail.stanford.edu
+  - ocw.mit.edu

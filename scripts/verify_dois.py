@@ -230,5 +230,15 @@ def main(argv=None):
     return 1 if fails > 0 or (strict and warns > 0) else 0
 
 
+def verify_dois(strict: bool = False, check_markdown: bool = False) -> int:
+    """Programmatic entry point for DOI verification."""
+    args = []
+    if strict:
+        args.append("--strict")
+    if check_markdown:
+        args.append("--check-md")
+    return main(args)
+
+
 if __name__ == "__main__":
     sys.exit(main())

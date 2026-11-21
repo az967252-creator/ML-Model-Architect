@@ -4,6 +4,8 @@ import sys
 import tempfile
 import shutil
 import json
+from pathlib import Path
+
 from scripts.cli import main
 from scripts.lock_plan import make_writable
 
@@ -57,11 +59,37 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
 
     def test_cli_plan_unlock(self):
-        main(["plan", "lock", self.plan_path])
-        main(["plan", "unlock", self.plan_path])
-        # Should be writable now
-        with open(self.plan_path, "a", encoding="utf-8") as f:
-            f.write("\n")
+        os.environ["MLA_ALLOW_UNLOCK"] = "1"
+        try:
+            main(["plan", "lock", self.plan_path])
+            main(["plan", "unlock", self.plan_path])
+            with open(self.plan_path, "a", encoding="utf-8") as f:
+                f.write("\n")
+        finally:
+            os.environ.pop("MLA_ALLOW_UNLOCK", None)
+
+    def test_cli_init_command(self):
+        proj_dir = Path(self.test_dir) / "new_test_proj"
+        ret = main(["init", str(proj_dir)])
+        self.assertEqual(ret, 0)
+        self.assertTrue((proj_dir / "REQUIREMENTS.md").exists())
+        self.assertTrue((proj_dir / "TECH-CHOICE.md").exists())
+        self.assertTrue((proj_dir / "DECISIONS.md").exists())
+        self.assertTrue((proj_dir / "PLAN.manifest.json").exists())
+        self.assertTrue((proj_dir / "PLAN.lock").exists())
+
+    def test_cli_status_command(self):
+        ex_manifest = "examples/car-price-prediction/PLAN.manifest.json"
+        with self.assertRaises(SystemExit) as cm:
+            main(["status", ex_manifest])
+        self.assertEqual(cm.exception.code, 0)
+
+    def test_cli_scan_clean_file(self):
+        clean_file = Path(self.test_dir) / "clean_code.py"
+        clean_file.write_text("import numpy as np\nx = np.array([1, 2, 3])\n", encoding="utf-8")
+        ret = main(["scan", str(clean_file)])
+        self.assertEqual(ret, 0)
+
 
 if __name__ == "__main__":
     unittest.main()
