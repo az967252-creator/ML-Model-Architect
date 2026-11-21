@@ -18,7 +18,7 @@ This document tracks the remediation of 15 verified engineering and architectura
 | **10** | Decision Tree Scope | Phase 4b | [ ] Pending | Preprocessing Level 1 task, explicit tabular/time-series scope bounding |
 | **11** | Security Claims | Phase 1 | [x] Completed | Clarify AST tripwire vs. Docker isolation boundary in README and docs |
 | **12** | Constitution Alignment | Phase 4c | [ ] Pending | A1 vs Skill 2 suggested options, B3/B8 Tier A/B sources, consistent rule numbering |
-| **13** | Test Suite & CI | Phase 3 | [ ] Pending | Behavioral scenario harness, modular 1-SE rule, pinned CI actions, Python 3.11-3.13 matrix |
+| **13** | Test Suite & CI | Phase 3 | [x] Completed | Behavioral scenario harness, modular 1-SE rule, pinned CI actions, Python 3.11-3.13 matrix |
 | **14** | Secondary Tooling | Phase 6 | [ ] Pending | Audit executive_summary, pre_mortem, generate_diagram, red_team, app.py, local_knowledge |
 | **15** | Package Restructuring | Phase 7 | [ ] Pending | `src/ml_model_architect/`, importlib.resources, `mla init`, wheel smoke test |
 
@@ -49,12 +49,12 @@ This document tracks the remediation of 15 verified engineering and architectura
 - [x] Phase 2d: DOI verification rigor in `scripts/verify_dois.py`.
 
 ### Phase 3: Tests & CI Modernization (Issue 13, CI part of 12)
-- [ ] Behavioral evaluation harness (`tests/behavioral/run_scenarios.py`).
-- [ ] Modular 1-SE rule in `scripts/model_selection.py`.
-- [ ] Split requirements files (`requirements.txt`, `requirements-mcp.txt`, `requirements-dashboard.txt`).
-- [ ] Commit-SHA pinned GitHub Actions & Dependabot configuration.
-- [ ] CI matrix for Python 3.11, 3.12, 3.13 (`requires-python >=3.11`).
-- [ ] SOTA workflow fix with 30-day cutoff and PR guard.
+- [x] Behavioral evaluation harness (`tests/behavioral/run_scenarios.py`).
+- [x] Modular 1-SE rule in `scripts/model_selection.py`.
+- [x] Split requirements files (`requirements.txt`, `requirements-mcp.txt`, `requirements-dashboard.txt`).
+- [x] Commit-SHA pinned GitHub Actions & Dependabot configuration.
+- [x] CI matrix for Python 3.11, 3.12, 3.13 (`requires-python >=3.11`).
+- [x] SOTA workflow fix with 30-day cutoff and PR guard.
 
 ### Phase 4: References, Decision Tree & Constitution (Issues 9, 10, 12)
 - [ ] Populate `references/catalog/` with verified claims and locators.

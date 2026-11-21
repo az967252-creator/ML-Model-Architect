@@ -10,19 +10,19 @@ jobs:
   update-references:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - name: Install dependencies
-        run: pip install requests
+        run: pip install -r requirements.txt
       - name: Run SOTA Fetcher
         run: python scripts/fetch_sota.py
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@5e369df9ba7aa798f95f47d6077fb588694f5c50  # v6.0.0
         with:
           commit-message: "chore: monthly SOTA reference update"
           title: "Automated SOTA Reference Update"
-          body: "This PR contains the latest state-of-the-art papers from the last month across the 12 ML groups. Please review and merge."
-          branch: "auto-sota-update"
+          body: "This PR contains the latest state-of-the-art candidate papers from the last 30 days across all 12 ML groups in references/candidates.yaml. Please review and verify."
+          branch: "auto-sota-candidates"

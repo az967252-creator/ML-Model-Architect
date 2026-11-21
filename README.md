@@ -8,7 +8,7 @@
 
 [![PyPI Version](https://img.shields.io/pypi/v/ml-model-architect.svg?style=flat-square&color=blue)](https://pypi.org/project/ml-model-architect/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-[![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat-square)](https://www.python.org/downloads/)
+[![Python Version](https://img.shields.io/badge/Python-3.11%2B-blue.svg?style=flat-square)](https://www.python.org/downloads/)
 [![Test Suite](https://img.shields.io/badge/Tests-79%20Passing-brightgreen.svg?style=flat-square)](tests/)
 [![Build Status](https://img.shields.io/badge/CI-GitHub%20Actions-blue.svg?style=flat-square)](.github/workflows/verify.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=flat-square)](.github/CONTRIBUTING.md)
@@ -493,7 +493,7 @@ Scientific literature must remain accessible to the validation engine without en
   1. Query arXiv for authorized open-access preprints.
   2. Query Unpaywall and DataCite public repositories.
   3. If unindexed, escalate strictly to verified institutional domains defined in `references/trusted_domains.yaml` (Google Research, Microsoft Research, Meta AI, AWS Labs). Reliance on personal blogs or Medium is strictly prohibited.
-* **Dynamic SOTA Discovery (Rule B9):** Prior to finalizing any model architecture in Stage 2, the agent must query MCP for literature published within the trailing six months. A recurring GitHub Actions cron job verifies reference freshness on a weekly schedule.
+* **Dynamic SOTA Discovery (Rule B9):** Prior to finalizing any model architecture in Stage 2, the agent must query MCP for literature published within the trailing six months. A recurring GitHub Actions cron job harvests candidate papers on a monthly schedule (`monthly_update.yml`) and verifies live references on a weekly schedule.
 
 ---
 
@@ -598,14 +598,19 @@ ML-Model-Architect/
 |   |-- 03-building-and-training/
 |   |-- 04-evaluation-and-diagnosis/
 |   `-- 05-deployment-and-monitoring/
-|-- tests/                  # Automated verification test suite (79 unit tests)
+|-- tests/                  # Automated verification test suite
 |   |-- test_scan_sandbox.py
+|   |-- test_scan_sandbox_extra.py
 |   |-- test_lock_plan.py
 |   |-- test_run_policy.py
 |   |-- test_enforce.py
 |   |-- test_verify.py
+|   |-- test_verify_dois_extra.py
 |   |-- test_docs_consistency.py
-|   |-- test_agent_behavior.py
+|   |-- test_1se_rule.py
+|   |-- test_evaluator_logic.py
+|   |-- behavioral/
+|   |   `-- run_scenarios.py
 |   `-- BEHAVIORAL_TESTS.md
 |-- app.py                  # Streamlit visual dashboard
 |-- pyproject.toml          # PEP 621 package metadata and console entry points

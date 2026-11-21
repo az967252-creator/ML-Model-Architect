@@ -2,8 +2,8 @@
 * @az967252-creator
 /_constitution/ @az967252-creator
 /references/ @az967252-creator
-/references_to_verify.yaml @az967252-creator
-/trusted_domains.yaml @az967252-creator
+/references/references_to_verify.yaml @az967252-creator
+/references/trusted_domains.yaml @az967252-creator
 /scripts/scan_sandbox.py @az967252-creator
 /scripts/verify_dois.py @az967252-creator
 /scripts/enforce_constitution.py @az967252-creator
