@@ -37,14 +37,20 @@ def load_whitelist(path=None):
     else:
         path = ROOT / "references" / "trusted_domains.yaml"
         if not path.exists():
+            path = Path(__file__).resolve().parent / "resources" / "references" / "trusted_domains.yaml"
+        if not path.exists():
             path = ROOT / "trusted_domains.yaml"
     if not path.exists():
         return []
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     rules = []
     for entry in data.get("domains", []):
-        entry = re.sub(r"^https?://", "", str(entry).strip().lower())
-        host, _, rest = entry.partition("/")
+        if isinstance(entry, dict):
+            raw_entry = entry.get("domain", entry.get("url", ""))
+        else:
+            raw_entry = str(entry)
+        raw_entry = re.sub(r"^https?://", "", raw_entry.strip().lower())
+        host, _, rest = raw_entry.partition("/")
         host = host.removeprefix("www.")
         prefix = "/" + rest.strip("/") if rest.strip("/") else ""
         if host:
