@@ -6,6 +6,7 @@
 
 ### A Deterministic, Reference-Driven Governance Framework for Disciplined Machine Learning Engineering
 
+[![PyPI Version](https://img.shields.io/pypi/v/ml-model-architect.svg?style=flat-square&color=blue)](https://pypi.org/project/ml-model-architect/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat-square)](https://www.python.org/downloads/)
 [![Test Suite](https://img.shields.io/badge/Tests-79%20Passing-brightgreen.svg?style=flat-square)](tests/)
