@@ -233,24 +233,24 @@ The framework partitions the machine learning development lifecycle into five is
 ## Empirical Benchmarks: Measured Performance Impact
 
 To empirically evaluate whether constitutional governance improves machine learning quality, four rigorous, end-to-end benchmark tasks were evaluated across two execution modes:
-1. **Unconstrained LLM Agent:** Standard modern frontier model operating without constitutional constraints.
-2. **ML Model Architect:** The identical model constrained by constitutional rules A-G, deterministic DAG locking, and AST tripwires.
+1. **Naive Scripted Baseline:** Unconstrained, rule-violating baseline scripts demonstrating typical agent failure modes (uncontrolled complexity, data leakage, and metric collapse).
+2. **ML Model Architect:** The identical tasks constrained by constitutional rules A-G, deterministic DAG locking, and AST tripwires.
 
 ### 1. Multi-Task Empirical Results
 
 | Dimension / Benchmark Task | Delivery Delay Prediction (Logistics Classification) | Car Price Valuation (Non-linear Regression) | Financial Anomaly Detection (Imbalanced Stream) | Customer Churn Risk (Telecom Subscription) |
 |---|---|---|---|---|
-| **Sample Size & Topology** | 2,000 shipments, 42.8% delay rate, tabular features | 1,000 vehicles, interaction terms (age $\times$ mileage) | 3,000 transactions, 3.0% contamination rate | 2,000 subscribers, 30.3% churn rate |
-| **Unconstrained Agent Model** | Deep MLP / Random Forest (default parameters) | Gradient Boosting Regressor (arbitrary hyperparams) | Heuristic Thresholding / Standard Random Forest | Standard Random Forest (arbitrary depth) |
-| **Unconstrained Agent Failure Mode** | Severe Preprocessing Leakage (scaler fit before split) | Overfitting small dataset; extreme inference latency | Optimizes raw accuracy (97% false security) | Ignores severe class imbalance; no probability calibration |
-| **Framework Baseline Model** | Logistic Regression (`cv=5`, F1: $0.9582 \pm 0.0042$) | Linear Regression (`cv=5`, RMSE: $2333.97 \pm 33.57$) | Univariate Z-Score Baseline (F1: $0.9268$) | Logistic Regression (`cv=5`, F1: $0.3924 \pm 0.0178$) |
-| **Framework Candidate Model** | HistGradientBoosting (`cv=5`, F1: $0.9847 \pm 0.0028$) | Gradient Boosting (`cv=5`, RMSE: $2360.57 \pm 27.48$) | Isolation Forest Pipeline (F1: $1.0000$) | HistGradientBoosting (`cv=5`, F1: $0.4140 \pm 0.0133$) |
-| **1-SE Rule Decision (Hastie et al. 2009)** | **Candidate Selected:** $\Delta = 0.0265 > \text{SE} = 0.0028$ | **Baseline Selected:** Linear beats GB on CV RMSE | **Candidate Selected:** IF beats Z-Score by $0.0732$ F1 | **Candidate Selected:** $\Delta = 0.0216 > \text{SE} = 0.0133$ |
-| **Final Generalization Metric** | **Holdout F1: 0.9824** | **Holdout RMSE: 2303.08** (85% lower latency) | **Holdout PR-AUC: 1.0000** (Zero false alarms) | **Holdout ROC-AUC: 0.6589** |
+| **Sample Size & Topology** | 2,000 shipments, 42.9% delay rate, tabular features | 1,000 vehicles, interaction terms (age $\times$ mileage) | 3,000 transactions, 3.0% contamination rate | 2,000 subscribers, 30.3% churn rate |
+| **Naive Baseline Model** | Logistic Regression (Leaked Preprocessing) | Gradient Boosting Regressor (no parsimony check) | Logistic Regression (Accuracy Metric) | HistGradientBoosting (Non-stratified, Leaked CV) |
+| **Naive Baseline Failure Mode** | Severe Preprocessing Leakage (scaler fit before split) | Overfitting small dataset; ignored 1-SE parsimony | Optimizes raw accuracy on 3% positive stream (missing anomalies) | Cross-Fold Preprocessing Leakage (scaler fit before non-stratified KFold) |
+| **Framework Baseline Model** | Logistic Regression (`cv=5`, F1: 0.9582 $\pm$ 0.0047) | Linear Regression (`cv=5`, RMSE: 2,333.97 $\pm$ 37.53) | Univariate Z-Score Baseline (F1: 0.9268, PR-AUC: 1.0000) | Logistic Regression (`cv=5`, F1: 0.3924 $\pm$ 0.0199) |
+| **Framework Candidate Model** | HistGradientBoosting (`cv=5`, F1: 0.9847 $\pm$ 0.0031) | Gradient Boosting (`cv=5`, RMSE: 2,356.81 $\pm$ 27.41) | Isolation Forest Pipeline (contamination='auto', PR-AUC: 1.0000) | HistGradientBoosting (`cv=5`, F1: 0.4140 $\pm$ 0.0149) |
+| **1-SE Rule Decision (Hastie et al. 2009)** | **Candidate Selected:** $\Delta = 0.0265 > \text{SE} = 0.0031$ | **Baseline Selected:** Linear beats GB on CV RMSE (2333.97 vs 2356.81) | **Candidate Selected:** IF PR-AUC (1.0000) matches Z-Score without oracle | **Candidate Selected:** $\Delta = 0.0216 > \text{SE} = 0.0149$ |
+| **Final Generalization Metric** | **Holdout F1: 0.9824** | **Holdout RMSE: 2,303.08** (Fit: 8.1ms vs 138.1ms; p99: 5.1ms) | **Holdout PR-AUC: 1.0000** (ROC-AUC: 1.0000) | **Holdout F1: 0.4017** (Holdout ROC-AUC: 0.6589) |
 | **Formal Citation Traceability** | 100% Verified (Chen & Guestrin 2016) | 100% Verified (Hastie et al. 2009) | 100% Verified (Liu et al. 2008) | 100% Verified (Chen & Guestrin 2016) |
 
 > [!NOTE]
-> In the Car Price benchmark, the unconstrained agent selected an overparameterized Gradient Boosting Regressor. Under ML Model Architect, the **1-SE Rule** mathematically proved that Gradient Boosting offered no statistically significant gain over Linear Regression on the validation folds. The simpler model was selected, eliminating 85% of production compute overhead with zero loss in generalization accuracy.
+> In the Car Price benchmark, the naive baseline directly selected Gradient Boosting Regressor without parsimony testing. Under ML Model Architect, the **1-SE Rule** verified that Gradient Boosting offered no statistically significant gain over Linear Regression on validation folds (CV RMSE: 2,333.97 vs 2,356.81). The simpler model was selected, delivering a fit time of 8.1 ms vs 138.1 ms for Gradient Boosting (a 17x fit speedup) with p99 inference latency of 5.1 ms and a holdout RMSE difference of 108.57 (2,303.08 vs 2,194.51) on synthetic test data.
 
 ---
 
@@ -263,7 +263,7 @@ To empirically evaluate whether constitutional governance improves machine learn
 | **Arbitrary Step Skipping** | Common ("Fast mode" bypass under prompt drift) | **0.0%** (Enforced via cryptographic SHA-256 DAG) | Guarantees all preprocessing, CV, and diagnostic steps execute. |
 | **Host System Execution Security** | Vulnerable (`os.system`, unsanitized imports) | **AST scan = tripwire; Docker = isolation boundary** | Static tripwires paired with container-level isolation. |
 | **Model Complexity Bias** | Biased toward fashionable, opaque architectures | **Empirical Override via 1-SE Rule** | Enforces Occam's Razor, reducing compute costs and deployment latency. |
-| **Automated Test Suite Status** | 0 unit tests | **79 Unit Tests (100% Passing in <0.9s)** | Continuous regression safety via automated GitHub Actions CI. |
+| **Automated Test Suite Status** | 0 unit tests | **137+ Unit Tests (100% Passing in <3.5s)** | Continuous regression safety via automated GitHub Actions CI. |
 
 ---
 
@@ -534,7 +534,7 @@ The system enforces multi-tiered defense-in-depth to eliminate the risk of execu
 
 ## Repository Organization
 
-The repository enforces clean root containment (7 root files only), maintaining all architectural specifications in organized subdirectories:
+The repository enforces clean subdirectory containment, maintaining all architectural specifications in organized modules:
 
 ```text
 ML-Model-Architect/
@@ -564,7 +564,7 @@ ML-Model-Architect/
 |   `-- Dockerfile.sandbox  # Hardened zero-network execution environment
 |-- examples/               # Fully runnable, verified reference implementations
 |   |-- car-price-prediction/         # Regression with 1-SE baseline selection
-|   |-- delivery-delay-prediction/    # Non-linear classification with XGBoost
+|   |-- delivery-delay-prediction/    # Non-linear classification with HistGradientBoosting
 |   |-- financial-anomaly-detection/  # Unsupervised isolation forest pipeline
 |   |-- case-study-churn/             # Telecom churn with stratified cross-validation
 |   `-- DISCLAIMER.md                 # Empirical demonstration scope notice

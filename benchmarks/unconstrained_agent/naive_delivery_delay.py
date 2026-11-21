@@ -1,5 +1,5 @@
 """
-Naive unconstrained agent: Delivery delay prediction.
+Naive scripted baseline: Delivery delay prediction.
 Failure Mode: Preprocessing and Target Data Leakage.
 Scales and imputes on full dataset BEFORE train_test_split, leaking test distribution.
 """
@@ -11,6 +11,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import f1_score
+
+
+def measure_p99_latency_ms(model, sample, n_repeats: int = 100) -> float:
+    latencies = []
+    for _ in range(n_repeats):
+        t_start = time.perf_counter()
+        _ = model.predict(sample)
+        latencies.append((time.perf_counter() - t_start) * 1000)
+    return float(np.percentile(latencies, 99))
 
 
 def run_naive_delivery_delay(df: pd.DataFrame) -> dict:

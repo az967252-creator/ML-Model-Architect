@@ -1,7 +1,7 @@
 """
-Naive unconstrained agent: Car price regression.
+Naive scripted baseline: Car price regression.
 Failure Mode: Premature complexity adoption without 1-SE validation.
-Directly selects Gradient Boosting, incurring 6.7x higher latency with worse CV RMSE.
+Directly selects Gradient Boosting, incurring higher fit time and model complexity.
 """
 
 import time
@@ -14,13 +14,22 @@ from sklearn.compose import ColumnTransformer
 from sklearn.metrics import root_mean_squared_error
 
 
+def measure_p99_latency_ms(predict_fn, sample, n_repeats: int = 100) -> float:
+    latencies = []
+    for _ in range(n_repeats):
+        t_start = time.perf_counter()
+        _ = predict_fn(sample)
+        latencies.append((time.perf_counter() - t_start) * 1000)
+    return float(np.percentile(latencies, 99))
+
+
 def run_naive_car_price(df: pd.DataFrame) -> dict:
     X = df.drop("price", axis=1)
     y = df["price"]
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Naive agent directly builds complex Gradient Boosting model without testing parsimony
+    # Naive baseline directly builds complex Gradient Boosting model without testing parsimony
     preprocessor = ColumnTransformer([
         ("num", StandardScaler(), ["age", "mileage", "engine_size"]),
         ("cat", OneHotEncoder(drop="first"), ["brand"]),
@@ -41,14 +50,11 @@ def run_naive_car_price(df: pd.DataFrame) -> dict:
     model.fit(X_train_trans, y_train)
     fit_time_ms = (time.perf_counter() - t0) * 1000
 
-    # Latency p99 over 100 predictions
-    latencies = []
-    for _ in range(100):
-        sample = X_test_trans[:1]
-        t_start = time.perf_counter()
-        _ = model.predict(sample)
-        latencies.append((time.perf_counter() - t_start) * 1000)
-    p99_latency_ms = float(np.percentile(latencies, 99))
+    # Latency p99 over 100 predictions measuring end-to-end transformation + predict on raw input
+    p99_latency_ms = measure_p99_latency_ms(
+        lambda s: model.predict(preprocessor.transform(s)),
+        X_test.iloc[:1]
+    )
 
     preds = model.predict(X_test_trans)
     test_rmse = float(root_mean_squared_error(y_test, preds))

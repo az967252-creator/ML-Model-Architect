@@ -1,5 +1,5 @@
 """
-Naive unconstrained agent: Telecom customer churn.
+Naive scripted baseline: Telecom customer churn.
 Failure Mode: Preprocessing leakage across cross-validation folds.
 Imputes and scales data before CV loop, producing over-optimistic evaluation.
 """
@@ -11,6 +11,15 @@ from sklearn.model_selection import KFold, cross_val_score
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import f1_score
+
+
+def measure_p99_latency_ms(model, sample, n_repeats: int = 100) -> float:
+    latencies = []
+    for _ in range(n_repeats):
+        t_start = time.perf_counter()
+        _ = model.predict(sample)
+        latencies.append((time.perf_counter() - t_start) * 1000)
+    return float(np.percentile(latencies, 99))
 
 
 def run_naive_churn(df: pd.DataFrame) -> dict:
